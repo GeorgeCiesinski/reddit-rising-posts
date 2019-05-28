@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/reddit-rising-posts.iml" filepath="$PROJECT_DIR$/.idea/reddit-rising-posts.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/Reddit-Rising-Posts.iml" filepath="$PROJECT_DIR$/.idea/Reddit-Rising-Posts.iml" />
     </modules>
   </component>
 </project>
