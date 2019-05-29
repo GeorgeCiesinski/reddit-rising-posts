@@ -7,7 +7,26 @@ import subprocess
 import os
 
 #my imports
-import MSG
+class MSG:
+        #variables
+        NAME = None
+        MESSAGE = None
+        CODE = None
+        DATA = None
+
+        def __init__(self, name=None, message=None, code=None, data=None):
+                self.NAME = name
+                self.MESSAGE = message
+                self.CODE = code
+                self.DATA = data
+
+        def toString(self):
+                if self.DATA is not None:
+                        try:
+                                data = str(self.DATA)
+                        except:
+                                data = ""
+                return "'%s' | '%s' | '%s' | '%s'" % (self.NAME, self.MESSAGE, self.CODE, self.DATA)
 
 class LIB:
 	PUNCTUATION = ['"','\'','*']
