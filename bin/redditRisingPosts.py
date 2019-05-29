@@ -5,7 +5,7 @@ from Comment import Comment
 
 def get_subreddits():
 	# get list of subreddits from the DB
-	return ['funny','sad']
+	return ['funny', 'sad']
 
 
 def populate_comments(submission):
