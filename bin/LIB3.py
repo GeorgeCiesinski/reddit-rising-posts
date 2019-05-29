@@ -6,7 +6,6 @@ import sys
 import subprocess
 import os
 
-#my imports
 class MSG:
         #variables
         NAME = None
