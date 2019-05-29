@@ -1,3 +1,4 @@
+#!/usr/bin/python3.4
 import praw
 from Post import Post
 from Comment import Comment
