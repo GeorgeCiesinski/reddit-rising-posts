@@ -1,15 +1,20 @@
 #!/usr/bin/python3.4
 import praw
 from Post import Post
+from LIB3 import LIB
 from Comment import Comment
 
 
 def get_subreddits():
+	lib.write_log("Getting subreddits for data collection")
 	# get list of subreddits from the DB
-	return ['funny']
+	list = ['funny']
+	lib.write_log("Subreddits: '{}'".format(list))
+	return list
 
 
 def populate_comments(submission):
+	lib.write_log("Getting comments for submission: '{}'".format(submissions.id))
 	# Get comments
 	# Flatten them
 	for comment in []:
@@ -42,6 +47,8 @@ def main(reddit):
 
 
 if __name__ == '__main__':
+	lib = LIB()
+	lib.write_log("Logging into Reddit")
 	reddit = praw.Reddit(client_id='nrE5x4yJ_LUo9Q',
 						 client_secret='m8ItmlnLRlJ6GVVS1KD5tWsvhsQ',
 						 username='cussbot',

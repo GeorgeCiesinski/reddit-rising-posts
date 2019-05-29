@@ -6,27 +6,6 @@ import sys
 import subprocess
 import os
 
-class MSG:
-        #variables
-        NAME = None
-        MESSAGE = None
-        CODE = None
-        DATA = None
-
-        def __init__(self, name=None, message=None, code=None, data=None):
-                self.NAME = name
-                self.MESSAGE = message
-                self.CODE = code
-                self.DATA = data
-
-        def toString(self):
-                if self.DATA is not None:
-                        try:
-                                data = str(self.DATA)
-                        except:
-                                data = ""
-                return "'%s' | '%s' | '%s' | '%s'" % (self.NAME, self.MESSAGE, self.CODE, self.DATA)
-
 class LIB:
 	PUNCTUATION = ['"','\'','*']
 	HOME = None
@@ -34,56 +13,79 @@ class LIB:
 	CFG = None
 	ARGS = None
 	MSGLIST = []
-	def __init__(self, home, cfgFile=None):
-		self.writeLog("Making lib instance: '%s'" % (home))
+	def __init__(self, home=None, cfgFile=None):
+		self.write_log("Making lib instance: '{}'".format(home))
+		if home == None:
+			home = os.getcwd()
+			parts = home.split("/")
+			if parts[len(parts)-1] == "bin":
+				home = "/".join(parts[:len(parts)-1])
+		
 		self.HOME = home
-		self.LOG = "%s/logs" % (self.HOME)
+		
+		#check and/or create the project structure
+		if self.path_exists(self.HOME) == False:
+			self.write_log("Creating path: '{}'".format(self.HOME))
+			if self.make_path(self.HOME) == False:
+				string = "Unable to create path '{}'".format(self.HOME)
+				self.write_log(string)
+				self.write_error(string)
+		
+		self.LOG = "{}/logs".format(self.HOME)
+		if self.path_exists(self.LOG) == False:
+			self.write_log("Creating path: '{}'".format(self.LOG))
+			if self.make_path(self.LOG) == False:
+				string = "Unable to create path '{}'".format(self.LOG)
+				self.write_log(string)
+				self.write_error(string)
+		
 		self.ARGS = sys.argv
-		self.writeLog("ARGS: %s" % (self.ARGS))
+		self.write_log("ARGS: {}".format(self.ARGS))
 		if cfgFile == None:
-			cfgFile = self.getArgsValue("-cfg","%s/bin/config.cfg" % (self.HOME))
-		self.writeLog("Using Config file: '%s'" % (cfgFile))
-		if self.readConfig(cfgFile) == MSG.ERROR:
-			print("Error reading config file '%s'" % (cfgFile))
-			return
+			cfgFile = self.get_args_value("-cfg","{}/bin/config.cfg".format(self.HOME))
+		if self.read_config(cfgFile) == -1:
+			self.CFG = {}
+			self.write_log("No such cfg file, no configs being used")
+		else:
+			self.write_log("Using Config file: '{}'".format(cfgFile))
 
 ############# Config ###########################
 	#read the file in config file format, and populate the CFG dictionary
 	#input  : config file
 	#output : None
-	def readConfig(self, cfgFile):
-		data = self.readFile(cfgFile)
-		if data == MSG.ERROR:
-			return MSG.ERROR
+	def read_config(self, cfgFile):
+		data = self.read_file(cfgFile)
+		if data == -1:
+			return -1
 		self.CFG = {}
 		for line in data:
-			line = self.cleanString(line)
+			line = self.clean_string(line)
 			if "#" in line:
 				line = line[:line.index("#")]
 			if len(line) > 3:
 				dic = line.split("=")
-				key = self.cleanString(dic[0].lower())
-				value = self.cleanString(dic[1])
+				key = self.clean_string(dic[0].lower())
+				value = self.clean_string(dic[1])
 				
 				if value[0] == '"':
-					value = self.cleanString(value.replace('"',""))
+					value = self.clean_string(value.replace('"',""))
 				elif value[0] == '[':
 					mList = value.replace("[","").replace("]","").split(",")
-					mList = list(map(self.stanatizeString,mList))
+					mList = list(map(self.sanitize_string,mList))
 					value = mList
 				else:
 					try:
 						value = int(value)
 					except:
-						value = self.cleanString(value).lower()
+						value = self.clean_string(value).lower()
 
 				self.CFG[key] = value
-		self.writeLog("CFG: %s" % self.CFG)
+		self.write_log("CFG: '{}'".format(self.CFG))
 	
 	#get a config key value, if no key exists, the given default value is returned
 	#input  : key, default value
 	#output : value
-	def getConfigValue(self, key, default):
+	def get_config_value(self, key, default):
 		data = None
 		try:
 			data = self.CFG[key]
@@ -95,13 +97,13 @@ class LIB:
 	#get the system argumnets
 	#input  : None
 	#output : list
-	def getArgs(self):
+	def get_args(self):
 		return self.ARGS
 	
 	#get a system key value, if no key exists, the given default value is returned. value is key index + 1
 	#input  : None
 	#output : list
-	def getArgsValue(self, key, default):
+	def get_args_value(self, key, default):
 		args = self.ARGS
 		try:
 			idx = args.index(key)
@@ -113,7 +115,7 @@ class LIB:
 	#ket in system arguments
 	#input  : key
 	#output : boolean
-	def inArgs(self, key):
+	def in_args(self, key):
 		args = self.ARGS
 		if key in args:
 			return True
@@ -123,145 +125,145 @@ class LIB:
 	#read the given file name, retuns a list of lines 
 	#input  : filename
 	#output : list
-	def readFile(self, fileName):
+	def read_file(self, fileName):
 		data = None
 		try:
 			inFile = open(fileName, "r+")
 		except Exception as e:
-			self.writeError("Error:\n####\n%s\n####\n" % (e))
-			return MSG.ERROR
+			self.write_error("Error:\n####\n{}\n####\n".format(e))
+			return -1
 		try:
 			data = []
 			for line in inFile:
 				data.append(line)
 		except Exception as e:
-			self.writeError("Error:\n####\n%s\n####\n" % (e))
-			return MSG.ERROR
+			self.write_error("Error:\n####\n{}\n####\n".format(e))
+			return -1
 		return data
 
-	def writeLog(self, string):
+	def write_log(self, string):
 		try:
-			out = open("%s/output.log" % (self.LOG), 'a+')
+			out = open("{}/output.log".format(self.LOG), 'a+')
 		except Exception as e:
-			self.writeError("Error:\n####\n%s\n####\n" % (e))
-			return MSG.ERROR
+			self.write_error("Error:\n####\n{}\n####\n".format(e))
+			return -1
 		
-		msg = "%s ~ %s\n" % (self.getNow(), string)
+		msg = "{} ~ {}\n".format(self.get_now(), string)
 		
 		try:
-			out.write(msg)
-			con = self.getConfigValue("console", 0) 
+			con = self.get_config_value("console", 0)
 			if (con == 1) or (con == 4):
 				print(msg)
-		except Exception as e:
-			self.writeError("Error:\n####\n%s\n####\n" % (e))
-			return MSG.ERROR	
-
-		return MSG.NORMAL
-
-	def writeError(self, string):
-		try:
-			out = open("%s/error.log" % (self.LOG), "a+")
-		except:
-			return MSG.ERROR
-		msg = "%s ~ %s\n" % (self.getNow(), string)
-		try:
 			out.write(msg)
-			con = self.getConfigValue("console", 0) 
+		except Exception as e:
+			self.write_error("Error:\n####\n{}\n####\n".format(e))
+			return -1	
+
+		return 0
+
+	def write_error(self, string):
+		try:
+			out = open("{}/error.log".format(self.LOG), "a+")
+		except:
+			return -1
+		msg = "{} ~ {}\n".format(self.get_now(), string)
+		try:
+			con = self.get_config_value("console", 0) 
 			if (con == 2) or (con == 4):
 				print(msg)
+			out.write(msg)
 		except:
-			return MSG.ERROR
-		return MSG.NORMAL
+			return -1
+		return 0
 
-	def writeFile(self, fileName, string):
+	def write_file(self, fileName, string):
 		try:
 			out = open(fileName, "a+")
 		except Exception as e:
-			self.writeError("Error:\n####\n%s\n####\n" % (e))
-			return MSG.ERROR
-		msg = "%s ~ %s\n" % (self.getNow(), string)
+			self.write_error("Error:\n####\n{}\n####\n".format(e))
+			return -1
+		msg = "{} ~ {}\n".format(self.get_now(), string)
 		try:
 			out.write(msg)
-			con = self.getConfigValue("console", 0) 
+			con = self.get_config_value("console", 0) 
 			if (con == 3) or (con == 4):
 				print(msg)
 		except Exception as e:
-			self.writeError("Error:\n####\n%s\n####\n" % (e))
-			return MSG.ERROR
-		return MSG.NORMAL
+			self.write_error("Error:\n####\n{}\n####\n".format(e))
+			return -1
+		return 0
 
-	def pathExists(self, path):
+	def path_exists(self, path):
 		try:
 			value = os.path.exists(path)
 		except Exception as e:
-			self.writeError("Error:\n####\n%s\n####\n" % (e))
-			value = MSG.ERROR
+			self.write_error("Error:\n####\n{}\n####\n".format(e))
+			value = Flase
 		return value
 	
-	def makePath(self, path):
+	def make_path(self, path):
 		try:
-			if not self.pathExists(path):
+			if not self.path_exists(path):
 				os.makedirs(path)
 		except Exception as e:
-			self.writeError("Error:\n####\n%s\n####\n" % (e))
-			return MSG.ERROR
-		return MSG.NORMAL
+			self.write_error("Error:\n####\n{}\n####\n".format(e))
+			return False
+		return True
 	
-	def runOScmd(self, cmd):
-		self.writeLog("Running cmd: '%s'" % (cmd))
-		tOut = self.getConfigValue("cmdtimeout", 60)
+	def run_os_cmd(self, cmd):
+		self.write_log("Running cmd: '{}'".format(cmd))
+		tOut = self.get_config_value("cmdtimeout", 60)
 		if tout != 0:
-			cmd = "timeout %s %s" % (tout,cmd)
+			cmd = "timeout {} {}".format(tout,cmd)
 		try:
 			p = subprocess.Popen(cmd, stdout=subprocess.PIPE,stderr=subprocess.PIPE,stdin=subprocess.PIPE, shell=True)
 			p.wait()
 			out, error = p.communicate()
 			returnCode = p.poll() 
-			self.writeLog("Code:%s\n==OUT==\n%s\n==OUT==\n==ERR==\n%s\n==ERR==" % (returnCode,out,error))
+			self.write_log("Code:{}\n==OUT==\n{}\n==OUT==\n==ERR==\n{}\n==ERR==".format(returnCode,out,error))
 		except Exception as e:
-			self.writeLog("Error:\n####\n%s\n####\n" % (e))
+			self.write_error("Error:\n####\n{}\n####\n".format(e))
 			return None
 		return [out, error, returnCode]
 		
-	def startProcess(self, cmd):
-		self.writeLog("Starting process cmd: '%s'" % (cmd))
+	def start_process(self, cmd):
+		self.write_log("Starting process cmd: '{}'".format(cmd))
 		try:
 			p = subprocess.Popen(cmd, stdout=subprocess.PIPE,stderr=subprocess.PIPE,stdin=subprocess.PIPE, shell=True)
 		except Exception as e:
-			self.writeLog("Error:\n####\n%s\n####\n" % (e))
+			self.write_error("Error:\n####\n{}\n####\n".format(e))
 			return None
 		return p
 		
 ########## Time Base ################
-	def getNow(self):
+	def get_now(self):
 		return str(dt.now()).split(".")[0]
 	
-	def timestampToDate(self, stamp):
+	def timestamp_to_date(self, stamp):
 		if stamp!=None:
 			return str(dt.utcfromtimestamp(stamp)).split(".")[0]
 		return None
 		
 ########## General Funtions ################
-	def cleanStringList(self, list):
+	def clean_string_list(self, list):
 		try:
 			mlist = []
 			for m in list:
 				if (m != "") or (len(m) >= 1):
-					mlist.append(self.cleanString(m))
+					mlist.append(self.clean_string(m))
 			return mlist
 		except Exception as e:
-			self.writeError("Error:\n####\n%s\n####\n" % (e))
+			self.write_error("Error:\n####\n{}\n####\n".format(e))
 			return list
 			
-	def cleanString(self, string):
+	def clean_string(self, string):
 		try:
 			return string.replace("\n","").replace("\r","").strip()
 		except Exception as e:
-			self.writeError("Error:\n####\n%s\n####\n" % (e))
+			self.write_error("Error:\n####\n{}\n####\n".format(e))
 			return string
 	
-	def stanatizeString(self, instring):
+	def sanitize_string(self, instring):
 		words = instring.split()
 		mstring = []
 		for word in words:
@@ -270,5 +272,5 @@ class LIB:
 				if char not in self.PUNCTUATION:
 					mword.append(char)
 			mstring.append("".join(mword))
-		return self.cleanString(" ".join(mstring))
+		return self.clean_string(" ".join(mstring))
 		
