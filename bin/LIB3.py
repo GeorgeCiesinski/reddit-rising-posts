@@ -140,7 +140,10 @@ class LIB:
 			self.write_error("Error:\n####\n{}\n####\n".format(e))
 			return -1
 		return data
-
+	
+	#Write out put to the log file
+	#input  : string
+	#output : None
 	def write_log(self, string):
 		try:
 			out = open("{}/output.log".format(self.LOG), 'a+')
@@ -161,6 +164,9 @@ class LIB:
 
 		return 0
 
+	#Write out put to the error file
+	#input  : string
+	#output : None
 	def write_error(self, string):
 		try:
 			out = open("{}/error.log".format(self.LOG), "a+")
@@ -176,6 +182,9 @@ class LIB:
 			return -1
 		return 0
 
+	#Write output to a specified file
+	#input: filename, string
+	#output: None
 	def write_file(self, fileName, string):
 		try:
 			out = open(fileName, "a+")
@@ -193,28 +202,43 @@ class LIB:
 			return -1
 		return 0
 
+	#Check if the given path already exists
+	#input: absolute path
+	#output: boolean
 	def path_exists(self, path):
+		self.write_log("Check path: {}".format(path))
 		try:
 			value = os.path.exists(path)
 		except Exception as e:
 			self.write_error("Error:\n####\n{}\n####\n".format(e))
 			value = Flase
+		self.write_log("Result: {}".format(value))
 		return value
 	
+	#Create the given path. This is a recursive operation.
+	#input: absolute path
+	#output: boolean
 	def make_path(self, path):
+		self.write_log("Creating path: {}".format(path))
+		value = False
 		try:
 			if not self.path_exists(path):
 				os.makedirs(path)
+				value = True
 		except Exception as e:
 			self.write_error("Error:\n####\n{}\n####\n".format(e))
-			return False
-		return True
+			value = Flase
+		self.write_log("Result: {}".format(value))
+		return value
 	
+	#Run the given os command
+	#input: string (system command)
+	#ouptput: [command.output, command.error, command.returncode]
 	def run_os_cmd(self, cmd):
-		self.write_log("Running cmd: '{}'".format(cmd))
-		tOut = self.get_config_value("cmdtimeout", 60)
+		tout = self.get_config_value("cmdtimeout", 60)
 		if tout != 0:
 			cmd = "timeout {} {}".format(tout,cmd)
+		self.write_log("Running cmd: '{}'".format(cmd))
 		try:
 			p = subprocess.Popen(cmd, stdout=subprocess.PIPE,stderr=subprocess.PIPE,stdin=subprocess.PIPE, shell=True)
 			p.wait()
@@ -226,6 +250,9 @@ class LIB:
 			return None
 		return [out, error, returnCode]
 		
+	#Start the given os command as it's on process
+	#input: string (system command)
+	#output: subprocess.Popen obejct
 	def start_process(self, cmd):
 		self.write_log("Starting process cmd: '{}'".format(cmd))
 		try:
@@ -236,15 +263,24 @@ class LIB:
 		return p
 		
 ########## Time Base ################
+	#Get the time now
+	#input: None
+	#ouptput: string
 	def get_now(self):
 		return str(dt.now()).split(".")[0]
 	
+	#Convert time stamp to human readable date
+	#input: string (timestamp)
+	#output: string (human redable format)
 	def timestamp_to_date(self, stamp):
 		if stamp!=None:
 			return str(dt.utcfromtimestamp(stamp)).split(".")[0]
 		return None
 		
 ########## General Funtions ################
+	#clean the given list of strings. Errors result in the same list being returned
+	#input: list (of strings)
+	#oputput: list (of string)
 	def clean_string_list(self, list):
 		try:
 			mlist = []
@@ -255,14 +291,22 @@ class LIB:
 		except Exception as e:
 			self.write_error("Error:\n####\n{}\n####\n".format(e))
 			return list
-			
+	
+	#clean the given string. Remove newline characters, and strip whitespaces. Errors result in the same string being returned
+	#input: string
+	#output: string
 	def clean_string(self, string):
 		try:
-			return string.replace("\n","").replace("\r","").strip()
+			mstring = string.replace("\n","").replace("\r","").strip()
+			self.write_log("Clean string: {}".format(mstring))
+			return mstring
 		except Exception as e:
 			self.write_error("Error:\n####\n{}\n####\n".format(e))
 			return string
 	
+	#sanitize string, remove all punctuations (defined at the top), newlines, and whitespaces
+	#input: string
+	#output: string
 	def sanitize_string(self, instring):
 		words = instring.split()
 		mstring = []
@@ -272,5 +316,7 @@ class LIB:
 				if char not in self.PUNCTUATION:
 					mword.append(char)
 			mstring.append("".join(mword))
-		return self.clean_string(" ".join(mstring))
+		string = self.clean_string(" ".join(mstring))
+		self.write_log("Sanitized string: {}".format(string))
+		return string
 		
