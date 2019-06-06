@@ -14,7 +14,7 @@ def get_subreddits():
 
 
 def populate_comments(submission):
-	lib.write_log("Getting comments for submission: '{}'".format(submissions.id))
+	lib.write_log("Getting comments for submission: '{}'".format(submission.id))
 	# Get comments
 	# Flatten them
 	for comment in []:
@@ -41,9 +41,6 @@ def populate_subreddits(subreddit):
 def main(reddit):
 	# Each function needs to be its own thread
 	populate_subreddits(reddit)
-
-
-
 
 
 if __name__ == '__main__':
