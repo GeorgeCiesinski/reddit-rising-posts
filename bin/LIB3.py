@@ -211,7 +211,7 @@ class LIB:
 			value = os.path.exists(path)
 		except Exception as e:
 			self.write_error("Error:\n####\n{}\n####\n".format(e))
-			value = Flase
+			value = False
 		self.write_log("Result: {}".format(value))
 		return value
 	
@@ -227,7 +227,7 @@ class LIB:
 				value = True
 		except Exception as e:
 			self.write_error("Error:\n####\n{}\n####\n".format(e))
-			value = Flase
+			value = False
 		self.write_log("Result: {}".format(value))
 		return value
 	
