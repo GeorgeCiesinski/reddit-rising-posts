@@ -203,7 +203,7 @@ class LIB:
 		return 0
 
 	#Check if the given path already exists
-	#input: absolute path
+	#input: absolute path TODO: Make relative safe
 	#output: boolean
 	def path_exists(self, path):
 		self.write_log("Check path: {}".format(path))
@@ -216,7 +216,7 @@ class LIB:
 		return value
 	
 	#Create the given path. This is a recursive operation.
-	#input: absolute path
+	#input: absolute path TODO: Make relative safe
 	#output: boolean
 	def make_path(self, path):
 		self.write_log("Creating path: {}".format(path))
@@ -307,10 +307,16 @@ class LIB:
 	#sanitize string, remove all punctuations (defined at the top), newlines, and whitespaces
 	#input: string
 	#output: string
-	def sanitize_string(self, instring):
+	def sanitize_string(self, instring, black_list=None):
 		words = instring.split()
-		mstring = []
-		for word in words:
+        if black_list != None:
+            tmp = []
+            for word in words:
+                if word not in black_list:
+                        tmp.append(word)
+            words = tmp
+        mstring = []
+        for word in words:
 			mword = []
 			for char in word:
 				if char not in self.PUNCTUATION:
@@ -319,4 +325,3 @@ class LIB:
 		string = self.clean_string(" ".join(mstring))
 		self.write_log("Sanitized string: {}".format(string))
 		return string
-		
