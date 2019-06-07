@@ -85,7 +85,7 @@ class LIB:
 	#get a config key value, if no key exists, the given default value is returned
 	#input  : key, default value
 	#output : value
-	def get_config_value(self, key, default):
+	def get_config_value(self, key, default=None):
 		data = None
 		try:
 			data = self.CFG[key]
@@ -103,7 +103,7 @@ class LIB:
 	#get a system key value, if no key exists, the given default value is returned. value is key index + 1
 	#input  : None
 	#output : list
-	def get_args_value(self, key, default):
+	def get_args_value(self, key, default=None):
 		args = self.ARGS
 		try:
 			idx = args.index(key)
