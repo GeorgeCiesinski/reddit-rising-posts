@@ -1,54 +1,54 @@
 #!/usr/bin/python3.4
-import praw
-from Post import Post
+
+import sys
+import signal
+import multiprocessing as MP
+
 from LIB3 import LIB
-from Comment import Comment
 
+def sig_handler(sig,frame):
+	exit()
 
-def get_subreddits():
-	lib.write_log("Getting subreddits for data collection")
-	# get list of subreddits from the DB
-	list = ['funny']
-	lib.write_log("Subreddits: '{}'".format(list))
-	return list
-
-
-def populate_comments(submission):
-	lib.write_log("Getting comments for submission: '{}'".format(submission.id))
-	# Get comments
-	# Flatten them
-	for comment in []:
-		if comment != "root":
-			continue
-		comment = Comment(comment)
-		comment.write_to_control()
-		comment.write_detail()
-	pass
-
-
-def populate_subreddits(subreddit):
-	subreddits = get_subreddits()
-	for sr in subreddits:
-		subreddit = reddit.subreddit(sr)
-		l = subreddit.hot(limit=10)
-		for submission in subreddit.hot(limit=10):
-			p = Post(submission)
-			p.write_to_control()
-			p.write_detail()
-			populate_comments(submission)
-
-
-def main(reddit):
-	# Each function needs to be its own thread
-	populate_subreddits(reddit)
-
+def exit():
+	lib.write_log("Exiting..")
+	
+	for process in PROCESSLIST:
+		process.terminate()
+	
+	sys.exit()
+	
+def reload_config():
+	while True:
+		lib.write_log("Reloading confing '{}'".format(config_file))
+		lib.read_config(config_file)
+		lib.write_log("Reloading done")
+		lib.sleep(lib.get_config_value("ConfigReloadInterval",60))
 
 if __name__ == '__main__':
-	lib = LIB()
-	lib.write_log("Logging into Reddit")
-	reddit = praw.Reddit(client_id='nrE5x4yJ_LUo9Q',
-						 client_secret='m8ItmlnLRlJ6GVVS1KD5tWsvhsQ',
-						 username='cussbot',
-						 password='SeBzxr*we%&xBHQcf%8NfBmjzg6vYwhS',
-						 user_agent='cussbot by /u/th1nker')
-	main(reddit)
+	config_file = "RedditRisingPost.cfg"
+	lib = LIB(cfg=config_file)
+	
+	signal.signal(signal.SIGINT, sig_handler)
+	
+	MaxSearchingThreads = lib.get_config_value("MaxSearchingThreads", 5)
+	MaxCollectionThreads = lib.get_config_value("MaxCollectionThreads", 10)
+	MaxTrackingThreads = lib.get_config_value("MaxTrackingThreads", 2)
+	PROCESSLIST = []
+	
+	#start config reloader
+	confi_reloader = MP.Process(target=reload_config, args=())
+	confi_reloader.start()
+	PROCESSLIST.append(confi_reloader)
+	
+	while True:
+		print(lib.get_config_value("MaxSearchingThreads", 5))
+		try:
+			print(confi_reloader.is_alive())
+		except:
+			print("no process")
+		lib.sleep(5)
+	
+#Don't import this file, run it directly
+if __name__ == "RedditRisingPost":
+	print("NO IMPORTS")
+	sys.exit()

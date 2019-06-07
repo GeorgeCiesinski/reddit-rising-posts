@@ -2,6 +2,7 @@
 
 #imports 
 from datetime import datetime as dt
+import time
 import sys
 import subprocess
 import os
@@ -13,7 +14,7 @@ class LIB:
 	CFG = None
 	ARGS = None
 	MSGLIST = []
-	def __init__(self, home=None, cfgFile=None):
+	def __init__(self, home=None, cfg=None):
 		self.write_log("Making lib instance: '{}'".format(home))
 		if home == None:
 			home = os.getcwd()
@@ -41,13 +42,13 @@ class LIB:
 		
 		self.ARGS = sys.argv
 		self.write_log("ARGS: {}".format(self.ARGS))
-		if cfgFile == None:
-			cfgFile = self.get_args_value("-cfg","{}/bin/config.cfg".format(self.HOME))
-		if self.read_config(cfgFile) == -1:
+		if cfg == None:
+			cfg = self.get_args_value("-cfg","{}/bin/config.cfg".format(self.HOME))
+		if self.read_config(cfg) == -1:
 			self.CFG = {}
 			self.write_log("No such cfg file, no configs being used")
 		else:
-			self.write_log("Using Config file: '{}'".format(cfgFile))
+			self.write_log("Using Config file: '{}'".format(cfg))
 
 ############# Config ###########################
 	#read the file in config file format, and populate the CFG dictionary
@@ -88,7 +89,7 @@ class LIB:
 	def get_config_value(self, key, default=None):
 		data = None
 		try:
-			data = self.CFG[key]
+			data = self.CFG[key.lower()]
 		except:
 			data = default
 		return data
@@ -277,6 +278,19 @@ class LIB:
 			return str(dt.utcfromtimestamp(stamp)).split(".")[0]
 		return None
 		
+	#Sleep for a given duration
+	#input: int (duration)
+	#output: none
+	def sleep(self, duration):
+		self.write_log("Sleeping for {}".format(duration))
+		try:
+			time.sleep(duration)
+		except Exception as e:
+			string = "Sleep error: '{}'".format(e)
+			lib.write_log("Sleep error")
+			lib.write_error(string)
+		return
+		
 ########## General Funtions ################
 	#clean the given list of strings. Errors result in the same list being returned
 	#input: list (of strings)
@@ -298,7 +312,6 @@ class LIB:
 	def clean_string(self, string):
 		try:
 			mstring = string.replace("\n","").replace("\r","").strip()
-			self.write_log("Clean string: {}".format(mstring))
 			return mstring
 		except Exception as e:
 			self.write_error("Error:\n####\n{}\n####\n".format(e))
@@ -309,14 +322,16 @@ class LIB:
 	#output: string
 	def sanitize_string(self, instring, black_list=None):
 		words = instring.split()
-        if black_list != None:
-            tmp = []
-            for word in words:
-                if word not in black_list:
-                        tmp.append(word)
-            words = tmp
-        mstring = []
-        for word in words:
+		
+		if black_list != None:
+			tmp = []
+			for word in words:
+				if word not in black_list:
+					tmp.append(word)
+			words = tmp
+		
+		mstring = []
+		for word in words:
 			mword = []
 			for char in word:
 				if char not in self.PUNCTUATION:
