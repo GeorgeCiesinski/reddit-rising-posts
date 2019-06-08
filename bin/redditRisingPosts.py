@@ -17,7 +17,7 @@ def exit():
 	
 	sys.exit()
 	
-def reload_config():
+def reload_config(lib, config_file):
 	while True:
 		lib.write_log("Reloading confing '{}'".format(config_file))
 		lib.read_config(config_file)
@@ -36,7 +36,7 @@ if __name__ == '__main__':
 	PROCESSLIST = []
 	
 	#start config reloader
-	confi_reloader = MP.Process(target=reload_config, args=())
+	confi_reloader = MP.Process(target=reload_config, args=(lib,config_file,))
 	confi_reloader.start()
 	PROCESSLIST.append(confi_reloader)
 	
