@@ -34,12 +34,25 @@ if __name__ == '__main__':
 	MaxCollectionThreads = lib.get_config_value("MaxCollectionThreads", 10)
 	MaxTrackingThreads = lib.get_config_value("MaxTrackingThreads", 2)
 	PROCESSLIST = []
+
+	#All threads are started one by one here#
 	
-	#start config reloader
+	#TODO: start thread(s) to determin data collection period. periods (minutes) [5,10,30,60,120,320,720,1440,2880, archive] 
+
+	#TODO: start thread(s) to collect submission details
+
+	#TODO: start thread(s) to collect submission summary
+	
+	#TODO: start thread(s) to collect comment details
+
+	#TODO: start thread(s) to collect comment summary
+	
+	#TODO: start config reloader
 	confi_reloader = MP.Process(target=reload_config, args=(lib,config_file,))
 	confi_reloader.start()
 	PROCESSLIST.append(confi_reloader)
 	
+	#TODO: makesure all the threads started are still running
 	while True:
 		print(lib.get_config_value("MaxSearchingThreads", 5))
 		try:
@@ -47,6 +60,7 @@ if __name__ == '__main__':
 		except:
 			print("no process")
 		lib.sleep(5)
+
 	
 #Don't import this file, run it directly
 if __name__ == "RedditRisingPost":
