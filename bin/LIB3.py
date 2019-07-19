@@ -1,19 +1,21 @@
 #!/usr/bin/python3.4
 
-#imports 
+# imports
 from datetime import datetime as dt
 import time
 import sys
 import subprocess
 import os
 
+
 class LIB:
-	PUNCTUATION = ['"','\'','*']
+	PUNCTUATION = ['"', '\'', '*']
 	HOME = None
 	LOG = None
 	CFG = None
 	ARGS = None
 	MSGLIST = []
+
 	def __init__(self, home=None, cfg=None):
 		self.write_log("Making lib instance: '{}'".format(home))
 		if home == None:
@@ -24,7 +26,7 @@ class LIB:
 		
 		self.HOME = home
 		
-		#check and/or create the project structure
+		# check and/or create the project structure
 		if self.path_exists(self.HOME) == False:
 			self.write_log("Creating path: '{}'".format(self.HOME))
 			if self.make_path(self.HOME) == False:
@@ -50,10 +52,12 @@ class LIB:
 		else:
 			self.write_log("Using Config file: '{}'".format(cfg))
 
-############# Config ###########################
-	#read the file in config file format, and populate the CFG dictionary
-	#input  : config file
-	#output : None
+	"""
+	CONFIG
+	"""
+	# Read the file in config file format, and populate the CFG dictionary
+	# Input  : config file
+	# Output : None
 	def read_config(self, cfgFile):
 		data = self.read_file(cfgFile)
 		if data == -1:
@@ -83,9 +87,9 @@ class LIB:
 				self.CFG[key] = value
 		self.write_log("CFG: '{}'".format(self.CFG))
 	
-	#get a config key value, if no key exists, the given default value is returned
-	#input  : key, default value
-	#output : value
+	# Get a config key value, if no key exists, the given default value is returned
+	# Input  : key, default value
+	# Output : value
 	def get_config_value(self, key, default=None):
 		data = None
 		try:
@@ -94,16 +98,18 @@ class LIB:
 			data = default
 		return data
 		
-########## System Arguments ################
-	#get the system argumnets
-	#input  : None
-	#output : list
+	"""
+	SYSTEM ARGUMENTS
+	"""
+	# Get the system argumnets
+	# Input  : None
+	# Output : list
 	def get_args(self):
 		return self.ARGS
 	
-	#get a system key value, if no key exists, the given default value is returned. value is key index + 1
-	#input  : None
-	#output : list
+	# Get a system key value, if no key exists, the given default value is returned. value is key index + 1
+	# Input  : None
+	# Output : list
 	def get_args_value(self, key, default=None):
 		args = self.ARGS
 		try:
@@ -113,19 +119,21 @@ class LIB:
 			value = default
 		return value
 	
-	#ket in system arguments
-	#input  : key
-	#output : boolean
+	# Ket in system arguments
+	# Input  : key
+	# Output : boolean
 	def in_args(self, key):
 		args = self.ARGS
 		if key in args:
 			return True
 		return False
 		
-############# IO #####################################
-	#read the given file name, retuns a list of lines 
-	#input  : filename
-	#output : list
+	"""
+	IO
+	"""
+	# Read the given file name, retuns a list of lines
+	# Input  : filename
+	# Output : list
 	def read_file(self, fileName):
 		data = None
 		try:
@@ -142,9 +150,9 @@ class LIB:
 			return -1
 		return data
 	
-	#Write out put to the log file
-	#input  : string
-	#output : None
+	# Write out put to the log file
+	# Input  : string
+	# Output : None
 	def write_log(self, string):
 		try:
 			out = open("{}/output.log".format(self.LOG), 'a+')
@@ -165,9 +173,9 @@ class LIB:
 
 		return 0
 
-	#Write out put to the error file
-	#input  : string
-	#output : None
+	# Write out put to the error file
+	# Input  : string
+	# Output : None
 	def write_error(self, string):
 		try:
 			out = open("{}/error.log".format(self.LOG), "a+")
@@ -183,9 +191,9 @@ class LIB:
 			return -1
 		return 0
 
-	#Write output to a specified file
-	#input: filename, string
-	#output: None
+	# Write output to a specified file
+	# Input: filename, string
+	# Output: None
 	def write_file(self, fileName, string):
 		try:
 			out = open(fileName, "a+")
@@ -203,9 +211,9 @@ class LIB:
 			return -1
 		return 0
 
-	#Check if the given path already exists
-	#input: absolute path TODO: Make relative safe
-	#output: boolean
+	# Check if the given path already exists
+	# Input: absolute path TODO: Make relative safe
+	# Output: boolean
 	def path_exists(self, path):
 		self.write_log("Check path: {}".format(path))
 		try:
@@ -216,9 +224,9 @@ class LIB:
 		self.write_log("Result: {}".format(value))
 		return value
 	
-	#Create the given path. This is a recursive operation.
-	#input: absolute path TODO: Make relative safe
-	#output: boolean
+	# Create the given path. This is a recursive operation.
+	# Input: absolute path TODO: Make relative safe
+	# Output: boolean
 	def make_path(self, path):
 		self.write_log("Creating path: {}".format(path))
 		value = False
@@ -232,9 +240,9 @@ class LIB:
 		self.write_log("Result: {}".format(value))
 		return value
 	
-	#Run the given os command
-	#input: string (system command)
-	#ouptput: [command.output, command.error, command.returncode]
+	# Run the given os command
+	# Input: string (system command)
+	# Output: [command.output, command.error, command.returncode]
 	def run_os_cmd(self, cmd):
 		tout = self.get_config_value("cmdtimeout", 60)
 		if tout != 0:
@@ -251,9 +259,9 @@ class LIB:
 			return None
 		return [out, error, returnCode]
 		
-	#Start the given os command as it's on process
-	#input: string (system command)
-	#output: subprocess.Popen obejct
+	# Start the given os command as it's on process
+	# Input: string (system command)
+	# Output: subprocess.Popen obejct
 	def start_process(self, cmd):
 		self.write_log("Starting process cmd: '{}'".format(cmd))
 		try:
@@ -263,24 +271,26 @@ class LIB:
 			return None
 		return p
 		
-########## Time Base ################
-	#Get the time now
-	#input: None
-	#ouptput: string
+	"""
+	TIME BASE
+	"""
+	# Get the time now
+	# Input: None
+	# Output: string
 	def get_now(self):
 		return str(dt.now()).split(".")[0]
 	
-	#Convert time stamp to human readable date
-	#input: string (timestamp)
-	#output: string (human redable format)
+	# Convert time stamp to human readable date
+	# Input: string (timestamp)
+	# Output: string (human readable format)
 	def timestamp_to_date(self, stamp):
 		if stamp!=None:
 			return str(dt.utcfromtimestamp(stamp)).split(".")[0]
 		return None
 		
-	#Sleep for a given duration
-	#input: int (duration)
-	#output: none
+	# Sleep for a given duration
+	# Input: int (duration)
+	# Output: none
 	def sleep(self, duration):
 		self.write_log("Sleeping for {}".format(duration))
 		try:
@@ -291,10 +301,12 @@ class LIB:
 			lib.write_error(string)
 		return
 		
-########## General Funtions ################
-	#clean the given list of strings. Errors result in the same list being returned
-	#input: list (of strings)
-	#oputput: list (of string)
+	"""
+	GENERAL FUNCTIONS
+	"""
+	# Clean the given list of strings. Errors result in the same list being returned
+	# Input: list (of strings)
+	# Output: list (of string)
 	def clean_string_list(self, list):
 		try:
 			mlist = []
@@ -306,9 +318,9 @@ class LIB:
 			self.write_error("Error:\n####\n{}\n####\n".format(e))
 			return list
 	
-	#clean the given string. Remove newline characters, and strip whitespaces. Errors result in the same string being returned
-	#input: string
-	#output: string
+	# Clean the given string. Remove newline characters, and strip whitespaces. Errors result in the same string being returned
+	# Input: string
+	# Output: string
 	def clean_string(self, string):
 		try:
 			mstring = string.replace("\n","").replace("\r","").strip()
@@ -317,9 +329,9 @@ class LIB:
 			self.write_error("Error:\n####\n{}\n####\n".format(e))
 			return string
 	
-	#sanitize string, remove all punctuations (defined at the top), newlines, and whitespaces
-	#input: string
-	#output: string
+	# Sanitize string, remove all punctuations (defined at the top), newlines, and whitespaces
+	# Input: string
+	# Output: string
 	def sanitize_string(self, instring, black_list=None):
 		words = instring.split()
 		
