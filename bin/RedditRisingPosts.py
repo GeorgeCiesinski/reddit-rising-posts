@@ -6,56 +6,38 @@ import multiprocessing as MP
 
 from LIB3 import LIB
 
-
+# used to listen for ^C to gracefully terminate the program
+# input: not sure
+# output: None
 def sig_handler(sig,frame):
 	exit()
 
-
+# Gracefully exit the program, clean ups to be done here
+# input: None
+# output: None
 def exit():
 	lib.write_log("Exiting..")
-	
+	#kill all processes that were started by the program
 	for process in PROCESSLIST:
 		process.terminate()
-	
 	sys.exit()
 
-
-def reload_config(lib, config_file):
-	while True:
-		lib.write_log("Reloading confing '{}'".format(config_file))
-		lib.read_config(config_file)
-		lib.write_log("Reloading done")
-		lib.sleep(lib.get_config_value("ConfigReloadInterval",60))
-
-
+# Main of the program
 if __name__ == '__main__':
+	# Signal Listener
+	signal.signal(signal.SIGINT, sig_handler)
+
+	# Create the lib object
 	config_file = "RedditRisingPost.cfg"
 	lib = LIB(cfg=config_file)
-	
-	signal.signal(signal.SIGINT, sig_handler)
-	
+
+	# Read the config file program specific values, and define other variables
 	MaxSearchingThreads = lib.get_config_value("MaxSearchingThreads", 5)
 	MaxCollectionThreads = lib.get_config_value("MaxCollectionThreads", 10)
 	MaxTrackingThreads = lib.get_config_value("MaxTrackingThreads", 2)
 	PROCESSLIST = []
 
-	# All threads are started one by one here#
-	
-	# TODO: start thread(s) to determin data collection period. periods (minutes) [5,10,30,60,120,320,720,1440,2880, archive]
 
-	# TODO: start thread(s) to collect submission details
-
-	# TODO: start thread(s) to collect submission summary
-	
-	# TODO: start thread(s) to collect comment details
-
-	# TODO: start thread(s) to collect comment summary
-	
-	# TODO: start config reloader
-	confi_reloader = MP.Process(target=reload_config, args=(lib,config_file,))
-	confi_reloader.start()
-	PROCESSLIST.append(confi_reloader)
-	
 	# TODO: makesure all the threads started are still running
 	while True:
 		print(lib.get_config_value("MaxSearchingThreads", 5))

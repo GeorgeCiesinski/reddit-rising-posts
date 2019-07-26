@@ -6,6 +6,7 @@ import time
 import sys
 import subprocess
 import os
+import multiprocessing as MP
 
 
 class LIB:
@@ -52,6 +53,10 @@ class LIB:
 		else:
 			self.write_log("Using Config file: '{}'".format(cfg))
 
+		# Start the config file reload thread
+		confi_reloader = MP.Process(target=reload_config, args=(cfg,))
+		confi_reloader.start()
+
 	"""
 	CONFIG
 	"""
@@ -97,7 +102,17 @@ class LIB:
 		except:
 			data = default
 		return data
-		
+
+	# Reload the given lib with the given config file
+	# input: String config file
+	# output: None
+	def reload_config(self, config_file):
+		while True:
+			self.write_log("Reloading confing '{}'".format(config_file))
+			self.read_config(config_file)
+			self.write_log("Reloading done")
+			self.sleep(self.get_config_value("ConfigReloadInterval", 60))
+
 	"""
 	SYSTEM ARGUMENTS
 	"""
@@ -352,3 +367,5 @@ class LIB:
 		string = self.clean_string(" ".join(mstring))
 		self.write_log("Sanitized string: {}".format(string))
 		return string
+
+

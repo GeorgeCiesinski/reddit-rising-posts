@@ -1,12 +1,17 @@
+
+'''
+Comment Object: Contains comment information
+'''
+
 class Comment:
+	#Create our own comment object from the given praw comment object
+	#input:	praw comment
+	#output: None
 	def __init__(self, comment):
-		self.post_id = comment.post_id
-
-	def write_to_control(self):
-		# Write to the post_control table
-		# It will also update the post_control table
-		# Start as a new thread
 		pass
-
-	def write_detail(self):
-		pass
+		# TODO: comment_body
+		# TODO: author
+		# TODO: points
+		# TODO: reply_count
+		# TODO: published
+		# TODO: edited (boolean value)
