@@ -1,0 +1,189 @@
+2019-07-27 14:48:00 ~ Result: True
+2019-07-27 14:48:00 ~ ARGS: ['/root/reddit/reddit-rising-posts/RedditRisingPosts.py']
+2019-07-27 14:48:00 ~ CFG: '{'console': 0, 'cmdtimeout': 60, 'configreloadinterval': 60, 'maxsearchingthreads': 5, 'maxcollectionthreads': 10, 'maxtrackingthreads': 2}'
+2019-07-27 14:48:00 ~ Using Config file: 'config/RedditRisingPost.cfg'
+2019-07-27 14:48:43 ~ Check path: /root/reddit/reddit-rising-posts/logs
+2019-07-27 14:48:43 ~ Result: True
+2019-07-27 14:48:43 ~ ARGS: ['/root/reddit/reddit-rising-posts/RedditRisingPosts.py']
+2019-07-27 14:48:43 ~ CFG: '{'console': 0, 'cmdtimeout': 60, 'configreloadinterval': 60, 'maxsearchingthreads': 5, 'maxcollectionthreads': 10, 'maxtrackingthreads': 2}'
+2019-07-27 14:48:43 ~ Using Config file: 'config/RedditRisingPost.cfg'
+2019-07-27 14:48:43 ~ Check path: /root/reddit/reddit-rising-posts/logs
+2019-07-27 14:48:43 ~ Result: True
+2019-07-27 14:48:43 ~ ARGS: ['/root/reddit/reddit-rising-posts/RedditRisingPosts.py']
+2019-07-27 14:48:43 ~ Reloading confing 'config/RedditRisingPost.cfg'
+2019-07-27 14:48:43 ~ CFG: '{'console': 0, 'cmdtimeout': 60, 'configreloadinterval': 60}'
+2019-07-27 14:48:43 ~ CFG: '{'console': 0, 'cmdtimeout': 60, 'configreloadinterval': 60, 'maxsearchingthreads': 5, 'maxcollectionthreads': 10, 'maxtrackingthreads': 2}'
+2019-07-27 14:48:43 ~ Using Config file: 'config/DataCollection.cfg'
+2019-07-27 14:48:43 ~ Reloading done
+2019-07-27 14:48:43 ~ Sleeping for 60
+2019-07-27 14:48:43 ~ Reloading confing 'config/DataCollection.cfg'
+2019-07-27 14:48:43 ~ Check path: /root/reddit/reddit-rising-posts/logs
+2019-07-27 14:48:43 ~ CFG: '{'console': 0, 'cmdtimeout': 60, 'configreloadinterval': 60}'
+2019-07-27 14:48:43 ~ Result: True
+2019-07-27 14:48:43 ~ Reloading done
+2019-07-27 14:48:43 ~ Sleeping for 60
+2019-07-27 14:48:43 ~ ARGS: ['/root/reddit/reddit-rising-posts/RedditRisingPosts.py']
+2019-07-27 14:48:43 ~ CFG: '{'console': 0, 'cmdtimeout': 60, 'configreloadinterval': 60}'
+2019-07-27 14:48:43 ~ Using Config file: 'config/DataCollection.cfg'
+2019-07-27 14:48:43 ~ Reloading confing 'config/DataCollection.cfg'
+2019-07-27 14:48:43 ~ CFG: '{'console': 0, 'cmdtimeout': 60, 'configreloadinterval': 60}'
+2019-07-27 14:48:43 ~ Reloading done
+2019-07-27 14:48:43 ~ Sleeping for 60
+2019-07-27 14:48:53 ~ Exiting..
+2019-07-27 14:48:53 ~ Exiting..
+2019-07-27 14:48:53 ~ Exiting..
+2019-07-27 14:49:52 ~ Check path: /root/reddit/reddit-rising-posts/logs
+2019-07-27 14:49:52 ~ Result: True
+2019-07-27 14:49:52 ~ ARGS: ['/root/reddit/reddit-rising-posts/RedditRisingPosts.py']
+2019-07-27 14:49:52 ~ CFG: '{'console': 4, 'cmdtimeout': 60, 'configreloadinterval': 60, 'maxsearchingthreads': 5, 'maxcollectionthreads': 10, 'maxtrackingthreads': 2}'
+2019-07-27 14:49:52 ~ Using Config file: 'config/RedditRisingPost.cfg'
+2019-07-27 14:49:52 ~ Check path: /root/reddit/reddit-rising-posts/logs
+2019-07-27 14:49:52 ~ Result: True
+2019-07-27 14:49:52 ~ ARGS: ['/root/reddit/reddit-rising-posts/RedditRisingPosts.py']
+2019-07-27 14:49:52 ~ Reloading confing 'config/RedditRisingPost.cfg'
+2019-07-27 14:49:52 ~ CFG: '{'console': 4, 'cmdtimeout': 60, 'configreloadinterval': 60}'
+2019-07-27 14:49:52 ~ Using Config file: 'config/DataCollection.cfg'
+2019-07-27 14:49:52 ~ CFG: '{'console': 4, 'cmdtimeout': 60, 'configreloadinterval': 60, 'maxsearchingthreads': 5, 'maxcollectionthreads': 10, 'maxtrackingthreads': 2}'
+2019-07-27 14:49:52 ~ Reloading done
+2019-07-27 14:49:52 ~ Sleeping for 60
+2019-07-27 14:49:52 ~ Reloading confing 'config/DataCollection.cfg'
+2019-07-27 14:49:52 ~ Check path: /root/reddit/reddit-rising-posts/logs
+2019-07-27 14:49:52 ~ Result: True
+2019-07-27 14:49:52 ~ ARGS: ['/root/reddit/reddit-rising-posts/RedditRisingPosts.py']
+2019-07-27 14:49:52 ~ CFG: '{'console': 4, 'cmdtimeout': 60, 'configreloadinterval': 60}'
+2019-07-27 14:49:52 ~ Reloading done
+2019-07-27 14:49:52 ~ CFG: '{'console': 4, 'cmdtimeout': 60, 'configreloadinterval': 60}'
+2019-07-27 14:49:52 ~ Sleeping for 60
+2019-07-27 14:49:52 ~ Using Config file: 'config/DataCollection.cfg'
+2019-07-27 14:49:52 ~ Reloading confing 'config/DataCollection.cfg'
+2019-07-27 14:49:52 ~ CFG: '{'console': 4, 'cmdtimeout': 60, 'configreloadinterval': 60}'
+2019-07-27 14:49:52 ~ Reloading done
+2019-07-27 14:49:52 ~ Sleeping for 60
+2019-07-27 14:50:52 ~ Reloading confing 'config/DataCollection.cfg'
+2019-07-27 14:50:52 ~ CFG: '{'console': 4, 'cmdtimeout': 60, 'configreloadinterval': 60}'
+2019-07-27 14:50:52 ~ Reloading done
+2019-07-27 14:50:52 ~ Sleeping for 60
+2019-07-27 14:50:52 ~ Reloading confing 'config/RedditRisingPost.cfg'
+2019-07-27 14:50:52 ~ CFG: '{'console': 4, 'cmdtimeout': 60, 'configreloadinterval': 60, 'maxsearchingthreads': 5, 'maxcollectionthreads': 10, 'maxtrackingthreads': 2}'
+2019-07-27 14:50:52 ~ Reloading done
+2019-07-27 14:50:52 ~ Sleeping for 60
+2019-07-27 14:50:52 ~ Reloading confing 'config/DataCollection.cfg'
+2019-07-27 14:50:52 ~ CFG: '{'console': 4, 'cmdtimeout': 60, 'configreloadinterval': 60}'
+2019-07-27 14:50:52 ~ Reloading done
+2019-07-27 14:50:52 ~ Sleeping for 60
+2019-07-27 14:51:36 ~ Exiting..
+2019-07-27 14:51:36 ~ Exiting..
+2019-07-27 14:51:36 ~ Exiting..
+2019-07-27 14:52:14 ~ Check path: /root/reddit/reddit-rising-posts/logs
+2019-07-27 14:52:14 ~ Result: True
+2019-07-27 14:52:14 ~ ARGS: ['/root/reddit/reddit-rising-posts/RedditRisingPosts.py']
+2019-07-27 14:52:14 ~ CFG: '{'console': 0, 'cmdtimeout': 60, 'configreloadinterval': 60, 'maxsearchingthreads': 5, 'maxcollectionthreads': 10, 'maxtrackingthreads': 2}'
+2019-07-27 14:52:14 ~ Using Config file: 'config/RedditRisingPost.cfg'
+2019-07-27 14:52:14 ~ Check path: /root/reddit/reddit-rising-posts/logs
+2019-07-27 14:52:14 ~ Result: True
+2019-07-27 14:52:14 ~ ARGS: ['/root/reddit/reddit-rising-posts/RedditRisingPosts.py']
+2019-07-27 14:52:14 ~ Reloading confing 'config/RedditRisingPost.cfg'
+2019-07-27 14:52:14 ~ CFG: '{'console': 0, 'cmdtimeout': 60, 'configreloadinterval': 60}'
+2019-07-27 14:52:14 ~ Using Config file: 'config/DataCollection.cfg'
+2019-07-27 14:52:14 ~ CFG: '{'console': 0, 'cmdtimeout': 60, 'configreloadinterval': 60, 'maxsearchingthreads': 5, 'maxcollectionthreads': 10, 'maxtrackingthreads': 2}'
+2019-07-27 14:52:14 ~ Reloading done
+2019-07-27 14:52:14 ~ Sleeping for 60
+2019-07-27 14:52:14 ~ Reloading confing 'config/DataCollection.cfg'
+2019-07-27 14:52:14 ~ Check path: /root/reddit/reddit-rising-posts/logs
+2019-07-27 14:52:14 ~ Result: True
+2019-07-27 14:52:14 ~ CFG: '{'console': 0, 'cmdtimeout': 60, 'configreloadinterval': 60}'
+2019-07-27 14:52:14 ~ ARGS: ['/root/reddit/reddit-rising-posts/RedditRisingPosts.py']
+2019-07-27 14:52:14 ~ Reloading done
+2019-07-27 14:52:14 ~ Sleeping for 60
+2019-07-27 14:52:14 ~ CFG: '{'console': 0, 'cmdtimeout': 60, 'configreloadinterval': 60}'
+2019-07-27 14:52:14 ~ Using Config file: 'config/DataCollection.cfg'
+2019-07-27 14:52:14 ~ Reloading confing 'config/DataCollection.cfg'
+2019-07-27 14:52:14 ~ CFG: '{'console': 0, 'cmdtimeout': 60, 'configreloadinterval': 60}'
+2019-07-27 14:52:14 ~ Reloading done
+2019-07-27 14:52:14 ~ Sleeping for 60
+2019-07-27 14:52:24 ~ Exiting..
+2019-07-27 14:52:24 ~ Exiting..
+2019-07-27 14:52:24 ~ Exiting..
+2019-07-27 14:53:52 ~ Check path: /root/reddit/reddit-rising-posts/logs
+2019-07-27 14:53:52 ~ Result: True
+2019-07-27 14:53:52 ~ ARGS: ['/root/reddit/reddit-rising-posts/RedditRisingPosts.py']
+2019-07-27 14:53:52 ~ CFG: '{'console': 0, 'cmdtimeout': 60, 'configreloadinterval': 60, 'maxsearchingthreads': 5, 'maxcollectionthreads': 10, 'maxtrackingthreads': 2}'
+2019-07-27 14:53:52 ~ Using Config file: 'config/RedditRisingPost.cfg'
+2019-07-27 14:53:52 ~ Check path: /root/reddit/reddit-rising-posts/logs
+2019-07-27 14:53:52 ~ Result: True
+2019-07-27 14:53:52 ~ ARGS: ['/root/reddit/reddit-rising-posts/RedditRisingPosts.py']
+2019-07-27 14:53:52 ~ CFG: '{'console': 0, 'cmdtimeout': 60, 'configreloadinterval': 60}'
+2019-07-27 14:53:52 ~ Using Config file: 'config/DataCollection.cfg'
+2019-07-27 14:53:52 ~ Reloading confing 'config/RedditRisingPost.cfg'
+2019-07-27 14:53:52 ~ CFG: '{'console': 0, 'cmdtimeout': 60, 'configreloadinterval': 60, 'maxsearchingthreads': 5, 'maxcollectionthreads': 10, 'maxtrackingthreads': 2}'
+2019-07-27 14:53:52 ~ Reloading done
+2019-07-27 14:53:52 ~ Sleeping for 60
+2019-07-27 14:53:52 ~ Check path: /root/reddit/reddit-rising-posts/logs
+2019-07-27 14:53:52 ~ Result: True
+2019-07-27 14:53:52 ~ ARGS: ['/root/reddit/reddit-rising-posts/RedditRisingPosts.py']
+2019-07-27 14:53:52 ~ Reloading confing 'config/DataCollection.cfg'
+2019-07-27 14:53:52 ~ CFG: '{'console': 0, 'cmdtimeout': 60, 'configreloadinterval': 60}'
+2019-07-27 14:53:52 ~ CFG: '{'console': 0, 'cmdtimeout': 60, 'configreloadinterval': 60}'
+2019-07-27 14:53:52 ~ Reloading done
+2019-07-27 14:53:52 ~ Using Config file: 'config/DataCollection.cfg'
+2019-07-27 14:53:52 ~ Sleeping for 60
+2019-07-27 14:53:52 ~ Reloading confing 'config/DataCollection.cfg'
+2019-07-27 14:53:52 ~ CFG: '{'console': 0, 'cmdtimeout': 60, 'configreloadinterval': 60}'
+2019-07-27 14:53:52 ~ Reloading done
+2019-07-27 14:53:52 ~ Sleeping for 60
+2019-07-27 14:53:55 ~ Exiting..
+2019-07-27 14:53:55 ~ Exiting..
+2019-07-27 14:53:55 ~ Exiting..
+2019-07-27 14:58:42 ~ Check path: /root/reddit/reddit-rising-posts/logs
+2019-07-27 14:58:42 ~ Result: True
+2019-07-27 14:58:42 ~ ARGS: ['/root/reddit/reddit-rising-posts/RedditRisingPosts.py']
+2019-07-27 14:58:42 ~ CFG: '{'console': 1, 'cmdtimeout': 60, 'configreloadinterval': 60, 'maxsearchingthreads': 5, 'maxcollectionthreads': 10, 'maxtrackingthreads': 2}'
+2019-07-27 14:58:42 ~ Using Config file: 'config/RedditRisingPost.cfg'
+2019-07-27 14:58:42 ~ Starting Data Collection for funny
+2019-07-27 14:58:42 ~ Check path: /root/reddit/reddit-rising-posts/logs
+2019-07-27 14:58:42 ~ Result: True
+2019-07-27 14:58:42 ~ Reloading confing 'config/RedditRisingPost.cfg'
+2019-07-27 14:58:42 ~ ARGS: ['/root/reddit/reddit-rising-posts/RedditRisingPosts.py']
+2019-07-27 14:58:42 ~ CFG: '{'console': 1, 'cmdtimeout': 60, 'configreloadinterval': 60}'
+2019-07-27 14:58:42 ~ CFG: '{'console': 1, 'cmdtimeout': 60, 'configreloadinterval': 60, 'maxsearchingthreads': 5, 'maxcollectionthreads': 10, 'maxtrackingthreads': 2}'
+2019-07-27 14:58:42 ~ Using Config file: 'config/DataCollection.cfg'
+2019-07-27 14:58:42 ~ Reloading done
+2019-07-27 14:58:42 ~ Sleeping for 60
+2019-07-27 14:58:42 ~ Done starting Data Collection for funny
+2019-07-27 14:58:42 ~ Starting Data Collection for askreddit
+2019-07-27 14:58:42 ~ Check path: /root/reddit/reddit-rising-posts/logs
+2019-07-27 14:58:42 ~ Result: True
+2019-07-27 14:58:42 ~ Reloading confing 'config/DataCollection.cfg'
+2019-07-27 14:58:42 ~ ARGS: ['/root/reddit/reddit-rising-posts/RedditRisingPosts.py']
+2019-07-27 14:58:42 ~ CFG: '{'console': 1, 'cmdtimeout': 60, 'configreloadinterval': 60}'
+2019-07-27 14:58:42 ~ CFG: '{'console': 1, 'cmdtimeout': 60, 'configreloadinterval': 60}'
+2019-07-27 14:58:42 ~ Using Config file: 'config/DataCollection.cfg'
+2019-07-27 14:58:42 ~ Reloading done
+2019-07-27 14:58:42 ~ Sleeping for 60
+2019-07-27 14:58:42 ~ Done starting Data Collection for askreddit
+2019-07-27 14:58:42 ~ Reloading confing 'config/DataCollection.cfg'
+2019-07-27 14:58:42 ~ CFG: '{'console': 1, 'cmdtimeout': 60, 'configreloadinterval': 60}'
+2019-07-27 14:58:42 ~ Reloading done
+2019-07-27 14:58:42 ~ Sleeping for 60
+2019-07-27 14:58:53 ~ Exiting..
+2019-07-27 14:58:53 ~ Exiting..
+2019-07-27 14:58:53 ~ Exiting..
+2019-07-27 15:06:25 ~ LIB3.py ~ Check path: /root/reddit/reddit-rising-posts/logs
+2019-07-27 15:08:16 ~ LIB3.py ~ Check path: /root/reddit/reddit-rising-posts/logs
+2019-07-27 15:08:16 ~ RedditRisingPosts.py ~ Done starting Data Collection for askreddit
+2019-07-27 15:08:52 ~ LIB3.py ~ Check path: /root/reddit/reddit-rising-posts/logs
+2019-07-27 15:08:52 ~ RedditRisingPosts.py ~ Done starting Data Collection for askreddit
+2019-07-27 15:09:09 ~ LIB3.py ~ Check path: /root/reddit/reddit-rising-posts/logs
+2019-07-27 15:09:09 ~ RedditRisingPosts.py ~ Done starting Data Collection for askreddit
+2019-07-27 15:09:49 ~ LIB3.py ~ Check path: /root/reddit/reddit-rising-posts/logs
+2019-07-27 15:09:49 ~ RedditRisingPosts.py ~ Done starting Data Collection for askreddit
+2019-07-27 15:10:29 ~ LIB3.py ~ Check path: /root/reddit/reddit-rising-posts/logs
+2019-07-27 15:10:29 ~ RedditRisingPosts.py ~ Done starting Data Collection for askreddit
+2019-07-27 15:11:54 ~ LIB3.py ~ Check path: /root/reddit/reddit-rising-posts/logs
+2019-07-27 15:11:54 ~ RedditRisingPosts.py ~ Done starting Data Collection for askreddit
+2019-07-27 15:12:58 ~ LIB3.py ~ Check path: /root/reddit/reddit-rising-posts/logs
+2019-07-27 15:13:46 ~ LIB3.py ~ Check path: /root/reddit/reddit-rising-posts/logs
+2019-07-27 15:17:32 ~ LIB3.py ~ Check path: /root/reddit/reddit-rising-posts/logs
+2019-07-27 15:20:14 ~ LIB3.py ~ Check path: /root/reddit/reddit-rising-posts/logs
+2019-07-27 15:22:30 ~ LIB3.py ~ Check path: /root/reddit/reddit-rising-posts/logs
+2019-07-27 15:24:10 ~ LIB3.py ~ Check path: /root/reddit/reddit-rising-posts/logs

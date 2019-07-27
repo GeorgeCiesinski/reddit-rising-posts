@@ -6,6 +6,7 @@ import time
 import sys
 import subprocess
 import os
+import inspect
 import multiprocessing as MP
 
 
@@ -46,7 +47,7 @@ class LIB:
 		self.ARGS = sys.argv
 		self.write_log("ARGS: {}".format(self.ARGS))
 		if cfg == None:
-			cfg = self.get_args_value("-cfg","{}/bin/config.cfg".format(self.HOME))
+			cfg = self.get_args_value("-cfg","{}/config/config.cfg".format(self.HOME))
 		if self.read_config(cfg) == -1:
 			self.CFG = {}
 			self.write_log("No such cfg file, no configs being used")
@@ -54,7 +55,7 @@ class LIB:
 			self.write_log("Using Config file: '{}'".format(cfg))
 
 		# Start the config file reload thread
-		confi_reloader = MP.Process(target=reload_config, args=(cfg,))
+		confi_reloader = MP.Process(target=self.reload_config, args=(cfg,))
 		confi_reloader.start()
 
 	"""
@@ -108,6 +109,8 @@ class LIB:
 	# output: None
 	def reload_config(self, config_file):
 		while True:
+			if os.getppid() == 1:
+					return 0
 			self.write_log("Reloading confing '{}'".format(config_file))
 			self.read_config(config_file)
 			self.write_log("Reloading done")
@@ -174,9 +177,7 @@ class LIB:
 		except Exception as e:
 			self.write_error("Error:\n####\n{}\n####\n".format(e))
 			return -1
-		
-		msg = "{} ~ {}\n".format(self.get_now(), string)
-		
+		msg = "{} ~ {} ~ {}\n".format(self.get_now(), self.get_script(), string)
 		try:
 			con = self.get_config_value("console", 0)
 			if (con == 1) or (con == 4):
@@ -196,7 +197,7 @@ class LIB:
 			out = open("{}/error.log".format(self.LOG), "a+")
 		except:
 			return -1
-		msg = "{} ~ {}\n".format(self.get_now(), string)
+		msg = "{} ~ {} ~ {}\n".format(self.get_now(), self.get_script(), string)
 		try:
 			con = self.get_config_value("console", 0) 
 			if (con == 2) or (con == 4):
@@ -312,8 +313,8 @@ class LIB:
 			time.sleep(duration)
 		except Exception as e:
 			string = "Sleep error: '{}'".format(e)
-			lib.write_log("Sleep error")
-			lib.write_error(string)
+			self.write_log("Sleep error")
+			self.write_error(string)
 		return
 		
 	"""
@@ -368,4 +369,13 @@ class LIB:
 		self.write_log("Sanitized string: {}".format(string))
 		return string
 
-
+	# Get the name of the parent script that called lib
+	# Input: None
+	# Output: String
+	def get_script(self):
+		tmp = inspect.stack()
+		temp = tmp[2][1].split("/")
+		if (temp[len(temp) - 1] == "LIB3.py"):
+			tmp = inspect.stack()
+			temp = tmp[3][1].split("/")
+		return temp[len(temp) - 1]

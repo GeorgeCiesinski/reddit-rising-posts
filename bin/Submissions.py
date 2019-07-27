@@ -1,6 +1,6 @@
 
 '''
-Submission object: retrieves submission
+Submission object: retrieves submission from subreddit
 '''
 
 class Submissions:
