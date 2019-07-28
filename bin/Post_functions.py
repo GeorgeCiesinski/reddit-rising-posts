@@ -1,13 +1,13 @@
-
-'''
+"""
 Submission object: retrieves submission from subreddit
-'''
+"""
+
 
 class Submissions:
 
     # Get hot posts from subreddit
-    #input: String subreddit, integer limit
-    #output: list praw submissions
+    # input: String subreddit, integer limit
+    # output: list praw submissions
     def get_hot(self, subreddit=None,limit=10):
         pass
 

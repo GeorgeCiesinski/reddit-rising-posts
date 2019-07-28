@@ -1,12 +1,13 @@
 
-'''
+"""
 Comment Object: Contains comment information
-'''
+"""
+
 
 class Comment:
-	#Create our own comment object from the given praw comment object
-	#input:	praw comment
-	#output: None
+	# Create our own comment object from the given praw comment object
+	# input: praw comment
+	# output: None
 	def __init__(self, comment):
 		pass
 		# TODO: comment_body
