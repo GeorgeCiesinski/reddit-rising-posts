@@ -8,7 +8,7 @@ class Submissions:
     # Get hot posts from subreddit
     # input: String subreddit, integer limit
     # output: list praw submissions
-    def get_hot(self, subreddit=None,limit=10):
+    def get_hot(self, subreddit=None, limit=10):
         pass
 
     # Get new posts from subreddit
@@ -34,5 +34,3 @@ class Submissions:
     # output: list praw submissions
     def get_controversial(self, subreddit=None, limit=10):
         pass
-
-
