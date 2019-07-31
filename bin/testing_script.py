@@ -40,9 +40,6 @@ if __name__ == "__main__":
 	# Instantiate Reddit
 	r = Reddit()
 
-	# Code to print the attributes of an object
-	# print(dir(r.reddit))
-
 	subreddit = r.reddit.subreddit('jokes')
 	print("The display name is: " + subreddit.display_name)
 
