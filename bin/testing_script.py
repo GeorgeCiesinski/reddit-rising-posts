@@ -1,5 +1,6 @@
 import praw
 from Submission import Submission
+from Comment import Comment
 import sys
 
 """
@@ -40,12 +41,19 @@ if __name__ == "__main__":
 	# Instantiate Reddit
 	r = Reddit()
 
+	"""
+	# SUBREDDIT TEST CODE
+	
 	subreddit = r.reddit.subreddit('jokes')
 	print("The display name is: " + subreddit.display_name)
+	"""
 
+	"""
+	# SUBMISSION TEST CODE
+	
 	submission_PRAW = r.reddit.submission(url="https://www.reddit.com/r/Jokes/comments/cjersb/i_went_into_a_pet_shop_and_asked_for_twelve_bees/")
 
-	# PRAW Submission Object Test
+	# PRAW Submission Object
 	print("\nUSING PRAW SUBMISSION OBJECT \n")
 	print("The submission title is: " + submission_PRAW.title)
 	print("The submission id is: " + submission_PRAW.id)
@@ -71,6 +79,31 @@ if __name__ == "__main__":
 	# TODO: Research correct method to convert UTC time into readible format
 	print("The url is: " + s.url)
 	print("The subreddit is: " + str(s.subreddit))
+	"""
 
+	# COMMENT TEST CODE
 
+	comment_praw = r.reddit.comment(url="https://www.reddit.com/r/Jokes/comments/cjersb/i_went_into_a_pet_shop_and_asked_for_twelve_bees/evd67qn/")
 
+	# PRAW Comment Object
+	print("\nUSING PRAW COMMENT OBJECT\n")
+	print("The comment url is: " + comment_praw.permalink + "\n")
+	print("The comment body contains: \n\n" + comment_praw.body + "\n")
+	print("The comment author is: " + str(comment_praw.author))
+	print("The comment score is: " + str(comment_praw.score))
+	# Requires update to accurately display number of top level replies
+	print("The reply count is: " + str(comment_praw.replies.__len__()))
+	print("This comment was created on: " + str(comment_praw.created_utc))
+	print("Has this comment been edited: " + str(comment_praw.edited))
+
+	# Our Comment Object
+	c = Comment(comment_praw)
+	print("\nUSING OUR OWN COMMENT OBJECT\n")
+	print("The comment url is: " + c.permalink + "\n")
+	print("The comment body contains: \n\n" + c.body + "\n")
+	print("The comment author is: " + str(c.author))
+	print("The comment score is: " + str(c.score))
+	# Requires update to accurately display number of top level replies
+	# print("The reply count is: " + str(comment_praw.replies.__len__()))
+	print("This comment was created on: " + str(c.created_utc))
+	print("Has this comment been edited: " + str(c.edited))
