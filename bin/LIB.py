@@ -88,7 +88,6 @@ class LIB:
         # Start the config file reload thread
         confi_reloader = MP.Process(name = "Config_Reloader", target=self.reload_config, args=(cfg,))
         confi_reloader.start()
-        self.write_log("Starting config reload process")
         self.PROCESSLIST.append(confi_reloader)
 
 
@@ -143,10 +142,11 @@ class LIB:
     # output: None
     def reload_config(self, config_file):
         if self.get_config_value("ConfigReloadInterval", 60) == 0:
-            return
+            return None
+        self.write_log("Starting config reload process")
         while True:
             if os.getppid() == 1:
-                return 0
+                return None
             self.write_log("Reloading confing '{}'".format(config_file))
             self.read_config(config_file)
             self.write_log("Reloading done")

@@ -1,8 +1,9 @@
 import sys
 import signal
 import multiprocessing as MP
+import praw
 
-from bin.LIB3 import LIB
+from bin.LIB import LIB
 from bin.DataCollector import DataCollector as DC
 
 
@@ -34,16 +35,31 @@ if __name__ == '__main__':
     # Read the config file program specific values, and define other variables
     PROCESSLIST = []
 
+    #making the praw_q
+    praw_q = MP.Queue()
+
+    #get these logins from the database
+    reddit = praw.Reddit(
+        client_id="Zfl37rh1asVTjQ",
+        client_secret="DX87ZhsDhvJrvxdoud0CXmcbLGA",
+        username="top10tracket",
+        password="k2T%5VuSJc8k",
+        user_agent="reddit-rising-posts"
+    )
+
+    praw_q.put(reddit)
+
+
     # TODO: Start datacollector for subreddits
     try:
-        subreddits = ['funny'] # get  this list from DB
+        subreddits = ['funny', 'science','askreddit'] # get  this list from DB
         for subreddit in subreddits:
             lib.write_log("Starting Data Collection for {}".format(subreddit))
             cfg = "config/DataCollection.cfg"
-            process = MP.Process(target=DC, args=(cfg, subreddit))
+            process = MP.Process(target=DC, args=(subreddit, praw_q))
             process.start()
             PROCESSLIST.append(process)
-            lib.write_log("Done starting Data Collection for {}".format(subreddit))
+            lib.write_log("Started Data Collection for {}".format(subreddit))
     except Exception as E:
         pass
 
