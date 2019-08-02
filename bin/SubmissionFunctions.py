@@ -1,4 +1,4 @@
-from bin.LIB3 import LIB
+from bin.LIB import LIB
 from bin.Submission import Submission
 
 """
@@ -9,32 +9,33 @@ Submission object: retrieves submission from subreddit
 class SubmissionFunctions:
 	# Todo: praw queue.get()
 
+	lib = None
+
+	def __init__(self):
+		self.lib = LIB(cfg="config/SubmissionFunctions.cfg")
+
 	# Get hot posts from subreddit
 	# input: String subreddit, integer limit
 	# output: list praw submissions
-	@staticmethod
-	def get_hot(subreddit, limit, praw_q=None):
-		print("initializing lib")
-		lib = LIB(cfg="../config/SubmissionFunctions.cfg")
-		print("initialized")
+	def get_hot(self, subreddit=None, limit=None , praw_q=None):
+		self.lib.write_log("Getting hot from subreddit %s" % subreddit)
 		try:
 			while praw_q.empty():
-				print("Waiting for Praw")
-				lib.sleep(.5)
+				self.lib.write_log("No praw instance, waiting for one to be available")
+				self.lib.sleep(.5)
 		except Exception as e:
-			print(e)
-		print("Got Praw")
-		lib.write_log("Getting hot from subreddit %s" % subreddit)
-		print("Getting hot from subreddit %s" % subreddit)
+			self.lib.write_error("ERROR: {}".format(e))
 		praw = praw_q.get()
 		submissions = praw.subreddit(subreddit).hot(limit=limit)
+		submission_list = []
 		for submission in submissions:
 			s = Submission(submission)
-			print(s.title)
-			lib.write_log(s.to_string())
+			submission_list.append(s)
+			self.lib.write_log(s.title)
 
-		print("Completed subreddit %s" % subreddit)
+		self.lib.write_log("Completed subreddit %s" % subreddit)
 		praw_q.put(praw)
+		return submission_list
 
 	# Get new posts from subreddit
 	# input: String subreddit, integer limit
