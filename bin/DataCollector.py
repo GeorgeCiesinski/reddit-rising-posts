@@ -2,8 +2,8 @@
 Description: Used to collect data from Reddit
 """
 
-from . import Submission_functions
-from . import Comment_functions
+from . import SubmissionFunctions
+from . import CommentFunctions
 from .LIB3 import LIB
 import sys
 

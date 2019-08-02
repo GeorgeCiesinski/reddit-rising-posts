@@ -8,7 +8,7 @@ Notes for George:
 *Temporary, will delete when not needed anymore.
 Reddit rising posts will start the DataCollector.py
 DataCollector.py will call commend and post functions
-Comment_functions.py
+CommentFunctions.py
 - get_all_comments gets all the comments, converts it into our own comment object
 """
 

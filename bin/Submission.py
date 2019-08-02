@@ -38,3 +38,6 @@ class Submission (object):
 
 		# created date
 		self.created_utc = submission.created_utc
+
+	def to_string(self):
+		return str(self)
