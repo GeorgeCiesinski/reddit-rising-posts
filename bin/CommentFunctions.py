@@ -13,7 +13,7 @@ PRAW is not thread safe - cannot be shared between multiple threads (according t
 """
 
 
-class Comments:
+class CommentFunctions:
 
     # Get all comments and replies, replace more
     # Input: Post post

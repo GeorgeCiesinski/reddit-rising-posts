@@ -1,7 +1,11 @@
 import praw
-from Submission import Submission
-from Comment import Comment
+from bin.Submission import Submission
+from bin.Comment import Comment
+from bin.SubmissionFunctions import SubmissionFunctions
+from bin.CommentFunctions import CommentFunctions
 import sys
+import multiprocessing as MP
+from time import sleep
 
 """
 This script is temporary and is not part of reddit-rising-posts.
@@ -34,12 +38,41 @@ class Reddit:
 
 		print("API has logged in. \n")
 
+	def get_praw(self):
+		return self.reddit
+
 
 if __name__ == "__main__":
 	print("Executing as main program. ")
 
 	# Instantiate Reddit
 	r = Reddit()
+
+	praw_q = MP.Queue()
+	praw_q.put(r.get_praw())
+
+	# todo: this list is to be retrieved from the DB
+	subreddits = ['science', 'funny']
+
+	# loop through the subreddits
+	processes = []
+	for r in subreddits:
+		p = MP.Process(name=r, target=SubmissionFunctions.get_hot, args=(r, 10, praw_q))
+		p.start()
+		processes.append(p)
+	while True:
+		for p in processes:
+			if not p.is_alive():
+				print("%s process ended" % p.name)
+				p.join()
+				del processes[p]
+		if len(processes) == 0:
+			break
+		sleep(1)
+
+	sys.exit()
+
+
 
 	"""
 	# SUBREDDIT TEST CODE
@@ -83,6 +116,7 @@ if __name__ == "__main__":
 
 	# COMMENT TEST CODE
 
+	"""
 	comment_praw = r.reddit.comment(url="https://www.reddit.com/r/Jokes/comments/cjersb/i_went_into_a_pet_shop_and_asked_for_twelve_bees/evd67qn/")
 
 	# PRAW Comment Object
@@ -107,3 +141,4 @@ if __name__ == "__main__":
 	# print("The reply count is: " + str(comment_praw.replies.__len__()))
 	print("This comment was created on: " + str(c.created_utc))
 	print("Has this comment been edited: " + str(c.edited))
+	"""
