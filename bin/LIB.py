@@ -11,9 +11,10 @@ import inspect
 import multiprocessing as MP
 import base64
 import re
+import shutil
 
 #file object, stores information about a given file... no need to import this.
-class file:
+class File:
     #set the file properties
     def __init__(self,name=None, permissions=None, size=None, modified_time=None, path=None):
         self.name = name
@@ -21,17 +22,22 @@ class file:
         self.size = size
         self.modified_time = modified_time
         self.path = path
+        try:
+            tmp_parts = self.name.split(".")
+            if len(tmp_parts) == 2:
+                self.extension = tmp_parts[1]
+            else:
+                self.extension = None
+        except:
+            self.extension = None
 
-    # Determin if this file is a directory
-    # input: None
-    # Ouput: Boolean
-    def is_directory(self):
-        if self.permissions is not None:
-            parts = self.permissions
-            #print(parts)
-            if parts[0] == 'd':
-                return True
-        return False
+        self.is_directory = os.path.isdir(self.path)
+
+    # Print this class's entries as a string
+    # Input: None
+    # Output: dict of self attributes
+    def to_string(self):
+        return str(self.__dict__)
 
 class LIB:
     PUNCTUATION = ['"', '\'', '*']
@@ -42,8 +48,10 @@ class LIB:
     MSGLIST = []
     PROCESSLIST = []
     OS = None
+    OUT_LOG = None
+    ERR_LOG = None
 
-    def __init__(self, home=None, cfg=None):
+    def __init__(self, home=None, cfg=None, out_log = None, err_log = None):
         #find out home if none is given. lib location is used.
         self.PROCESSLIST = []
         if home is None:
@@ -60,36 +68,44 @@ class LIB:
 
         #set the logs directory
         self.LOG = "{}/logs".format(self.HOME)
-        self.write_log("Making lib instance: '{}'".format(home))
         if not self.path_exists(self.LOG):
-            self.write_log("Creating path: '{}'".format(self.LOG))
             if not self.make_path(self.LOG):
-                string = "Unable to create path '{}'".format(self.LOG)
-                self.write_log(string)
-                self.write_error(string)
+                return
 
         #get and store the sys arguments
         self.ARGS = sys.argv
-        self.write_log("ARGS: {}".format(self.ARGS))
 
         #load the config file
         if cfg is None:
             cfg = self.get_args_value("-cfg", "{}/config/config.cfg".format(self.HOME))
         if self.read_config(cfg) == -1:
             self.CFG = {}
-            self.write_log("No such cfg file, no configs being used")
+
+        #set the output log file and error log file
+        if out_log is None:
+            self.OUT_LOG = self.get_config_value("outputlog","output.log")
         else:
-            self.write_log("Using Config file: '{}'".format(cfg))
+            self.OUT_LOG = out_log
+        if err_log is None:
+            self.ERR_LOG = self.get_config_value("errorlog","error.log")
+        else:
+            self.ERR_LOG = err_log
+
+        self.write_log("Making lib instance: '{}'".format(home))
+        self.write_log("ARGS: {}".format(self.ARGS))
+        self.write_log("Using Config file: '{}'".format(cfg))
+        self.write_log("Config: '{}'".format(self.CFG))
 
         #set the current running OS
         self.OS = self.clean_string(str(sys.platform).lower())
         self.write_log("Using OS: {}".format(self.OS))
 
         # Start the config file reload thread
-        confi_reloader = MP.Process(name = "Config_Reloader", target=self.reload_config, args=(cfg,))
-        confi_reloader.start()
-        self.PROCESSLIST.append(confi_reloader)
-
+        if self.get_config_value("ConfigReloadInterval", 0) != 0:
+            confi_reloader = MP.Process(name = "Config_Reloader", target=self.reload_config, args=(cfg,))
+            confi_reloader.start()
+            self.write_log("Starting config reload process")
+            self.PROCESSLIST.append(confi_reloader)
 
     """
     CONFIG
@@ -99,15 +115,15 @@ class LIB:
     # Input  : config file
     # Output : None
     def read_config(self, cfgFile):
+        self.CFG = {}
         data = self.read_file(cfgFile)
         if (data == -1) or (data is None):
             return None
-        self.CFG = {}
         for line in data:
             line = self.clean_string(line)
-            if "#" in line:
-                line = line[:line.index("#")]
             if len(line) > 3:
+                if line[0] == "#":
+                    continue
                 dic = line.split("=")
                 key = self.clean_string(dic[0].lower())
                 value = self.clean_string(dic[1])
@@ -141,12 +157,9 @@ class LIB:
     # input: String config file
     # output: None
     def reload_config(self, config_file):
-        if self.get_config_value("ConfigReloadInterval", 60) == 0:
-            return None
-        self.write_log("Starting config reload process")
         while True:
             if os.getppid() == 1:
-                return None
+                return 0
             self.write_log("Reloading confing '{}'".format(config_file))
             self.read_config(config_file)
             self.write_log("Reloading done")
@@ -271,7 +284,7 @@ class LIB:
             value = self.read_string(message)
             self.write_log("{} {}".format(message,value))
             if value is -1:
-                raise
+                return None
             intput_int = int(value)
             return intput_int
         except Exception as e:
@@ -286,11 +299,24 @@ class LIB:
             input_string = self.read_string(message)
             self.write_log("{} {}".format(message, input_string))
             if len(input_string) != 1:
-                raise
+                return None
             return input_string
         except Exception as e:
             self.write_log("Invalid char")
             return None
+
+    # Get a Ipv4 from the user
+    # input: string
+    # output: string
+    def read_ip(self, message="Entry an IPv4: "):
+        try:
+            value = self.read_string(message=message)
+            if self.is_ip(value) is False:
+                return None
+        except Exception as e:
+            self.write_error("Error:\n####\n{}\n####\n".format(e))
+        self.write_log("{} {}".format(message, value))
+        return value
 
     # Read the given file name, retuns a list of lines
     # Input  : filename
@@ -314,8 +340,10 @@ class LIB:
     # Input  : string
     # Output : None
     def write_log(self, string, mode="a+"):
+        if self.OUT_LOG is None:
+            return
         try:
-            out = open("{}/output.log".format(self.LOG), mode)
+            out = open("{}/{}".format(self.LOG,self.OUT_LOG), mode)
         except Exception as e:
             self.write_error("Error:\n####\n{}\n####\n".format(e))
             return None
@@ -329,15 +357,16 @@ class LIB:
         except Exception as e:
             self.write_error("Error:\n####\n{}\n####\n".format(e))
             return None
-
         return 0
 
     # Write out put to the error file
     # Input  : string
     # Output : None
     def write_error(self, string, mode="a+"):
+        if self.ERR_LOG is None:
+            return
         try:
-            out = open("{}/error.log".format(self.LOG), mode)
+            out = open("{}/{}".format(self.LOG,self.ERR_LOG), mode)
         except:
             return None
         msg = "{} ~ {} ~ {}\n".format(self.get_now(), self.get_script(), string)
@@ -371,35 +400,37 @@ class LIB:
             return None
         return 0
 
-    # List directory content
+    # List all the files and directories in a given path
     # Input: String path
-    # Ouput: List of dict of files
-    def directory_listing(self, directory=None, recursive=None):
-        if self.OS != "linux":
-            self.write_log("directory_listing is only linux compatible")
-            return None
-        files = []
+    # Output: list of Files
+    def directory_listing(self, directory=None, recursive = True):
         if not self.path_exists(directory):
             self.write_log("No such path {}".format(directory))
             return None
-        data, error, code = self.run_os_cmd("ls -lh {}".format(directory))
-        if code !=0 :
-            self.write_log("Error getting directory listing {}".format(error))
-            return None
-        data = data.decode(self.get_config_value("CharEncoding", "utf-8"))
-        lines = data.split("\n")
-        for line in lines:
-            line=self.clean_string(line)
-            line_parts = line.split(" ")
-            if len(line_parts) >=8:
-                mfile = file()
-                mfile.name = line_parts[8:]
-                mfile.permissions = line_parts[0]
-                mfile.size = line_parts[4]
-                mfile.modified_time = line_parts[5:7]
-                files.append(mfile)
+        self.write_log("Listing directory {} Recursive = {}".format(directory,recursive))
+        files = []
+        if recursive:
+            for root, dirs, dire_files in os.walk(directory, topdown=False):
+                for name in dire_files:
+                    try:
+                        stats = os.stat(os.path.join(root,name))
+                        files.append(File(name=name, path=os.path.join(root, name), size=stats.st_size, modified_time=stats.st_mtime, permissions=oct(stats.st_mode)))
+                    except:
+                        pass
+                for name in dirs:
+                    try:
+                        stats = os.stat(os.path.join(root, name))
+                        files.append(File(name=name, path=os.path.join(root, name), size=stats.st_size, modified_time=stats.st_mtime, permissions=oct(stats.st_mode)))
+                    except:
+                        pass
+        if not recursive:
+            for f in os.listdir(directory):
+                try:
+                    stats = os.stat("{}/{}".format(directory,f))
+                    files.append(File(name=f,path="{}/{}".format(directory,f), size=stats.st_size, modified_time=stats.st_mtime, permissions=oct(stats.st_mode)))
+                except:
+                    pass
         return files
-
 
     # Check if the given path already exists
     # Input: absolute path TODO: Make relative safe
@@ -429,6 +460,21 @@ class LIB:
             value = False
         self.write_log("Result: {}".format(value))
         return value
+
+    # Copy file
+    # Input: String source, String destination
+    # Output: None
+    def copy_file(self,source=None, destination=None):
+        if (source is None) or (destination is None):
+            return None
+        if not self.path_exists(source):
+            return None
+        self.write_log("COPY {} TO {}".format(source, destination))
+        if not self.path_exists(destination):
+            parts = destination.split("/")
+            make_path = "/".join(parts[:len(parts)-1])
+            self.make_path(make_path)
+        shutil.copy2(source,destination)
 
     # Run the given os command
     # Input: string (system command)
@@ -469,7 +515,7 @@ class LIB:
     # Input: None
     # Output: string
     def get_now(self):
-        return str(DT.now()).split(".")[0]
+        return str(DT.now())
 
     # Convert time stamp to human readable date
     # Input: string (timestamp)
@@ -537,6 +583,7 @@ class LIB:
                 if measure == "weeks":
                     return_value = str(now - TD(weeks=delta)).split(".")[0]
         return return_value
+
     """
     GENERAL FUNCTIONS
     """
@@ -627,3 +674,218 @@ class LIB:
             self.write_error("Error:\n####\n{}\n####\n".format(e))
             return None
         return m_value
+
+    # Determines if string is ip v4
+    # Input: string
+    # Output: boolean
+    def is_ip(self, string):
+        return_value = True
+        if string is None:
+            return_value = False
+            self.write_log("String is ip: {}".format(return_value))
+            return return_value
+        parts = string.split(".")
+        if len(parts) != 4:
+            return_value = False
+            self.write_log("String is ip: {}".format(return_value))
+            return return_value
+        for part in parts:
+            try:
+                int_val = int(part)
+                if (int_val > 255) or (int_val < 0):
+                    return_value = False
+            except:
+                return_value = False
+        self.write_log("String is ip: {}".format(return_value))
+        return return_value
+
+
+"""
+####################################################################################################
+
+
+    MySQL Database
+
+
+####################################################################################################
+"""
+
+class MySQL:
+    CONN = None
+    CUR = None
+    lib = None
+    config = None
+
+    # Create a MySQL object (and connection)
+    # Input: String host, String username, String password, String database, LIB lib)
+    # Output: None
+    def __init__(self,host=None,username=None,password=None,database=None, lib = None):
+        #import the mysql connector return if it's not installed
+        try:
+            import mysql.connector
+        except:
+            return
+
+        #make sure all the values are given
+        if (host is None) or (username is None) or (password is None) or (database is None):
+            return
+
+        #make a lib instance for itself
+        if (lib is None) and (self.lib is None):
+            self.lib = LIB(home="/tmp",out_log="mysql_{}_{}_output.log".format(host,database),err_log="mysql_{}_{}_error.log".format(host,database))
+        else:
+            self.lib = lib
+            self.lib.OUT_LOG = "mysql_{}_{}_output.log"
+            self.lib.ERR_LOG = "mysql_{}_{}_error.log"
+
+        #make the config dict for mysql conn
+        self.config = {
+            'user': username,
+            'password': password,
+            'host': host,
+            'database': database
+        }
+        #try to make the mysql connection
+        try:
+            self.CONN = mysql.connector.connect(**self.config)
+        except Exception as e:
+            string = "Could not connect '{}'".format(self.config)
+            self.lib.write_log(string)
+            self.lib.write_error(string)
+            self.lib.write_error("Error: {}".format(e))
+            self.end()
+            return
+        #get the cursor
+        self.CUR = self.CONN.cursor(dictionary=True)
+
+        self.lib.write_log("Connected {}".format(self.config))
+
+    # Terminate this entire instance
+    # Input: None
+    # Output: None
+    def end(self):
+        self.close_connection()
+        self.lib.write_log("Terminating")
+        self.lib.end()
+        del self
+
+    # Close this mysql connection
+    # Input: None
+    # Output: None
+    def close_connection(self):
+        self.lib.write_log("Closing {}".format(self.config))
+        if self.CUR is not None:
+            self.CUR.close()
+        if self.CONN is not None:
+            self.CONN.close()
+
+    # Reconnect using the config
+    # Input: None
+    # Output: None
+    def reconnect(self):
+        self.lib.write_log("Attempting to re-connect {}".format(self.config))
+        # import the mysql connector return if it's not installed
+        try:
+            import mysql.connector
+        except:
+            return
+        try:
+            self.CONN = mysql.connector.connect(**self.config)
+        except Exception as e:
+            string = "Could not re-connect '{}'".format(self.config)
+            self.lib.write_log(string)
+            self.lib.write_error(string)
+            self.lib.write_error("Error: {}".format(e))
+            self.end()
+
+    # Run select query
+    # Input: String query, Tuples (values)
+    # Output: list rows (as dictionaries)
+    def select(self,query=None, variables=None):
+        #ensure a query is given
+        if query is None:
+            self.lib.write_log("Query is None")
+            return None
+        #ensure the query is a select statement
+        if query.lower().split(" ")[0] != "select":
+            self.lib.write_log("Query not select statement")
+            return None
+        self.lib.write_log("Running '{}'".format(query))
+        #there are no variables in this query
+        if variables is None:
+            try:
+                self.CUR.execute(query)
+                results = self.CUR.fetchall()
+                self.lib.write_log("Result count {}".format(self.CUR.rowcount))
+                return results
+            except Exception as e:
+                string = "Query execution error"
+                self.lib.write_log(string)
+                self.lib.write_error(string)
+                self.lib.write_error("Error: {}".format(e))
+                return None
+        #there are variables in this query
+        elif variables is not None:
+            #ensure the variables are given as tuples
+            if type(variables) is not tuple:
+                self.lib.write_log("Variables need to be a tuple")
+                return None
+            try:
+                self.CUR.execute(query,variables)
+                results = self.CUR.fetchall()
+                self.lib.write_log("Result count {}".format(self.CUR.rowcount))
+                return results
+            except Exception as e:
+                string = "Query execution error"
+                self.lib.write_log(string)
+                self.lib.write_error(string)
+                self.lib.write_error("Error: {}".format(e))
+                return None
+
+    # Create a new table
+    # Input: tuple's of definitions
+    # Output: boolean
+    def create_table(self, table_definition=None):
+        if table_definition is None:
+            self.lib.write_log("Need table definition")
+            return False
+        # ensure the table definition is a create table statement
+        if table_definition.lower().split(" ")[0] != "create":
+            self.lib.write_log("Query not select statement")
+            return False
+        self.lib.write_log("Creating table definition: '{}'".format(table_definition))
+        try:
+            self.CUR.execute(table_definition)
+            self.lib.write_log("Affected rows {}".format(self.CUR.rowcount))
+            return True
+        except Exception as e:
+            string = "Create table error"
+            self.lib.write_log(string)
+            self.lib.write_error(string)
+            self.lib.write_error("Error: {}".format(e))
+            return False
+
+    # Insert multiple rows into database
+    # Input: String insert query, List of tuples (value, or values that need to be inserted)
+    # Output: Int number of affected rows
+    def insert(self, query=None, values=None):
+        if (query is None) or (values is None):
+            self.lib.write_log("Need both query and values")
+            return None
+        if type(values) is not list:
+            self.lib.write_log("Values need to be list of tuples")
+            return None
+        self.lib.write_log("Running {}".format(query))
+        self.lib.write_log("With {} entries".format(len(values)))
+        try:
+            self.CUR.executemany(query, values)
+            self.CONN.commit()
+            self.lib.write_log("Affected rows {}".format(self.CUR.rowcount))
+            return self.CUR.rowcount
+        except Exception as e:
+            self.CONN.rollback()
+            string = "Insert error"
+            self.lib.write_log(string)
+            self.lib.write_error(string)
+            self.lib.write_error("Error: {}".format(e))
+            return None
