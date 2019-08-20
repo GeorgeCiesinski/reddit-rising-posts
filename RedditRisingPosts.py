@@ -21,7 +21,6 @@ def exit():
     lib.write_log("Exiting..")
     # Close the UDP port
     if in_socket is not None:
-        print("\n\nclose socket\n\n")
         in_socket.close()
     # Kill all processes that were started by the program
     for process in PROCESSLIST:
@@ -43,7 +42,7 @@ if __name__ == '__main__':
     #making the praw_q
     praw_q = MP.Queue()
 
-    #get these logins from the database
+    # TODO: Get reddit praw login list from database
     reddit = praw.Reddit(
         client_id="Zfl37rh1asVTjQ",
         client_secret="DX87ZhsDhvJrvxdoud0CXmcbLGA",
@@ -51,10 +50,9 @@ if __name__ == '__main__':
         password="k2T%5VuSJc8k",
         user_agent="reddit-rising-posts"
     )
-
     praw_q.put(reddit)
 
-    # TODO: Start datacollector for subreddits
+    # TODO: Start datacollector for known subreddits
     try:
         subreddits = ['funny', 'science','askreddit'] # get  this list from DB
         for subreddit in subreddits:
@@ -130,14 +128,14 @@ if __name__ == '__main__':
 
                 # TODO: request to stop the application
                 if (parts[0] == "stop") and (len(parts) == 1):
-                    return_string = "Stopping server..."
+                    return_string = "Stopping application..."
                     lib.write_log(return_string)
                     conn.sendall(return_string.encode(ENCODING))
                     conn.close()
                     in_socket.close()
                     exit()
 
-                # TODO: request to stop a process
+                # TODO: request to stop a process (data collector)
                 if (parts[0] == "stop") and (len(parts) == 2):
                     stop_name = parts[1].lower()
                     return_string = "Stopping {}: ".format(stop_name)
@@ -174,8 +172,8 @@ if __name__ == '__main__':
                     try:
                         lib.write_log("Starting Data Collection for {}".format(start_name))
                         cfg = "config/DataCollection.cfg"
-                        process_name = "{} Data Collector".format(start_name)
-                        process = MP.Process(name=process_name, target=DC, args=(start_name, praw_q))
+                        process_name = "{}_data_collector".format(start_name)
+                        process = MP.Process(name=process_name.lower(), target=DC, args=(start_name, praw_q))
                         process.start()
                         PROCESSLIST.append(process)
                         lib.write_log("Started Data Collection for {}".format(start_name))
@@ -189,17 +187,6 @@ if __name__ == '__main__':
                     conn.close()
                     break
     exit()
-
-    '''
-    # TODO: Remove, this is here for testing.
-    while True:
-        lib.sleep(1)
-        for process in PROCESSLIST:
-                if not process.is_alive():
-                        PROCESSLIST.remove(process)
-        if len(PROCESSLIST) == 0:
-                exit()
-    '''
 
 # Don't import this file, run it directly
 if __name__ == "RedditRisingPost":
