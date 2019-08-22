@@ -67,6 +67,14 @@ Directory Structure
         - start again from the top
 
 
-    - **RedditRisingPosts.py** : This is main of the application. Started as a service, it will connect to a database, open reddit praw connections, start data collectors for each monitored sub-reddit, and open a UDP port for application communication
+    - RedditRisingPosts.py : This is main of the application. Started as a service, it will connect to a database, open reddit praw connections, start data collectors for each monitored sub-reddit, and open a UDP port for application communication
         PSEUDO CODE
-        -
+        - crate praw connection q to be used as a pool for all data collectors to use
+        - establish a database connection
+        - create database connection q to be used as pool for all data collectors to use
+        - get list of sub-reddits from the database
+        - start data collectors (DataCollector.py) for each sub-reddit
+        - start an application server on port 500
+        - listen for incoming requests on the port.DataCollector
+            - status, start <sub-reddit>, stop <sub_reddit>, stop
+            - each client connection is treated as a transaction, client connects with request, server process the request and returns results to the client connection, the client connection is then closed.  
