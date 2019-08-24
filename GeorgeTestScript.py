@@ -4,6 +4,9 @@ import bin.SubmissionFunctions as SubmissionFunctions
 from bin.LIB import LIB
 
 subreddit = "funny"
+output_name = "{}_output.log".format(subreddit)
+error_name = "{}_error.log".format(subreddit)
+lib = LIB(cfg="config/DataCollection.cfg", out_log=output_name, err_log=error_name)
 
 reddit = praw.Reddit(
     client_id="Zfl37rh1asVTjQ",
@@ -13,5 +16,27 @@ reddit = praw.Reddit(
     user_agent="reddit-rising-posts"
 )
 
-submissions = SubmissionFunctions.get_hot(lib=LIB, subreddit=subreddit, limit=10, praw_q=reddit)
-print(submissions)
+"""
+# Get Hot
+submissions = SubmissionFunctions.get_hot(lib=lib, subreddit=subreddit, limit=10, praw_instance=reddit)
+
+for submission in submissions:
+    print(submission.title)
+    print(submission.score)
+"""
+"""
+# Get Rising
+submissions = SubmissionFunctions.get_rising(lib=lib, subreddit=subreddit, limit=10, praw_instance=reddit)
+
+for submission in submissions:
+    print(submission.title)
+    print(submission.score)
+"""
+"""
+# Get Top
+submissions = SubmissionFunctions.get_top(lib=lib, subreddit=subreddit, limit=10, praw_instance=reddit)
+
+for submission in submissions:
+    print(submission.title)
+    print(submission.score)
+"""
