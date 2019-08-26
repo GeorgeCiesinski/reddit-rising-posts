@@ -35,24 +35,25 @@ def get_hot(lib=None, praw_q=None, subreddit=None, limit=None):
 	return submission_list
 """
 
+
 # Get hot without MP, for testing purposes
 def get_hot(lib=None, praw_instance=None, subreddit=None, limit=None):
-    #TODO: Ensure lib, praw_instance and subreddit are not none
-    if (lib is None) or (praw_instance is None) or (subreddit is None):
-        return None
-    lib.write_log("Getting hot from subreddit {}".format(subreddit))
-    praw = praw_instance
-    #TODO: Get hot submissions from subreddit limited by given value
-    submissions = praw.subreddit(subreddit).hot(limit=limit)
-    submission_list = []
-    #TODO: Make submissions objects
-    for submission in submissions:
-        s = Submission(submission)
-        submission_list.append(s)
-        lib.write_log(s.title)
-    lib.write_log("Completed subreddit {}".format(subreddit))
-    #TODO: Return submissions list
-    return submission_list
+	# TODO: Ensure lib, praw_instance and subreddit are not none
+	if (lib is None) or (praw_instance is None) or (subreddit is None):
+		return None
+	lib.write_log("Getting hot from subreddit {}".format(subreddit))
+	praw = praw_instance
+	# TODO: Get hot submissions from subreddit limited by given value
+	submissions = praw.subreddit(subreddit).hot(limit=limit)
+	submission_list = []
+	# TODO: Make submissions objects
+	for submission in submissions:
+		s = Submission(submission)
+		submission_list.append(s)
+		lib.write_log(s.title)
+	lib.write_log("Completed subreddit {}".format(subreddit))
+	# TODO: Return submissions list
+	return submission_list
 
 
 # Get rising posts from subreddit

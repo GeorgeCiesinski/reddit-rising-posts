@@ -1,6 +1,7 @@
 import praw
 
 import bin.SubmissionFunctions as SubmissionFunctions
+import bin.CommentFunctions as CommentFunctions
 from bin.LIB import LIB
 
 subreddit = "funny"
@@ -16,13 +17,14 @@ reddit = praw.Reddit(
     user_agent="reddit-rising-posts"
 )
 
-"""
+
 # Get Hot
 submissions = SubmissionFunctions.get_hot(lib=lib, subreddit=subreddit, limit=10, praw_instance=reddit)
-
+"""
 for submission in submissions:
     print(submission.title)
     print(submission.score)
+    print(submission.id)
 """
 """
 # Get Rising
@@ -31,6 +33,7 @@ submissions = SubmissionFunctions.get_rising(lib=lib, subreddit=subreddit, limit
 for submission in submissions:
     print(submission.title)
     print(submission.score)
+    print(submission.id)
 """
 """
 # Get Top
@@ -39,4 +42,7 @@ submissions = SubmissionFunctions.get_top(lib=lib, subreddit=subreddit, limit=10
 for submission in submissions:
     print(submission.title)
     print(submission.score)
+    print(submission.id)
 """
+
+comments = CommentFunctions(lib=lib, praw_instance=reddit, post="cve991")
