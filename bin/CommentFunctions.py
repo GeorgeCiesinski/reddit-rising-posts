@@ -1,3 +1,4 @@
+from bin.Comment import Comment
 """
 Comments object: retrieves comments from post
 """
@@ -16,34 +17,44 @@ PRAW is not thread safe - cannot be shared between multiple threads (according t
 # Get all comments and replies, replace more
 # Input: LIB lib, MP Queue, Post post
 # Output: list of Comment comment
-def get_all_comments(lib=None, praw_instance=None, post=None):
+def get_all_comments(lib=None, praw_instance=None, submission_id=None):
     # TODO: Ensure lib, praw_instance and post are not none
-    if (lib is None) or (praw_instance is None) or (post is None):
+    if (lib is None) or (praw_instance is None) or (submission_id is None):
         return None
+    lib.write_log("Getting all comments from the post {}".format(submission_id))
+    praw = praw_instance
     # TODO: Get all comments from post (replace more)
-
+    submission = praw.submission(id=submission_id)
+    comments = submission.comments
+    comment_list = []
     # TODO: Make Comment objects
-
-    # TODO: Put praw instance back into queue
-
+    for comment in comments:
+        c = Comment(comment)
+        comment_list.append(c)
+        lib.write_log(c.id)
+    lib.write_log("Completed comments from post {}".format(submission_id))
     # TODO: Return list of all comments
-
-    pass
+    return comment_list
 
 
 # Get all root comments, comments that have the submission as the parent
 # Input: LIB lib, MP Queue, Post post
 # Output: list of Comment comment
-def get_root_comments(lib=None, praw_instance=None, post=None):
+def get_root_comments(lib=None, praw_instance=None, submission_id=None):
     # TODO: Ensure lib, praw_instance and post are not none
-    if (lib is None) or (praw_instance is None) or (post is None):
+    if (lib is None) or (praw_instance is None) or (submission_id is None):
         return None
-    # TODO: Get all root comments from post (if parent id is the post id)
-
+    lib.write_log("Getting all top-level comments from the post {}".format(submission_id))
+    praw = praw_instance
+    # TODO: Get all top-level comments from post
+    submission = praw.submission(id=submission_id)
+    comments = submission.comments
+    comment_list = []
     # TODO: Make Comment objects
-
-    # TODO: Put praw instance back into queue
-
+    for comment in comments:
+        c = Comment(comment)
+        comment_list.append(c)
+        lib.write_log(c.id)
+    lib.write_log("Completed top-level comments from post {}".format(submission_id))
     # TODO: Return list of all comments
-
-    pass
+    return comment_list

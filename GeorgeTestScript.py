@@ -45,4 +45,7 @@ for submission in submissions:
     print(submission.id)
 """
 
-comments = CommentFunctions(lib=lib, praw_instance=reddit, post="cve991")
+comments = CommentFunctions.get_all_comments(lib=lib, praw_instance=reddit, submission_id="cwl2do")
+
+for comment in comments:
+    print(comment.body)
