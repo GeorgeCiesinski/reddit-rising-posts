@@ -1,3 +1,8 @@
+"""
+Don't delete this just yet as it contains the usage of the SubmissionFunctions.py and CommentFunctions.py under
+several applications. Use this as an example
+"""
+
 import praw
 
 import bin.SubmissionFunctions as SubmissionFunctions
@@ -45,7 +50,25 @@ for submission in submissions:
     print(submission.id)
 """
 
-comments = CommentFunctions.get_all_comments(lib=lib, praw_instance=reddit, submission_id="cwl2do")
+"""
+# Get top-level comments
+comments = CommentFunctions.get_root_comments(lib=lib, praw_instance=reddit, submission_id="cx596s")
+
+num_comments = len(comments)
+print("There are", len(comments), "top-level comments.\n")
 
 for comment in comments:
     print(comment.body)
+"""
+
+"""
+# Get all comments
+# None should replace ad-infinitum
+comments = CommentFunctions.get_all_comments(lib=lib, praw_instance=reddit, submission_id="cx596s", replace_more_limit=None)
+
+num_comments = len(comments)
+print("There are", len(comments), "comments.\n")
+
+for comment in comments:
+    print(comment.body)
+"""
