@@ -26,3 +26,4 @@ class Comment:
 		# TODO: Comment replies is not working. Requires further research
 		self.created_utc = comment.created_utc
 		self.edited = comment.edited
+		self.id = comment.id
