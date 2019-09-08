@@ -61,9 +61,10 @@ for comment in comments:
     print(comment.body)
 """
 
-"""
+
 # Get all comments
 # None should replace ad-infinitum
+submission = Submission()
 comments = CommentFunctions.get_all_comments(lib=lib, praw_instance=reddit, submission_id="cx596s", replace_more_limit=None)
 
 num_comments = len(comments)
@@ -71,4 +72,4 @@ print("There are", len(comments), "comments.\n")
 
 for comment in comments:
     print(comment.body)
-"""
+

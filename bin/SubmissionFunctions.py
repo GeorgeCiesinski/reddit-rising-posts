@@ -42,9 +42,12 @@ def get_hot(lib=None, praw_instance=None, subreddit=None, limit=None):
 	if (lib is None) or (praw_instance is None) or (subreddit is None):
 		return None
 	lib.write_log("Getting hot from subreddit {}".format(subreddit))
-	praw = praw_instance
 	# TODO: Get hot submissions from subreddit limited by given value
-	submissions = praw.subreddit(subreddit).hot(limit=limit)
+	try:
+		praw = praw_instance
+		submissions = praw.subreddit(subreddit).hot(limit=limit)
+	except Exception as e:
+		lib.write_log("Failed to get hot submissions due to the exception: {}".format(e.message))
 	submission_list = []
 	# TODO: Make submissions objects
 	for submission in submissions:
@@ -64,9 +67,12 @@ def get_rising(lib=None, praw_instance=None, subreddit=None, limit=None):
 	if (lib is None) or (praw_instance is None) or (subreddit is None):
 		return None
 	lib.write_log("Getting rising from subreddit {}".format(subreddit))
-	praw = praw_instance
 	# TODO: Get rising submissions from subreddit limited by given value
-	submissions = praw.subreddit(subreddit).rising(limit=limit)
+	try:
+		praw = praw_instance
+		submissions = praw.subreddit(subreddit).rising(limit=limit)
+	except Exception as e:
+		lib.write_log("Failed to get rising submissions due to the exception: {}".format(e.message))
 	submission_list = []
 	# TODO: Make submissions objects
 	for submission in submissions:
@@ -86,9 +92,12 @@ def get_top(lib=None, praw_instance=None, subreddit=None, limit=None):
 	if (lib is None) or (praw_instance is None) or (subreddit is None):
 		return None
 	lib.write_log("Getting top from subreddit {}".format(subreddit))
-	praw = praw_instance
 	# TODO: Get top submissions from subreddit limited by given value
-	submissions = praw.subreddit(subreddit).top(limit=limit)
+	try:
+		praw = praw_instance
+		submissions = praw.subreddit(subreddit).top(limit=limit)
+	except Exception as e:
+		lib.write_log("Failed to get top submissions due to the exception: {}".format(e.message))
 	submission_list = []
 	# TODO: Make submissions objects
 	for submission in submissions:

@@ -22,15 +22,20 @@ def get_all_comments(lib=None, praw_instance=None, submission_id=None, replace_m
     if (lib is None) or (praw_instance is None) or (submission_id is None):
         return None
     lib.write_log("Getting all comments from the post {}".format(submission_id))
-    praw = praw_instance
     # TODO: Get all comments from post (replace more)
-    submission = praw.submission(id=submission_id)
-    comments = submission.comments
-    # Replace MoreComments to include them in comments
-    comments.replace_more(limit=replace_more_limit)
+    try:
+        praw = praw_instance
+        submission = praw.submission(id=submission_id)
+        comments = submission.comments
+        # Replace MoreComments to include them in comments
+        comments.replace_more(limit=replace_more_limit)
+    except Exception as e:
+        lib.write_log("Failed to get all comments from post due to the exception: {}".format(e.message))
+    # Creates empty comment list
     comment_list = []
     # TODO: Make Comment objects
     # .list() lists all levels of comments
+    # Adds comments to comment_list
     for comment in comments.list():
         c = Comment(comment)
         comment_list.append(c)
@@ -48,12 +53,15 @@ def get_root_comments(lib=None, praw_instance=None, submission_id=None):
     if (lib is None) or (praw_instance is None) or (submission_id is None):
         return None
     lib.write_log("Getting all top-level comments from the post {}".format(submission_id))
-    praw = praw_instance
     # TODO: Get all top-level comments from post
-    submission = praw.submission(id=submission_id)
-    comments = submission.comments
-    # Remove all MoreComments
-    comments.replace_more(limit=0)
+    try:
+        praw = praw_instance
+        submission = praw.submission(id=submission_id)
+        comments = submission.comments
+        # Remove all MoreComments
+        comments.replace_more(limit=0)
+    except Exception as e:
+        lib.write_log("Failed to get top-level comments from post due to the exception: {}".format(e.message))
     comment_list = []
     # TODO: Make Comment objects
     for comment in comments:
