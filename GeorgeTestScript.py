@@ -46,7 +46,7 @@ for submission in submissions:
     print(submission.score)
     print(submission.id)
 """
-
+"""
 # Get Top
 # time_filter – Can be one of: all, day, hour, month, week, year (default: all).
 submissions = SubmissionFunctions.get_top(lib=lib, praw_instance=reddit, subreddit=subreddit, time_filter='week', limit=10)
@@ -55,7 +55,7 @@ for submission in submissions:
     print(submission.title)
     print(submission.score)
     print(submission.id)
-
+"""
 
 """
 # Get top-level comments
