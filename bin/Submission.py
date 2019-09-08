@@ -26,6 +26,7 @@ class Submission (object):
 			print("Submission has no body.")
 
 		self.num_comments = submission.num_comments
+		self.comments = submission.comments
 		self.score = submission.score
 
 		# author

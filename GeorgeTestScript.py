@@ -7,6 +7,7 @@ import praw
 
 import bin.SubmissionFunctions as SubmissionFunctions
 import bin.CommentFunctions as CommentFunctions
+from bin.Submission import Submission
 from bin.LIB import LIB
 
 subreddit = "funny"
@@ -21,11 +22,16 @@ reddit = praw.Reddit(
     password="k2T%5VuSJc8k",
     user_agent="reddit-rising-posts"
 )
+"""
+# Uncomment for CommentFunctions.py testing
+submission_entry = reddit.submission(id="cx596s")
+submission = Submission(submission_entry)
+"""
 
-
+"""
 # Get Hot
 submissions = SubmissionFunctions.get_hot(lib=lib, subreddit=subreddit, limit=10, praw_instance=reddit)
-"""
+
 for submission in submissions:
     print(submission.title)
     print(submission.score)
@@ -40,19 +46,20 @@ for submission in submissions:
     print(submission.score)
     print(submission.id)
 """
-"""
+
 # Get Top
-submissions = SubmissionFunctions.get_top(lib=lib, subreddit=subreddit, limit=10, praw_instance=reddit)
+# time_filter – Can be one of: all, day, hour, month, week, year (default: all).
+submissions = SubmissionFunctions.get_top(lib=lib, praw_instance=reddit, subreddit=subreddit, time_filter='week', limit=10)
 
 for submission in submissions:
     print(submission.title)
     print(submission.score)
     print(submission.id)
-"""
+
 
 """
 # Get top-level comments
-comments = CommentFunctions.get_root_comments(lib=lib, praw_instance=reddit, submission_id="cx596s")
+comments = CommentFunctions.get_root_comments(lib=lib, praw_instance=reddit, submission=submission)
 
 num_comments = len(comments)
 print("There are", len(comments), "top-level comments.\n")
@@ -61,15 +68,17 @@ for comment in comments:
     print(comment.body)
 """
 
-
+"""
 # Get all comments
 # None should replace ad-infinitum
-submission = Submission()
-comments = CommentFunctions.get_all_comments(lib=lib, praw_instance=reddit, submission_id="cx596s", replace_more_limit=None)
 
-num_comments = len(comments)
-print("There are", len(comments), "comments.\n")
+comments = CommentFunctions.get_all_comments(lib=lib, praw_instance=reddit, submission=submission, replace_more_limit=None)
 
-for comment in comments:
-    print(comment.body)
+if comments is not None:
 
+    num_comments = len(comments)
+    print("There are", len(comments), "comments.\n")
+
+    for comment in comments:
+        print(comment.body)
+"""
