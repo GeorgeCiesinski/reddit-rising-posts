@@ -13,10 +13,11 @@ import base64
 import re
 import shutil
 
-#file object, stores information about a given file... no need to import this.
+
+# file object, stores information about a given file... no need to import this.
 class File:
-    #set the file properties
-    def __init__(self,name=None, permissions=None, size=None, modified_time=None, path=None):
+    # set the file properties
+    def __init__(self, name=None, permissions=None, size=None, modified_time=None, path=None):
         self.name = name
         self.permissions = permissions
         self.size = size
@@ -39,6 +40,7 @@ class File:
     def to_string(self):
         return str(self.__dict__)
 
+
 class LIB:
     PUNCTUATION = ['"', '\'', '*']
     HOME = None
@@ -51,8 +53,8 @@ class LIB:
     OUT_LOG = None
     ERR_LOG = None
 
-    def __init__(self, home=None, cfg=None, out_log = None, err_log = None):
-        #find out home if none is given. lib location is used.
+    def __init__(self, home=None, cfg=None, out_log=None, err_log=None):
+        # find out home if none is given. lib location is used.
         self.PROCESSLIST = []
         if home is None:
             home = os.getcwd()
@@ -66,22 +68,22 @@ class LIB:
             if not self.make_path(self.HOME):
                 return
 
-        #set the logs directory
+        # set the logs directory
         self.LOG = "{}/logs".format(self.HOME)
         if not self.path_exists(self.LOG):
             if not self.make_path(self.LOG):
                 return
 
-        #get and store the sys arguments
+        # get and store the sys arguments
         self.ARGS = sys.argv
 
-        #load the config file
+        # load the config file
         if cfg is None:
             cfg = self.get_args_value("-cfg", "{}/config/config.cfg".format(self.HOME))
         if self.read_config(cfg) == -1:
             self.CFG = {}
 
-        #set the output log file and error log file
+        # set the output log file and error log file
         if out_log is None:
             self.OUT_LOG = self.get_config_value("outputlog","output.log")
         else:
@@ -96,7 +98,7 @@ class LIB:
         self.write_log("Using Config file: '{}'".format(cfg))
         self.write_log("Config: '{}'".format(self.CFG))
 
-        #set the current running OS
+        # set the current running OS
         self.OS = self.clean_string(str(sys.platform).lower())
         self.write_log("Using OS: {}".format(self.OS))
 
@@ -171,9 +173,9 @@ class LIB:
     def end(self):
         self.write_log("Terminating LIB instance")
         for process in self.PROCESSLIST:
-                if process.is_alive():
-                        self.write_log("Stopping process: {}".format(process.name))
-                        process.terminate()
+            if process.is_alive():
+                self.write_log("Stopping process: {}".format(process.name))
+                process.terminate()
         del self
 
     # Get the name of the parent script that called lib
@@ -221,7 +223,7 @@ class LIB:
                         name = name.split("/")[-1]
                     return "{}".format(name)
                 # if the next entry is not the same return script and function name
-                if (next_entry[FILENAME_INDEX] is not name):
+                if next_entry[FILENAME_INDEX] is not name:
                     if self.HOME in name:
                         name = name.split("/")[-1]
                     return "{}/{}".format(name, function)
@@ -233,7 +235,7 @@ class LIB:
     SYSTEM ARGUMENTS
     """
 
-    # Get the system argumnets
+    # Get the system arguments
     # Input  : None
     # Output : list
     def get_args(self):
@@ -497,7 +499,7 @@ class LIB:
 
     # Start the given os command as it's on process
     # Input: string (system command)
-    # Output: subprocess.Popen obejct
+    # Output: subprocess.Popen object
     def start_process(self, cmd):
         self.write_log("Starting process cmd: '{}'".format(cmd))
         try:
@@ -561,27 +563,27 @@ class LIB:
         measure = measure.lower()
         return_value = None
         if future:
-                if measure == "seconds":
-                    return_value = str(now + TD(seconds=delta)).split(".")[0]
-                if measure == "minutes":
-                    return_value = str(now + TD(minutes=delta)).split(".")[0]
-                if measure == "hours":
-                    return_value = str(now + TD(hours=delta)).split(".")[0]
-                if measure == "days":
-                    return_value = str(now + TD(days=delta)).split(".")[0]
-                if measure == "weeks":
-                    return_value = str(now + TD(weeks=delta)).split(".")[0]
+            if measure == "seconds":
+                return_value = str(now + TD(seconds=delta)).split(".")[0]
+            if measure == "minutes":
+                return_value = str(now + TD(minutes=delta)).split(".")[0]
+            if measure == "hours":
+                return_value = str(now + TD(hours=delta)).split(".")[0]
+            if measure == "days":
+                return_value = str(now + TD(days=delta)).split(".")[0]
+            if measure == "weeks":
+                return_value = str(now + TD(weeks=delta)).split(".")[0]
         if not future:
-                if measure == "seconds":
-                    return_value = str(now - TD(seconds=delta)).split(".")[0]
-                if measure == "minutes":
-                    return_value = str(now - TD(minutes=delta)).split(".")[0]
-                if measure == "hours":
-                    return_value = str(now - TD(hours=delta)).split(".")[0]
-                if measure == "days":
-                    return_value = str(now - TD(days=delta)).split(".")[0]
-                if measure == "weeks":
-                    return_value = str(now - TD(weeks=delta)).split(".")[0]
+            if measure == "seconds":
+                return_value = str(now - TD(seconds=delta)).split(".")[0]
+            if measure == "minutes":
+                return_value = str(now - TD(minutes=delta)).split(".")[0]
+            if measure == "hours":
+                return_value = str(now - TD(hours=delta)).split(".")[0]
+            if measure == "days":
+                return_value = str(now - TD(days=delta)).split(".")[0]
+            if measure == "weeks":
+                return_value = str(now - TD(weeks=delta)).split(".")[0]
         return return_value
 
     """
@@ -639,10 +641,10 @@ class LIB:
         return string
 
     # Encode a given value using base64. A key can be given to further secure the encoding
-    #  NOTE: THIS IS NOT SECURE ENCRIPTION... BUT ALTEAST ITS NOT PLAIN TEXT
+    #  NOTE: THIS IS NOT SECURE ENCRYPTION... BUT AT LEAST ITS NOT PLAIN TEXT
     # Input: String value, String key
     # Output: String encoded_value
-    def encode(self, value = None, key="secret"):
+    def encode(self, value=None, key="secret"):
         self.write_log("Encoding: {}".format(value))
         encoded_value = None
         if value is None:
@@ -650,7 +652,7 @@ class LIB:
         try:
             encoded_key = base64.b64encode(key.encode(self.get_config_value('CharEncoding','utf-8'))).decode(self.get_config_value('CharEncoding','utf-8'))
             value_lenght = len(value)
-            m_value = "{}{}{}".format(value[:int(value_lenght/2)],encoded_key,value[int(value_lenght/2):])
+            m_value = "{}{}{}".format(value[:int(value_lenght/2)], encoded_key, value[int(value_lenght/2):])
             encoded_value = base64.b64encode(m_value.encode(self.get_config_value('CharEncoding', 'utf-8'))).decode(self.get_config_value('CharEncoding', 'utf-8'))
         except Exception as e:
             self.write_error("Error:\n####\n{}\n####\n".format(e))
@@ -658,10 +660,10 @@ class LIB:
         return encoded_value
 
     # Decode a given value using base64. A key has to be given if it was encoded using one
-    #  NOTE: THIS IS NOT SECURE ENCRIPTION... BUT ALTEAST ITS NOT PLAIN TEXT
+    #  NOTE: THIS IS NOT SECURE ENCRYPTION... BUT AT LEAST ITS NOT PLAIN TEXT
     # Input: String value, String key
     # Output: String decoded_value
-    def decode(self, value = None, key="secret"):
+    def decode(self, value=None, key="secret"):
         self.write_log("Decoding: {}".format(value))
         m_value = None
         if value is None:
@@ -710,6 +712,7 @@ class LIB:
 ####################################################################################################
 """
 
+
 class MySQL:
     CONN = None
     CUR = None
@@ -719,18 +722,18 @@ class MySQL:
     # Create a MySQL object (and connection)
     # Input: String host, String username, String password, String database, LIB lib)
     # Output: None
-    def __init__(self,host=None,username=None,password=None,database=None, lib = None):
-        #import the mysql connector return if it's not installed
+    def __init__(self, host=None, username=None, password=None, database=None, lib=None):
+        # import the mysql connector return if it's not installed
         try:
             import mysql.connector
         except:
             return
 
-        #make sure all the values are given
+        # make sure all the values are given
         if (host is None) or (username is None) or (password is None) or (database is None):
             return
 
-        #make a lib instance for itself
+        # make a lib instance for itself
         if (lib is None) and (self.lib is None):
             self.lib = LIB(home="/tmp",out_log="mysql_{}_{}_output.log".format(host,database),err_log="mysql_{}_{}_error.log".format(host,database))
         else:
@@ -738,14 +741,14 @@ class MySQL:
             self.lib.OUT_LOG = "mysql_{}_{}_output.log"
             self.lib.ERR_LOG = "mysql_{}_{}_error.log"
 
-        #make the config dict for mysql conn
+        # make the config dict for mysql conn
         self.config = {
             'user': username,
             'password': password,
             'host': host,
             'database': database
         }
-        #try to make the mysql connection
+        # try to make the mysql connection
         try:
             self.CONN = mysql.connector.connect(**self.config)
         except Exception as e:
@@ -755,7 +758,7 @@ class MySQL:
             self.lib.write_error("Error: {}".format(e))
             self.end()
             return
-        #get the cursor
+        # get the cursor
         self.CUR = self.CONN.cursor(dictionary=True)
 
         self.lib.write_log("Connected {}".format(self.config))
@@ -802,16 +805,16 @@ class MySQL:
     # Input: String query, Tuples (values)
     # Output: list rows (as dictionaries)
     def select(self,query=None, variables=None):
-        #ensure a query is given
+        # ensure a query is given
         if query is None:
             self.lib.write_log("Query is None")
             return None
-        #ensure the query is a select statement
+        # ensure the query is a select statement
         if query.lower().split(" ")[0] != "select":
             self.lib.write_log("Query not select statement")
             return None
         self.lib.write_log("Running '{}'".format(query))
-        #there are no variables in this query
+        # there are no variables in this query
         if variables is None:
             try:
                 self.CUR.execute(query)
@@ -824,9 +827,9 @@ class MySQL:
                 self.lib.write_error(string)
                 self.lib.write_error("Error: {}".format(e))
                 return None
-        #there are variables in this query
+        # there are variables in this query
         elif variables is not None:
-            #ensure the variables are given as tuples
+            # ensure the variables are given as tuples
             if type(variables) is not tuple:
                 self.lib.write_log("Variables need to be a tuple")
                 return None

@@ -14,10 +14,12 @@ from bin.DataCollector import DataCollector as DC
 def sig_handler(sig,frame):
     exit()
 
+
 # Gracefully exit the program, clean ups to be done here
 # input: None
 # output: None
 def exit():
+    # Todo: warning: shadows Built-in name exit. Will this be a problem?
     lib.write_log("Exiting..")
     # Close the UDP port
     if in_socket is not None:
@@ -26,6 +28,7 @@ def exit():
     for process in PROCESSLIST:
         process.terminate()
     sys.exit()
+
 
 # Main of the program
 if __name__ == '__main__':
@@ -36,10 +39,9 @@ if __name__ == '__main__':
     config_file = "config/RedditRisingPost.cfg"
     lib = LIB(cfg=config_file)
 
-
     # Read the config file program specific values, and define other variables
     PROCESSLIST = []
-    #making the praw_q
+    # making the praw_q
     praw_q = MP.Queue()
 
     # TODO: Get reddit praw login list from database
