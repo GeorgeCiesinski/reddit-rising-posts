@@ -1,16 +1,7 @@
 from bin.Comment import Comment
-"""
-Comments object: retrieves comments from post
-"""
 
 """
-Notes for George:
-Invokes PRAW session
-PRAW is not thread safe - cannot be shared between multiple threads (according to PRAW documentation)
-- Must initiate and close the session in the same thread
-- This is why we are making the comment object
-- It is also because of data separation: Reddit has their own object they populate with info.
-...We are retrieving info from it and bringing it into our own database to prevent problems
+Comments object: retrieves comments from post
 """
 
 
@@ -18,11 +9,11 @@ PRAW is not thread safe - cannot be shared between multiple threads (according t
 # Input: LIB lib, MP Queue, Post post
 # Output: list of Comment comment
 def get_all_comments(lib=None, praw_instance=None, submission=None, replace_more_limit=None):
-    # TODO: Ensure lib, praw_instance and post are not none
+    # Ensure lib, praw_instance and post are not none
     if (lib is None) or (praw_instance is None) or (submission is None):
         return None
     lib.write_log("Getting all comments from the post {}".format(submission.id))
-    # TODO: Get all comments from post (replace more)
+    # Get all comments from post (replace more)
     try:
         praw = praw_instance
         comments = submission.comments
@@ -33,7 +24,7 @@ def get_all_comments(lib=None, praw_instance=None, submission=None, replace_more
         return None
     # Creates empty comment list
     comment_list = []
-    # TODO: Make Comment objects
+    # Make Comment objects
     # .list() lists all levels of comments
     # Adds comments to comment_list
     for comment in comments.list():
@@ -41,7 +32,7 @@ def get_all_comments(lib=None, praw_instance=None, submission=None, replace_more
         comment_list.append(c)
         lib.write_log(c.id)
     lib.write_log("Completed comments from post {}".format(submission.id))
-    # TODO: Return list of all comments
+    # Return list of all comments
     return comment_list
 
 
@@ -49,11 +40,11 @@ def get_all_comments(lib=None, praw_instance=None, submission=None, replace_more
 # Input: LIB lib, MP Queue, Post post
 # Output: list of Comment comment
 def get_root_comments(lib=None, praw_instance=None, submission=None):
-    # TODO: Ensure lib, praw_instance and post are not none
+    # Ensure lib, praw_instance and post are not none
     if (lib is None) or (praw_instance is None) or (submission is None):
         return None
     lib.write_log("Getting all top-level comments from the post {}".format(submission.id))
-    # TODO: Get all top-level comments from post
+    # Get all top-level comments from post
     try:
         praw = praw_instance
         comments = submission.comments
@@ -63,11 +54,11 @@ def get_root_comments(lib=None, praw_instance=None, submission=None):
         lib.write_log("Failed to get top-level comments from post due to the exception: {}".format(str(e)))
         return None
     comment_list = []
-    # TODO: Make Comment objects
+    # Make Comment objects
     for comment in comments:
         c = Comment(comment)
         comment_list.append(c)
         lib.write_log(c.id)
     lib.write_log("Completed top-level comments from post {}".format(submission.id))
-    # TODO: Return list of all comments
+    # Return list of all comments
     return comment_list

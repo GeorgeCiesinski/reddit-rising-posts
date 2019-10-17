@@ -1,3 +1,5 @@
+from bin.LIB import LIB
+
 """
 Post Object: contains post information
 """
@@ -17,25 +19,22 @@ class Submission (object):
 		self.url = submission.url
 		self.subreddit = submission.subreddit
 
-		# below comment is so pycharm ignores the exception warning for broad exception
-		# noinspection PyBroadException
 		try:
 			self.selftext = submission.selftext
-		except:
+		except Exception as e:
 			self.selftext = None
-			print("Submission has no body.")
+			# Todo: Update logs with error?
 
 		self.num_comments = submission.num_comments
 		self.comments = submission.comments
 		self.score = submission.score
 
-		# author
-		# noinspection PyBroadException
 		try:
 			self.author = submission.author
 		except:
 			# In case author is deleted or otherwise doesn't exist
 			self.author = None
+			# Todo: Update logs with error?
 
 		# created date
 		self.created_utc = submission.created_utc
