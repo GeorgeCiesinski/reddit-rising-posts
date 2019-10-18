@@ -1,62 +1,106 @@
-from bin.LIB import LIB
 from bin.Submission import Submission
 
 """
-Submission object: retrieves submission from subreddit
+Submission functions: retrieves submission from subreddit
 """
 
 
-class SubmissionFunctions:
-	# Todo: praw queue.get()
-
-	lib = None
-
-	def __init__(self):
-		self.lib = LIB(cfg="config/SubmissionFunctions.cfg")
-
-	# Get hot posts from subreddit
-	# input: String subreddit, integer limit
-	# output: list praw submissions
-	def get_hot(self, subreddit=None, limit=None , praw_q=None):
-		self.lib.write_log("Getting hot from subreddit %s" % subreddit)
-		try:
-			while praw_q.empty():
-				self.lib.write_log("No praw instance, waiting for one to be available")
-				self.lib.sleep(.5)
-		except Exception as e:
-			self.lib.write_error("ERROR: {}".format(e))
+# Get hot without MP, for testing purposes
+def get_hot(lib=None, praw_q=None, subreddit=None, limit=None):
+	# Ensure lib, praw_instance and subreddit are not none
+	if (lib is None) or (praw_q is None) or (subreddit is None):
+		return None
+	try:
+		while praw_q.empty():
+			lib.sleep(lib.get_config_value("prawqueuewait", .5))
 		praw = praw_q.get()
+	except Exception as e:
+		lib.write_error("ERROR: {}".format(e))
+	lib.write_log("Getting hot from subreddit {}".format(subreddit))
+	# Get hot submissions from subreddit limited by given value
+	try:
 		submissions = praw.subreddit(subreddit).hot(limit=limit)
-		submission_list = []
-		for submission in submissions:
-			s = Submission(submission)
-			submission_list.append(s)
-			self.lib.write_log(s.title)
+	except Exception as e:
+		lib.write_log("Failed to get hot submissions due to the exception: {}".format(str(e)))
+		return None
+	submission_list = []
+	# Make submissions objects
+	for submission in submissions:
+		s = Submission(submission)
+		submission_list.append(s)
+		lib.write_log(s.title)
+	lib.write_log("Completed subreddit {}".format(subreddit))
+	# Puts praw instance back into queue
+	praw_q.put(praw)
+	# Return submissions list
+	return submission_list
 
-		self.lib.write_log("Completed subreddit %s" % subreddit)
-		praw_q.put(praw)
-		return submission_list
 
-	# Get new posts from subreddit
-	# input: String subreddit, integer limit
-	# output: list praw submissions
-	def get_new(self, subreddit=None, limit=10):
-		pass
+# Get rising posts from subreddit
+# input: Lib lib, MP Queue, String subreddit, integer limit
+# output: list our submissions
+def get_rising(lib=None, praw_q=None, subreddit=None, limit=None):
+	# Ensure lib, praw_instance and subreddit are not none
+	if (lib is None) or (praw_q is None) or (subreddit is None):
+		return None
+	try:
+		while praw_q.empty():
+			lib.sleep(lib.get_config_value("prawqueuewait",.5))
+		praw = praw_q.get()
+	except Exception as e:
+		lib.write_error("ERROR: {}".format(e))
+	lib.write_log("Getting rising from subreddit {}".format(subreddit))
+	# Get rising submissions from subreddit limited by given value
+	try:
+		praw = praw_q
+		submissions = praw.subreddit(subreddit).rising(limit=limit)
+	except Exception as e:
+		lib.write_log("Failed to get rising submissions due to the exception: {}".format(str(e)))
+		return None
+	submission_list = []
+	# Make submissions objects
+	for submission in submissions:
+		s = Submission(submission)
+		submission_list.append(s)
+		lib.write_log(s.title)
+	lib.write_log("Completed subreddit {}".format(subreddit))
+	# Puts praw instance back into queue
+	praw_q.put(praw)
+	# Return submissions list
+	return submission_list
 
-	# Get rising posts from subreddit
-	# input: String subreddit, integer limit
-	# output: list praw submissions
-	def get_rising(self, subreddit=None, limit=10):
-		pass
 
-	# Get top posts from subreddit
-	# input: String subreddit, integer limit
-	# output: list praw submissions
-	def get_top(self, subreddit=None, limit=10):
-		pass
+# Get top posts from subreddit
+# input: Lib lib, MP Queue, String subreddit, integer limit
+# output: list our submissions
+def get_top(lib=None, praw_q=None, subreddit=None, time_filter='all', limit=None):
+	# Ensure lib, praw_instance and subreddit are not none
+	if (lib is None) or (praw_q is None) or (subreddit is None):
+		return None
+	try:
+		while praw_q.empty():
+			lib.sleep(lib.get_config_value("prawqueuewait",.5))
+		praw = praw_q.get()
+	except Exception as e:
+		lib.write_error("ERROR: {}".format(e))
+	lib.write_log("Getting top from subreddit {}".format(subreddit))
+	# Get top submissions from subreddit limited by given value
+	try:
+		praw = praw_q
+		# time_filter – Can be one of: all, day, hour, month, week, year (default: all).
+		submissions = praw.subreddit(subreddit).top(time_filter=time_filter, limit=limit)
+	except Exception as e:
+		lib.write_log("Failed to get top submissions due to the exception: {}".format(str(e)))
+		return None
+	submission_list = []
+	# Make submissions objects
+	for submission in submissions:
+		s = Submission(submission)
+		submission_list.append(s)
+		lib.write_log(s.title)
+	lib.write_log("Completed subreddit {}".format(subreddit))
+	# Puts praw instance back into queue
+	praw_q.put(praw)
+	# Return submissions list
+	return submission_list
 
-	# Get top posts from subreddit
-	# input: String subreddit, integer limit
-	# output: list praw submissions
-	def get_controversial(self, subreddit=None, limit=10):
-		pass
