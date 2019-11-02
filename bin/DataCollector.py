@@ -2,8 +2,8 @@
 Description: Used to collect data from Reddit
 """
 
-from .SubmissionFunctions import SubmissionFunctions
-from . import CommentFunctions
+import bin.SubmissionFunctions as SubmissionFunctions
+import bin.CommentFunctions as CommentFunctions
 from .LIB import LIB
 
 
@@ -13,19 +13,28 @@ class DataCollector:
     # Input:String config,  String subreddit name
     # Output: None
     def __init__(self, subreddit=None, praw_q = None):
-        lib = LIB(cfg="config/DataCollection.cfg")
+        output_name = "{}_output.log".format(subreddit)
+        error_name = "{}_error.log".format(subreddit)
+        lib = LIB(cfg="config/DataCollection.cfg", out_log=output_name, err_log=error_name)
         lib.write_log("Data Collector {}".format(subreddit))
 
-        submissionFunction = SubmissionFunctions()
+        # while True: #TODO:  read "server_says" from shared memory --- keep running other wise
+            # TODO: get submissions from reddit for the subreddit (Submissions.get_hot(subreddit='funny', limit = 10) for example)
+            # for each submission
+                # TODO: Upsert submission into database details
+                # TODO: Get comments (Comments.get_root_comments(Post post))
+                #for each comment in comments:
+                    # TODO: Upsert comment into database details
 
-        # TODO: get submissions from reddit for the subreddit (Submissions.get_hot(subreddit='funny', limit = 10) for example)
-        submissions = submissionFunction.get_hot(subreddit=subreddit, limit=10, praw_q=praw_q)
-        # for each submission
-            # TODO: Get comments (Comments.get_root_comments(Post post))
+            # TODO: Get all submissions from database that are due for data collection; collect and add snapshot
 
-        # TODO: Print to screen (here is where we would send it to the database rather than printing it)
+            # TODO: Get all comments from database that are due for data collection; collect and  add snapshot
 
-        print(len(submissions))
+            # TODO: Run decision making processes (these need to be though about some more, but they will update the polling interval based on some formulas)
 
+        submissions = SubmissionFunctions.get_hot(lib=lib, subreddit=subreddit, limit=10, praw_q=praw_q)
+        lib.write_log("Got {} submissions from {}".format(len(submissions),subreddit))
+
+        ## END PROCESSING STEPS
         lib.end()
         pass
