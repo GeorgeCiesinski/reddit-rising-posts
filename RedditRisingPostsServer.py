@@ -126,17 +126,17 @@ if __name__ == '__main__':
                     conn.close()
                     break
 
-                    # TODO: request to server commands
-                    if (parts[0] == "list_commands") and (len(parts) == 1):
-                        return_string = "Commands..\n"
-                        return_string = "{} stop -- stop the server\n".format(return_string)
-                        return_string = "{} stop (data collector name) -- stop the given data collector\n".format(return_string)
-                        return_string = "{} start (sub reddit name) -- start the data collector for the given sub reddit\n".format(return_string)
-                        return_string = "{} status -- return the status of all the data collectors\n".format(return_string)
-                        lib.write_log(return_string)
-                        conn.sendall(return_string.encode(ENCODING))
-                        conn.close()
-                        break
+                # TODO: request to server commands
+                if (parts[0] == "list_commands") and (len(parts) == 1):
+                    return_string = "Commands..\n"
+                    return_string = "{} stop -- stop the server\n".format(return_string)
+                    return_string = "{} stop (data collector name) -- stop the given data collector\n".format(return_string)
+                    return_string = "{} start (sub reddit name) -- start the data collector for the given sub reddit\n".format(return_string)
+                    return_string = "{} status -- return the status of all the data collectors\n".format(return_string)
+                    lib.write_log(return_string)
+                    conn.sendall(return_string.encode(ENCODING))
+                    conn.close()
+                    break
 
                 # TODO: status of all the process is requested
                 if (parts[0] == "status") and (len(parts) == 1):
