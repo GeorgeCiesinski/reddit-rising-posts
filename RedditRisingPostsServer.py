@@ -5,7 +5,7 @@ import multiprocessing as MP
 import praw
 
 from bin.LIB import LIB
-from bin.DataCollector import DataCollector as DC
+from bin.SubmissionPrawPull import SubmissionPrawPull
 
 # TODO: process_object class in bin
     #TODO: Class -- process_name, the_actual_process, server_says, process_is_doing, process_message
@@ -68,7 +68,7 @@ if __name__ == '__main__':
             lib.write_log("Starting Data Collection for {}".format(subreddit))
             cfg = "config/DataCollection.cfg"
             process_name = "{}_data_collector".format(subreddit)
-            process = MP.Process(name=process_name.lower(), target=DC, args=(subreddit, praw_q))
+            process = MP.Process(name=process_name.lower(), target=SubmissionPrawPull, args=(subreddit, praw_q))
             process.start()
             PROCESSLIST.append(process) #TODO: update shared memory dict
             lib.write_log("Started Data Collection for {}".format(subreddit))
@@ -205,7 +205,7 @@ if __name__ == '__main__':
                         lib.write_log("Starting Data Collection for {}".format(start_name))
                         cfg = "config/DataCollection.cfg"
                         process_name = "{}_data_collector".format(start_name)
-                        process = MP.Process(name=process_name.lower(), target=DC, args=(start_name, praw_q))
+                        process = MP.Process(name=process_name.lower(), target=SubmissionPrawPull, args=(start_name, praw_q))
                         process.start()
                         PROCESSLIST.append(process)
                         lib.write_log("Started Data Collection for {}".format(start_name))

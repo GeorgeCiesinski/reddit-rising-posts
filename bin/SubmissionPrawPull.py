@@ -1,17 +1,13 @@
 """
-Description: Used to collect data from Reddit
+Description: Used to Submission snapshots or source
 """
 
 import bin.SubmissionFunctions as SubmissionFunctions
 import bin.CommentFunctions as CommentFunctions
 from .LIB import LIB
 
+class SubmissionPrawPull:
 
-class DataCollector:
-
-    # Start the data collector for subreddit. It is to collect submission and then collect comments for them
-    # Input:String config,  String subreddit name
-    # Output: None
     def __init__(self, subreddit=None, praw_q = None):
         output_name = "{}_output.log".format(subreddit)
         error_name = "{}_error.log".format(subreddit)
