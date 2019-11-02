@@ -14,7 +14,7 @@ class Pg:
 			dbname='reddit_rising',
 			user='reddit-rising-posts',  # 'rr_pool',
 			password='s3cr3t',
-			cursor_factory=psycopg2.extras.RealDictCursor,  # Return dicts instead of tuples
+			cursor_factory=psycopg2.extras.DictCursor,  # Return dicts instead of tuples
 		)
 
 		# Enable autocommit by default.

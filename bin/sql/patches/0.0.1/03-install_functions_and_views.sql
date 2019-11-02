@@ -181,15 +181,21 @@ language plpgsql;
 
 
 -- Get the praw credentials for initializing a new thread
-create or replace function
-	praw_thread_get()
-returns setof praw_thread
+create or replace function praw_login_get()
+returns table
+    (
+        client_id			text,
+        client_secret		text,
+        username			text,
+        password			text,
+        user_agent			text
+    )
 as $$
 declare
-	tid int; -- thread_id
+	_tid int; -- thread_id
 begin
 	-- Retrieve the praw login information
-	tid := (
+	_tid := (
 		select
 			thread_id
 		from
@@ -207,11 +213,13 @@ begin
 	set
 		provided_on = now()
 	where
-		thread_id = tid;
+		thread_id = _tid;
 
 	-- Return the praw login
 	return query
-	select * from praw_thread where thread_id=tid;
+	select p.client_id, p.client_secret, p.username, p.password, p.user_agent
+	from praw_thread p
+	where thread_id=_tid;
 end;
 $$
 language plpgsql;

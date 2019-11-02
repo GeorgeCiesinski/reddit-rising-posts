@@ -1,6 +1,6 @@
 #!/user/bin/python3
 
-from DAL import Helper
+from bin.DAL.Helper import Helper
 
 """
 A note about the Queue class. All of the methods require a "thread_id", which is returned as part of the
