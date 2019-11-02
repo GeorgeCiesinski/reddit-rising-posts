@@ -1,6 +1,6 @@
 # reddit-rising-posts
 
-A bot that observes rising posts in Reddit for Analysis. 
+A bot that observes rising posts in Reddit for Analysis.
 
 ## Purpose
 

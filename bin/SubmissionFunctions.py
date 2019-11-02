@@ -5,8 +5,17 @@ Submission functions: retrieves submission from subreddit
 """
 
 
-# Get hot without MP, for testing purposes
 def get_hot(lib=None, praw_q=None, subreddit=None, limit=None):
+	"""
+	Gets hot posts using PRAW
+
+	:param lib: Anu's lib file
+	:param praw_q: PRAW object
+	:param subreddit: Specified Subreddit
+	:param limit: Number of posts
+	:return: List of submissions
+	:rtype: list
+	"""
 	# Ensure lib, praw_instance and subreddit are not none
 	if (lib is None) or (praw_q is None) or (subreddit is None):
 		return None
@@ -36,10 +45,17 @@ def get_hot(lib=None, praw_q=None, subreddit=None, limit=None):
 	return submission_list
 
 
-# Get rising posts from subreddit
-# input: Lib lib, MP Queue, String subreddit, integer limit
-# output: list our submissions
 def get_rising(lib=None, praw_q=None, subreddit=None, limit=None):
+	"""
+	Get rising posts using PRAW
+
+	:param lib: Anu's lib file
+	:param praw_q: PRAW object
+	:param subreddit: Specified Subreddit
+	:param limit: Number of posts
+	:return: List of submissions
+	:rtype: list
+	"""
 	# Ensure lib, praw_instance and subreddit are not none
 	if (lib is None) or (praw_q is None) or (subreddit is None):
 		return None
@@ -70,10 +86,18 @@ def get_rising(lib=None, praw_q=None, subreddit=None, limit=None):
 	return submission_list
 
 
-# Get top posts from subreddit
-# input: Lib lib, MP Queue, String subreddit, integer limit
-# output: list our submissions
 def get_top(lib=None, praw_q=None, subreddit=None, time_filter='all', limit=None):
+	"""
+	Get top posts using PRAW
+
+	:param lib: Anu's lib file
+	:param praw_q: PRAW object
+	:param subreddit: Specified Subreddit
+	:param time_filter: Specified time-filter
+	:param limit: Number of posts
+	:return: List of submissions
+	:rtype: list
+	"""
 	# Ensure lib, praw_instance and subreddit are not none
 	if (lib is None) or (praw_q is None) or (subreddit is None):
 		return None

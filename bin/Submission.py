@@ -9,10 +9,12 @@ Post Object: contains post information
 
 class Submission (object):
 
-	# Create our own post Object from the given prow submission object
-	# input: praw submission
-	# output: None
 	def __init__(self, submission):
+		"""
+		Create our own post Object from the given prow submission object
+
+		:param submission:
+		"""
 
 		self.title = submission.title
 		self.id = submission.id
@@ -38,6 +40,3 @@ class Submission (object):
 
 		# created date
 		self.created_utc = submission.created_utc
-
-	def to_string(self):
-		return str(self)
