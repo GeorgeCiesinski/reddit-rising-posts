@@ -4,7 +4,7 @@ from bin.Submission import Submission
 Submission functions: retrieves submission from subreddit
 """
 
-
+# Todo: Rewrite function to use PRAW object instead of praw_q. MP is not needed for this.
 def get_hot(lib=None, praw_q=None, subreddit=None, limit=None):
 	"""
 	Gets hot posts using PRAW
@@ -45,6 +45,7 @@ def get_hot(lib=None, praw_q=None, subreddit=None, limit=None):
 	return submission_list
 
 
+# Todo: Rewrite function to use PRAW object instead of praw_q. MP is not needed for this.
 def get_rising(lib=None, praw_q=None, subreddit=None, limit=None):
 	"""
 	Get rising posts using PRAW
@@ -86,6 +87,7 @@ def get_rising(lib=None, praw_q=None, subreddit=None, limit=None):
 	return submission_list
 
 
+# Todo: Rewrite function to use PRAW object instead of praw_q. MP is not needed for this.
 def get_top(lib=None, praw_q=None, subreddit=None, time_filter='all', limit=None):
 	"""
 	Get top posts using PRAW
@@ -128,3 +130,7 @@ def get_top(lib=None, praw_q=None, subreddit=None, time_filter='all', limit=None
 	# Return submissions list
 	return submission_list
 
+
+def get_snapshot(lib=None, praw_q=None, submission_id=None):
+
+	pass

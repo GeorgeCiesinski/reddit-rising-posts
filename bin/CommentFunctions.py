@@ -75,3 +75,7 @@ def get_root_comments(lib=None, praw_instance=None, submission=None):
     lib.write_log("Completed top-level comments from post {}".format(submission.id))
     # Return list of all comments
     return comment_list
+
+
+def get_snapshot(lib=None, praw_q=None, comment_id=None):
+    pass
