@@ -18,7 +18,7 @@ class DataCollector:
         lib = LIB(cfg="config/DataCollection.cfg", out_log=output_name, err_log=error_name)
         lib.write_log("Data Collector {}".format(subreddit))
 
-        # while True: #TODO: untill given the terminate signal from parent
+        # while True: #TODO:  read "server_says" from shared memory --- keep running other wise
             # TODO: get submissions from reddit for the subreddit (Submissions.get_hot(subreddit='funny', limit = 10) for example)
             # for each submission
                 # TODO: Upsert submission into database details
@@ -34,5 +34,7 @@ class DataCollector:
 
         submissions = SubmissionFunctions.get_hot(lib=lib, subreddit=subreddit, limit=10, praw_q=praw_q)
         lib.write_log("Got {} submissions from {}".format(len(submissions),subreddit))
+
+        ## END PROCESSING STEPS
         lib.end()
         pass

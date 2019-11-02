@@ -7,6 +7,8 @@ import praw
 from bin.LIB import LIB
 from bin.DataCollector import DataCollector as DC
 
+# TODO: process_object class in bin
+    #TODO: Class -- process_name, the_actual_process, server_says, process_is_doing, process_message
 
 # used to listen for ^C to gracefully terminate the program
 # input: not sure
@@ -39,10 +41,15 @@ if __name__ == '__main__':
     config_file = "config/RedditRisingPost.cfg"
     lib = LIB(cfg=config_file)
 
-    # Read the config file program specific values, and define other variables
+    # TODO: update to dict {process_name, process_object}
+    # TODO: update to dict -- Read the config file program specific values, and define other variables
     PROCESSLIST = []
     # making the praw_q
     praw_q = MP.Queue()
+
+    #TODO:  Make Shared memory for all processes
+        # TODO:  Add process list dict into memory with a process_object
+
 
     # TODO: Get reddit praw login list from database
     reddit = praw.Reddit(
@@ -63,7 +70,7 @@ if __name__ == '__main__':
             process_name = "{}_data_collector".format(subreddit)
             process = MP.Process(name=process_name.lower(), target=DC, args=(subreddit, praw_q))
             process.start()
-            PROCESSLIST.append(process)
+            PROCESSLIST.append(process) #TODO: update shared memory dict
             lib.write_log("Started Data Collection for {}".format(subreddit))
     except Exception as E:
         pass
@@ -87,6 +94,17 @@ if __name__ == '__main__':
     # Default message return by the application for invalid commands
     NOT_VALID_MESSAGE = "Not Valid input".encode(ENCODING)
     # For each connection (keep looping to listen for new connections)
+
+   #TODO: Break out below to functions ###############
+    ###############
+
+    ## def process_list (print process_object)
+        ## get each process status and print to screen
+    ## def process_restart (print process_object)
+        ## send and wait for process to stop
+        ## update the import for that file
+        ## start the process
+
     # Each new connection is a one time transaction. A request is made, the result is sent, and the connection is closed
     while True:
         conn, addr = in_socket.accept()
@@ -107,6 +125,18 @@ if __name__ == '__main__':
                     conn.sendall(NOT_VALID_MESSAGE)
                     conn.close()
                     break
+
+                    # TODO: request to server commands
+                    if (parts[0] == "list_commands") and (len(parts) == 1):
+                        return_string = "Commands..\n"
+                        return_string = "{} stop -- stop the server\n".format(return_string)
+                        return_string = "{} stop (data collector name) -- stop the given data collector\n".format(return_string)
+                        return_string = "{} start (sub reddit name) -- start the data collector for the given sub reddit\n".format(return_string)
+                        return_string = "{} status -- return the status of all the data collectors\n".format(return_string)
+                        lib.write_log(return_string)
+                        conn.sendall(return_string.encode(ENCODING))
+                        conn.close()
+                        break
 
                 # TODO: status of all the process is requested
                 if (parts[0] == "status") and (len(parts) == 1):
