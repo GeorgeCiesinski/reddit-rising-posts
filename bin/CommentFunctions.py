@@ -5,24 +5,23 @@ Comments object: retrieves comments from post
 """
 
 
-def get_all_comments(lib=None, praw_instance=None, submission=None, replace_more_limit=None):
+def get_all_comments(lib=None, submission=None, replace_more_limit=None):
     """
     Get all comments and replies using PRAW
 
     :param lib: Anu's Lib
-    :param praw_instance: PRAW object
+    :param praw: PRAW object
     :param submission: Specified submission
     :param replace_more_limit: Max number of MoreComments to replace
     :return: List of comments
     :rtype: list
     """
-    # Ensure lib, praw_instance and post are not none
-    if (lib is None) or (praw_instance is None) or (submission is None):
+    # Ensure lib and post are not none
+    if (lib is None) or (submission is None):
         return None
     lib.write_log("Getting all comments from the post {}".format(submission.id))
     # Get all comments from post (replace more)
     try:
-        praw = praw_instance
         comments = submission.comments
         # Replace MoreComments to include them in comments
         comments.replace_more(limit=replace_more_limit)

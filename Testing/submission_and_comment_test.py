@@ -1,6 +1,8 @@
 import praw
 import unittest
+from Submission import Submission
 import SubmissionFunctions
+import CommentFunctions
 from LIB import LIB
 
 
@@ -19,14 +21,13 @@ class Praw:
 		return r
 
 
-# Todo: Write test cases for SubmissionFunctions.py
 class SubmissionFunctionUnitTest(unittest.TestCase):
 	"""Test for SubmissionFunctions.py"""
 
 	def __init__(self, lib, reddit, sr, sub_id, limit):
 
 		# Prints test name
-		print('Testing results for SubmissionFunctions.py : ')
+		print('\nTesting results for SubmissionFunctions.py : ')
 
 		# Tests get_hot
 		self.get_hot_test(lib, reddit, sr, limit)
@@ -105,31 +106,89 @@ class SubmissionFunctionUnitTest(unittest.TestCase):
 		assert isinstance(snapshot.title, str)
 
 		# Print Results
-		print('\nResults of snapshot.')
+		print('\nResults of snapshot: ')
 		print(snapshot.id)
 		print(snapshot.title)
 
 
-# Todo: Start Unittest
+class CommentFunctionsUnitTest(unittest.TestCase):
+	"""Test for CommentFunctions.py"""
+
+	def __init__(self, lib, submission, replace_more):
+
+		# Prints test name
+		print('\nTesting results for SubmissionFunctions.py : ')
+
+		# Tests get_all_comments
+		self.get_all_comments_test(lib, submission, replace_more)
+
+	@staticmethod
+	def get_all_comments_test(lib, submission, replace_more):
+
+		# Gets Comment List
+		comment_list = CommentFunctions.get_all_comments(lib, submission, replace_more)
+
+		# Testing
+		assert isinstance(comment_list, list)
+
+		# Print a few comments
+
+		print('\nResults of get_all_comments')
+		for x in range(4):
+			print(comment_list[x].id)
+
+	def get_root_comments_test(self):
+
+		# Gets Comment List
+
+		# Testing
+
+		# Print a few comments
+
+		pass
+
+
 if __name__ == "__main__":
+
+	"""
+	Universal settings
+	"""
 
 	# LIB
 	lib = LIB()
 
 	# Praw Login
-	reddit = Praw.login()
-
-	# Subreddit
-	sr = 'funny'
+	praw = Praw.login()
 
 	# Submission ID
 	sub_id = 'dr35z5'
 
+	"""
+	SubmissionFunctions.py Settings
+	"""
+
+	# Subreddit
+	sr = 'funny'
+
 	# Limit
 	limit = 4
 
+	"""
+	CommentFunctions.py Settings
+	"""
+
+	submission = praw.submission(sub_id)
+	s = Submission(submission)
+
+	replace_more = 32
+
+	"""
+	Testing Classes
+	"""
+
 	# SubmissionFunctions.py Unit Test
-	sf = SubmissionFunctionUnitTest(lib, reddit, sr, sub_id, limit)
+	sf = SubmissionFunctionUnitTest(lib, praw, sr, sub_id, limit)
+	cf = CommentFunctionsUnitTest(lib, s, replace_more)
 
 	# Cleanup
 	lib.end()
