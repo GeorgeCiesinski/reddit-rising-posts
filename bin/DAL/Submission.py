@@ -35,3 +35,16 @@ class Submission:
 		)
 		cur.close()
 		return True
+
+	@staticmethod
+	def submission_schedule_set(pg, submission_id: int, ):
+		cur = pg.cursor()
+		cur.execute(
+			"select post_control_upsert(%s, %s)",
+			(
+				submission_id,
+
+			)
+		)
+		cur.close()
+		return True
