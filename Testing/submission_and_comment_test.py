@@ -1,12 +1,14 @@
 import praw
 import unittest
+from bin.DAL.Praw import Praw
+from bin.DAL.Pg import Pg
 from Submission import Submission
 import SubmissionFunctions
 import CommentFunctions
 from LIB import LIB
 
 
-class Praw:
+class zPraw:
 
 	@staticmethod
 	def login():
@@ -169,7 +171,9 @@ if __name__ == "__main__":
 	lib = LIB()
 
 	# Praw Login
-	praw = Praw.login()
+	# Opens connection to db, gets praw login, and closes connection
+	with Pg.pg_connect() as db:
+		praw = Praw.praw_login_get(db)
 
 	# Submission ID
 	sub_id = 'dr35z5'
