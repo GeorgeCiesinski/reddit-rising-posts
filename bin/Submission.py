@@ -1,5 +1,3 @@
-from bin.LIB import LIB
-
 """
 Post Object: contains post information
 """
@@ -9,11 +7,12 @@ Post Object: contains post information
 
 class Submission (object):
 
-	def __init__(self, submission):
+	def __init__(self, lib, submission):
 		"""
 		Create our own post Object from the given prow submission object
 
-		:param submission:
+		:param lib: Anu's LIB file
+		:param submission: Submission object
 		"""
 
 		self.title = submission.title
@@ -25,7 +24,7 @@ class Submission (object):
 			self.selftext = submission.selftext
 		except Exception as e:
 			self.selftext = None
-			# Todo: Update logs with error?
+			lib.write_log(f'Submission {submission.id} does not have self text.')
 
 		self.num_comments = submission.num_comments
 		self.comments = submission.comments
@@ -36,7 +35,7 @@ class Submission (object):
 		except:
 			# In case author is deleted or otherwise doesn't exist
 			self.author = None
-			# Todo: Update logs with error?
+			lib.write_log(f'Submission {submission.id} does not have author.')
 
 		# created date
 		self.created_utc = submission.created_utc
