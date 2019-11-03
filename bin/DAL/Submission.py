@@ -1,20 +1,50 @@
 #!/user/bin/python3
 
-class Post:
+
+class Submission:
 	@staticmethod
-	def post_details_upsert(pg, post_id, subreddit_id, posted_by_id, title, body, posted_on):
+	def submission_detail_upsert(pg, submission):
 		cur = pg.cursor()
-		cur.execute("select post_details_upsert(%s, %s, %s, %s, %s, %s)",
-					(post_id, subreddit_id, posted_by_id, title, body, posted_on)
-				)
+		cur.execute(
+			"select submission_detail_upsert(%s, %s, %s, %s, %s, %s)",
+			(
+				submission.id,
+				submission.subreddit,
+				999,  # submission.author,
+				submission.title,
+				submission.selftext,
+				submission.created_utc
+			)
+		)
 		cur.close()
 		return True
 
 	@staticmethod
-	def post_snapshot_insert(pg, post_id, thread_id, rank, upvote, downvot, comment, is_hot):
+	def submission_snapshot_insert(pg, submission):
 		cur = pg.cursor()
-		cur.execute("select post_snapshot_insert(%s, %s, %s, %s, %s, %s, %s)",
-					(post_id, thread_id, rank, upvote, downvot, comment, is_hot)
-				)
+		cur.execute(
+			"select submission_snapshot_insert(%s, %s, %s, %s, %s, %s)",
+			(
+				submission.id,
+				0,  # submission.rank,
+				0,  # submission.upvotes,
+				0,  # submission.downvotes,
+				submission.num_comments,
+				False,  # submission.is_hot
+			)
+		)
+		cur.close()
+		return True
+
+	@staticmethod
+	def submission_schedule_set(pg, submission_id: int, ):
+		cur = pg.cursor()
+		cur.execute(
+			"select post_control_upsert(%s, %s)",
+			(
+				submission_id,
+
+			)
+		)
 		cur.close()
 		return True

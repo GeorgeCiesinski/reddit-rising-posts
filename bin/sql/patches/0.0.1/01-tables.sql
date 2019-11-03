@@ -14,8 +14,7 @@ create table app_control
 -- Keep track of active threads
 create table praw_thread
 (
-	thread_id			serial primary key,
-	client_id			text,
+	client_id			text primary key,
 	client_secret		text,
 	username			text,
 	password			text,

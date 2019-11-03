@@ -145,7 +145,7 @@ language plpgsql;
 -- Reset the praw logins (on program start)
 create or replace function praw_login_release
 (
-    release_thread_id int default 0
+	release_thread_id int default 0
 )
 returns void
 as $$
@@ -180,17 +180,10 @@ language plpgsql;
 
 
 -- Retrieve one login of
-create or replace function praw_login_get
-(
-    _thread_id int
-)
+create or replace function praw_login_get ()
 returns table
 (
-    client_id			text,
-    client_secret		text,
-    username			text,
-    password			text,
-    user_agent			text
+	client_id text, client_secret text, username text, password text, user_agent text
 )
 as $$
 declare
@@ -198,25 +191,17 @@ declare
 begin
 	-- Retrieve the praw login information
 	_cid := (
-		select
-			p.client_id
-		from
-			praw_thread p
-		where
-			released_on > provided_on -- Make sure the thread is released
-		order by
-			released_on -- Get the thread that was released the longest time ago
+		select p.client_id
+		from praw_thread p
+		where released_on > provided_on -- Make sure the thread is released
+		order by released_on -- Get the thread that was released the longest time ago
 		limit 1
 	);
 
 	-- Mark the praw login as "in use"
-	update
-		praw_thread p
-	set
-	    thread_id = _thread_id,
-		provided_on = now()
-	where
-		p.client_id = _cid;
+	update praw_thread p
+	set	provided_on = now()
+	where p.client_id = _cid;
 
 	-- Return the praw login
 	return query
@@ -231,13 +216,13 @@ language plpgsql;
 -- Get the next subreddit to crawl
 create or replace function subreddits_to_crawl_get
 (
-    _tid int,
-    _row_limit int
+	_tid int,
+	_row_limit int
 )
 returns table
 (
-    name text,
-    last_crawled timestamp
+	name text,
+	last_crawled timestamp
 )
 as $$
 begin
@@ -345,27 +330,26 @@ language plpgsql;
 
 -- Insert a scraped summary
 create or replace function
-	post_snapshot_insert
+	submission_snapshot_insert
 	(
-		in pid /*post_id*/	text,
-		in tid				int,
-		in rank				int,
-		in upvotes			int,
-		in downvotes		int,
-		in comments			int,
-		in is_hot			boolean
+		_pid /*post_id*/	text,
+		_rank				int,
+		_upvotes			int,
+		_downvotes		    int,
+		_num_comments		int,
+		_is_hot			    boolean
 	)
 returns void
 as $$
-declare 
-	snapped timestamp := now();
+declare
+	_snapped timestamp := now();
 begin
 	-- Insert the snapshot
 	insert into
 		post_snapshot
-		(post_id, thread_id, snapped_on, rank, upvotes, downvotes, comments, is_hot)
+		(post_id, snapped_on, rank, upvotes, downvotes, comments, is_hot)
 	values
-		(pid, tid, snapped, rank, upvotes, downvotes, comments, is_hot);
+		(_pid, _snapped, _rank, _upvotes, _downvotes, _num_comments, _is_hot);
 
 	-- Release the post for another thread to snap it again
 	update
@@ -373,10 +357,10 @@ begin
 	set
 		thread_id = 0,
 		thread_assigned_on = null,
-		last_snap = snapped,
-		next_snap = snapped + (snapshot_frequency * interval '1 second')
+		last_snap = _snapped,
+		next_snap = _snapped + (snapshot_frequency * interval '1 second')
 	where
-		post_id = pid;
+		post_id = _pid;
 end;
 $$
 language plpgsql;
@@ -439,47 +423,35 @@ language plpgsql;
 
 
 -- Upsert a row into post_details
-create or replace function
-	post_details_upsert
+create or replace function submission_detail_upsert
 	(
-		in in_pid /*post_id*/	text,
-		in in_subreddit_id 		text,
-		in in_posted_by_id		int,
-		in in_title				text,
-		in in_body				text,
-		in in_posted_on			timestamp
+		in _pid /*post_id*/	text,
+		in _subreddit_name	text,
+		in _posted_by_id		int,
+		in _title				text,
+		in _body				text,
+		in _posted_on			timestamp
 	)
 returns void
 as $$
 begin
 	-- Upsert the row into post_detail
-	insert into
-		post_detail
+	insert into post_detail as pd
 		(post_id, subreddit_id, posted_by, title, body, posted_on)
 	values
-		(in_pid, in_subreddit_id, in_posted_by_id, in_title, in_body, in_posted_on)
-	on conflict
-		(post_detail_pkey)
-		do
-		-- Perform the update, if required
+		(_pid, _subreddit_name, _posted_by_id, _title, _body, _posted_on)
+	on conflict on constraint post_detail_pkey do
 		update
 		set
 			subreddit_id = excluded.subreddit_id,
 			title = excluded.title,
-			body = excluded.boy,
+			body = excluded.body,
 			updated_on = now()
 		where
-			post_id = in_pid;
+			pd.post_id = _pid;
 
 	-- TODO: Upsert the row into the user table (upsert instead of insert, in case user changes name)
-	-- TODO: Make this into a function itself
-
-
-	-- Remove the post from the queue
-	delete from
-		post_detail_control
-	where
-		post_id = in_pid;
+	-- TODO: Query to get the subreddit_id (this function accepts the subreddit name)
 end;
 $$
 language plpgsql;
