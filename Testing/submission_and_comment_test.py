@@ -25,6 +25,9 @@ class SubmissionFunctionUnitTest(unittest.TestCase):
 
 	def __init__(self, lib, reddit, sr, sub_id, limit):
 
+		# Prints test name
+		print('Testing results for SubmissionFunctions.py : ')
+
 		# Tests get_hot
 		self.get_hot_test(lib, reddit, sr, limit)
 
@@ -109,9 +112,6 @@ class SubmissionFunctionUnitTest(unittest.TestCase):
 
 # Todo: Start Unittest
 if __name__ == "__main__":
-
-	# Print test
-	print('Running')
 
 	# LIB
 	lib = LIB()
