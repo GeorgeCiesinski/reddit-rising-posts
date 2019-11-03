@@ -6,7 +6,7 @@ from bin.DAL.Helper import Helper
 from bin.DAL.Maintenance import Maintenance
 from bin.DAL.Praw import Praw
 from bin.DAL.Queue import Queue
-from bin.DAL.Submission import Post
+from bin.DAL.Submission import Submission
 from bin.DAL.Comment import Comment
 
 
