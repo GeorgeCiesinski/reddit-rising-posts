@@ -1,37 +1,17 @@
 #!/user/bin/python3
 
 import psycopg2
+from bin.DAL.Pg import Pg
 from bin.DAL.Helper import Helper
 from bin.DAL.Maintenance import Maintenance
 from bin.DAL.Praw import Praw
 from bin.DAL.Queue import Queue
-from bin.DAL.Post import Post
+from bin.DAL.Submission import Post
 from bin.DAL.Comment import Comment
 
 
 class DAL:
-	def __init__(self):
-		# DB connection
-		self.pg = None
-
-	# Connect and disconnect from the DB
-	# Connect
-	def connect(self):
-		# TODO: Change this to pooling: http://initd.org/psycopg/docs/pool.html
-		self.pg = psycopg2.connect(
-			host='23.233.33.158',
-			port='5432',
-			dbname='reddit_rising',
-			user='reddit-rising-posts',  # 'rr_pool',
-			password='s3cr3t'  # 'SeBzxr*we%&xBHQcf%8NfBmjzg6vYwhS')
-			)
-
-	# Disconnect
-	def disconnect(self):
-		if self.pg is not None:
-			self.pg.close()
-
-	# Maintenance methods
+	### Maintenance methods ###
 	# Initialize the program (this should be run upon the program startup)
 	def initialize_db_state(self):
 		self.praw_thread_release(0)  # Release all praw logins
@@ -47,7 +27,7 @@ class DAL:
 	def maint_post_detail_sync(self, post_id):
 		return Maintenance.maint_post_detail_sync(self.pg, post_id)
 
-	# Praw authentication methods
+	### Praw authentication methods ###
 	def praw_thread_get(self):
 		return Praw.praw_thread_get(self.pg)
 

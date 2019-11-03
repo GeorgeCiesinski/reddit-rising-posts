@@ -142,12 +142,11 @@ $$
 language plpgsql;
 
 
--- Reset the praw threads (on program start)
-create or replace function
-	praw_thread_release
-	(
-		release_thread_id int default 0
-	)
+-- Reset the praw logins (on program start)
+create or replace function praw_login_release
+(
+    release_thread_id int default 0
+)
 returns void
 as $$
 begin
@@ -180,20 +179,29 @@ language plpgsql;
 
 
 
--- Get the praw credentials for initializing a new thread
-create or replace function
-	praw_thread_get()
-returns setof praw_thread
+-- Retrieve one login of
+create or replace function praw_login_get
+(
+    _thread_id int
+)
+returns table
+(
+    client_id			text,
+    client_secret		text,
+    username			text,
+    password			text,
+    user_agent			text
+)
 as $$
 declare
-	tid int; -- thread_id
+	_cid text; -- client_id
 begin
 	-- Retrieve the praw login information
-	tid := (
+	_cid := (
 		select
-			thread_id
+			p.client_id
 		from
-			praw_thread
+			praw_thread p
 		where
 			released_on > provided_on -- Make sure the thread is released
 		order by
@@ -203,60 +211,63 @@ begin
 
 	-- Mark the praw login as "in use"
 	update
-		praw_thread
+		praw_thread p
 	set
+	    thread_id = _thread_id,
 		provided_on = now()
 	where
-		thread_id = tid;
+		p.client_id = _cid;
 
 	-- Return the praw login
 	return query
-	select * from praw_thread where thread_id=tid;
+	select p.client_id, p.client_secret, p.username, p.password, p.user_agent
+	from praw_thread p
+	where p.client_id = _cid;
 end;
 $$
 language plpgsql;
 
 
 -- Get the next subreddit to crawl
-create or replace function
-	subreddits_to_crawl_get
-	(
-		in tid int,
-		in row_limit int
-	)
+create or replace function subreddits_to_crawl_get
+(
+    _tid int,
+    _row_limit int
+)
 returns table
-	(
-		subreddit_name text
-	)
+(
+    name text,
+    last_crawled timestamp
+)
 as $$
 begin
 	-- Pick the subreddits
-	create temp table subreddits as
+	create temp table output_subreddit on commit drop as
 	select
-		name
+		s.name, s.last_crawled
 	from
-		subreddit
+		subreddit s
 	where
-		next_crawl <= now()
-		and thread_assigned_on is null
+		s.next_crawl <= now()
+		and s.thread_assigned_on is null
 	order by
-		next_crawl desc
-	limit (row_limit);
+		s.next_crawl desc
+	limit (_row_limit);
 
 	-- Claim the subreddits, in the name of tid!
 	update
 		subreddit
 	set
-		thread_id = tid,
+		thread_id = _tid,
 		thread_assigned_on = now()
 	from
-		subreddits sr
+		output_subreddit sr
 		join subreddit p
 			on (sr.name=p.name);
 
 	-- Return the list of post_ids
 	return query
-	select name from subreddits;
+	select s.name, s.last_crawled from output_subreddit s;
 end;
 $$
 language plpgsql;
@@ -301,7 +312,7 @@ returns table
 as $$
 begin
 	-- Pick the posts
-	create temp table posts as
+	create temp table posts on commit drop as
 	select
 		post_id
 	from
@@ -405,7 +416,7 @@ returns void
 as $$
 begin
 	-- Get the posts to get the details for
-	create temp table posts as
+	create temp table posts on commit drop as
 	select
 		post_id
 	from

@@ -1,4 +1,7 @@
 .idea/
-*.pyc
 venv/
-logs/
+.venv/
+*/__pycache__
+*/*/__pycache__
+*/logs
+docs/
