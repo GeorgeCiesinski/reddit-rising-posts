@@ -19,6 +19,7 @@ class Praw:
 
 		return reddit
 
+
 # Todo: Write test cases for SubmissionFunctions.py
 class SubmissionFunctionUnitTest(unittest.TestCase):
 	"""Test for SubmissionFunctions.py"""
