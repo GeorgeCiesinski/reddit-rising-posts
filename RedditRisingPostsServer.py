@@ -6,16 +6,19 @@ import praw
 
 from bin.LIB import LIB
 from bin.SubmissionPrawPull import SubmissionPrawPull
-
-# TODO: process_object class in bin
-    #TODO: Class -- process_name, the_actual_process, server_says, process_is_doing, process_message
+from bin.SubmissionDBPull import SubmissionDBPull
+from bin.SubmissionDBPush import SubmissionDBPush
+from bin.SubmissionSnapshotDBPush import SubmissionSnapshotDBPush
+from bin.CommentPrawPull import CommentPrawPull
+from bin.CommentDBPull import CommentDBPull
+from bin.CommentDBPush import CommentDBPush
+from bin.CommentSnapshotDBPush import CommentSnapshotDBPush
 
 # used to listen for ^C to gracefully terminate the program
 # input: not sure
 # output: None
 def sig_handler(sig,frame):
     exit()
-
 
 # Gracefully exit the program, clean ups to be done here
 # input: None
@@ -31,7 +34,6 @@ def exit():
         process.terminate()
     sys.exit()
 
-
 # Main of the program
 if __name__ == '__main__':
     # Signal Listener
@@ -41,39 +43,67 @@ if __name__ == '__main__':
     config_file = "config/RedditRisingPost.cfg"
     lib = LIB(cfg=config_file)
 
-    # TODO: update to dict {process_name, process_object}
-    # TODO: update to dict -- Read the config file program specific values, and define other variables
     PROCESSLIST = []
-    # making the praw_q
-    praw_q = MP.Queue()
 
-    #TODO:  Make Shared memory for all processes
-        # TODO:  Add process list dict into memory with a process_object
+    #make all nessary queues for threads
+    subreddit_db_pull_to_submission_praw_pull_q = MP.Queue()
+    submission_praw_pull_to_submission_db_push_q = MP.Queue()
+    submission_db_push_to_subreddit_reschedule_q = MP.Queue()
+
+    submission_db_pull_to_submission_snapshot_praw_pull_q = MP.Queue()
+    submission_snapshot_praw_pull_to_submission_snapshot_db_push_q = MP.Queue()
+    submission_snapshot_db_push_to_submission_reschedule_q = MP.Queue()
+
+    submission_praw_pull_to_comment_praw_pull_q = MP.Queue()
+    comment_praw_pull_to_comment_db_push_q = MP.Queue()
+
+    comment_db_pull_to_comment_snapshot_praw_pull_q = MP.Queue()
+    comment_snapshot_praw_pull_to_comment_snapshot_db_push_q = MP.Queue()
+    comment_dnapshot_db_push_to_comment_resechedult_q = MP.Queue()
 
 
-    # TODO: Get reddit praw login list from database
-    reddit = praw.Reddit(
-        client_id="Zfl37rh1asVTjQ",
-        client_secret="DX87ZhsDhvJrvxdoud0CXmcbLGA",
-        username="top10tracket",
-        password="k2T%5VuSJc8k",
-        user_agent="reddit-rising-posts"
-    )
-    praw_q.put(reddit)
+    ##TODO: all below threads should be connected using the appropriate queues defined above
 
-    # TODO: Start datacollector for known subreddits
+    # TODO: Start subreddit db pull threads
+
+    # TODO: Start submission praw pull threads (for the subreddit)
+
+    #TODO:  Start submission db opush threads
+
+    #TODO: Start submission db pull threads
+
+    #TODO: start submission snapshot praw pull thread
+
+    #TODO: start submission snapshot db push thread
+
+    #TODO: start comment db pull thread
+
+    #TODO: start comment snapshot praw pull thread
+
+    #TODO: start comment snapshot db push thread
+
+
+    #TODO: Start subreddit scheduler
+
+    #TODO: Start submission scheduler
+
+
+    ## REMOVE BELOW
     try:
         subreddits = ['funny', 'science','askreddit'] # get  this list from DB
         for subreddit in subreddits:
             lib.write_log("Starting Data Collection for {}".format(subreddit))
             cfg = "config/DataCollection.cfg"
             process_name = "{}_data_collector".format(subreddit)
-            process = MP.Process(name=process_name.lower(), target=SubmissionPrawPull, args=(subreddit, praw_q))
+            process = MP.Process(name=process_name.lower(), target=SubmissionPrawPull, args=(subreddit))
             process.start()
-            PROCESSLIST.append(process) #TODO: update shared memory dict
+            PROCESSLIST.append(process)
             lib.write_log("Started Data Collection for {}".format(subreddit))
     except Exception as E:
         pass
+
+
+
 
     # Start a UDP port listener to allow interaction with this application
     # UPS port and communication variables
@@ -130,9 +160,11 @@ if __name__ == '__main__':
                 if (parts[0] == "list_commands") and (len(parts) == 1):
                     return_string = "Commands..\n"
                     return_string = "{} stop -- stop the server\n".format(return_string)
-                    return_string = "{} stop (data collector name) -- stop the given data collector\n".format(return_string)
-                    return_string = "{} start (sub reddit name) -- start the data collector for the given sub reddit\n".format(return_string)
-                    return_string = "{} status -- return the status of all the data collectors\n".format(return_string)
+                    return_string = "{} stop (thread name) -- not available\n".format(return_string)
+                    return_string = "{} start (sub reddit name) -- not available\n".format(return_string)
+                    return_string = "{} status -- return the status of all the threads\n".format(return_string)
+                    return_string = "{} reload (thread name) -- not available\n".format(return_string)
+                    return_string = "{} reload all-- not available\n".format(return_string)
                     lib.write_log(return_string)
                     conn.sendall(return_string.encode(ENCODING))
                     conn.close()
@@ -174,7 +206,7 @@ if __name__ == '__main__':
                     return_status = ""
                     try:
                         for process in PROCESSLIST:
-                            if process.name ==  "{}_data_collector".format(stop_name):
+                            if process.name ==  "{}".format(stop_name):
                                 if process.is_alive():
                                     process.terminate()
                                     return_status = "Stopped"
@@ -192,29 +224,6 @@ if __name__ == '__main__':
                         lib.write_error("{} {}".format(error_string,e))
                     return_string = "{}{}".format(return_string,return_status)
                     lib.write_log(return_string)
-                    conn.sendall(return_string.encode(ENCODING))
-                    conn.close()
-                    break
-
-                # TODO: request to start a process (data collector)
-                if (parts[0] == "start") and (len(parts) == 2):
-                    start_name = parts[1]
-                    return_string = "Starting {}: ".format(start_name)
-                    start_status = "Started"
-                    try:
-                        lib.write_log("Starting Data Collection for {}".format(start_name))
-                        cfg = "config/DataCollection.cfg"
-                        process_name = "{}_data_collector".format(start_name)
-                        process = MP.Process(name=process_name.lower(), target=SubmissionPrawPull, args=(start_name, praw_q))
-                        process.start()
-                        PROCESSLIST.append(process)
-                        lib.write_log("Started Data Collection for {}".format(start_name))
-                    except Exception as e:
-                        start_status = "Failed"
-                        error_string = "Failed to start data collector"
-                        lib.write_log(error_string)
-                        lib.write_error("{} {}".format(error_string, e))
-                    return_string = "{}{}\n".format(return_string,start_status)
                     conn.sendall(return_string.encode(ENCODING))
                     conn.close()
                     break

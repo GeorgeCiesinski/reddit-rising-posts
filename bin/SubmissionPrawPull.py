@@ -9,10 +9,10 @@ from .LIB import LIB
 class SubmissionPrawPull:
 
     def __init__(self, subreddit=None, praw_q = None):
-        output_name = "{}_output.log".format(subreddit)
-        error_name = "{}_error.log".format(subreddit)
-        lib = LIB(cfg="config/DataCollection.cfg", out_log=output_name, err_log=error_name)
-        lib.write_log("Data Collector {}".format(subreddit))
+#        output_name = "{}_output.log".format(subreddit)
+#        error_name = "{}_error.log".format(subreddit)
+#        lib = LIB(cfg="config/DataCollection.cfg", out_log=output_name, err_log=error_name)
+#        lib.write_log("Data Collector {}".format(subreddit))
 
         # while True: #TODO:  read "server_says" from shared memory --- keep running other wise
             # TODO: get submissions from reddit for the subreddit (Submissions.get_hot(subreddit='funny', limit = 10) for example)
@@ -28,9 +28,9 @@ class SubmissionPrawPull:
 
             # TODO: Run decision making processes (these need to be though about some more, but they will update the polling interval based on some formulas)
 
-        submissions = SubmissionFunctions.get_hot(lib=lib, subreddit=subreddit, limit=10, praw_q=praw_q)
-        lib.write_log("Got {} submissions from {}".format(len(submissions),subreddit))
+#        submissions = SubmissionFunctions.get_hot(lib=lib, subreddit=subreddit, limit=10, praw_q=praw_q)
+#        lib.write_log("Got {} submissions from {}".format(len(submissions),subreddit))
 
         ## END PROCESSING STEPS
-        lib.end()
+#        lib.end()
         pass
