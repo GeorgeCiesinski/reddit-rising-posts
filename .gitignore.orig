@@ -1,0 +1,12 @@
+.idea/
+venv/
+<<<<<<< HEAD
+.venv/
+*/__pycache__
+*/*/__pycache__
+*/logs
+docs/
+=======
+logs/
+__pycache__/
+>>>>>>> feature/thread_files
