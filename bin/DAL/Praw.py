@@ -6,7 +6,7 @@ import praw
 class Praw:
 	# Get the login information for praw
 	@staticmethod
-	def praw_login_get(pg, thread_id):
+	def praw_login_get(pg):
 		# Get the login information
 		with pg.cursor() as cur:
 			cur.execute("select client_id, client_secret, username, password, user_agent from praw_login_get()")

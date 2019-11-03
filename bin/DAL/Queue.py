@@ -5,13 +5,11 @@ from bin.DAL.Helper import Helper
 
 class Queue:
 	@staticmethod
-	def subreddits_to_crawl_get(pg, thread_id, limit=10):
+	def subreddit_schedule_get(pg, limit=10):
 		with pg.cursor() as cur:
-			cur.execute("select name, last_crawled from subreddits_to_crawl_get(%s, %s)", (thread_id, limit))
+			cur.execute("select name, last_crawled from subreddits_to_crawl_get(%s)", (limit, ))
 
-			output = []
-			for row in cur:
-				output.append(row)
+			output = [row for row in cur]
 
 		return output
 
@@ -24,54 +22,24 @@ class Queue:
 
 	#
 	@staticmethod
-	def post_control_get(pg, thread_id, limit=10):
+	def submission_schedule_get(pg, limit=10):
 		cur = pg.cursor()
-		cur.execute("select * from post_control_get(%s, %s)", (thread_id, limit))
+		cur.execute("select id from submission_schedule_get(%s)", (limit,))
 
-		# todo: change this to map()?
-		output = []
-		for row_raw in cur.fetchall():
-			row = Helper.pg_col_map(cur.description, row_raw)
-			output.append(row)
+		output = [row for row in cur]
 
 		cur.close()
 		return output
 
 	#
 	@staticmethod
-	def post_control_release(pg, release_id):
-		cur = pg.cursor()
-		cur.execute("select post_control_release(%s)", (release_id,))
-		cur.close()
-		return True
+	def submission_schedule_release(pg, submission=None):
+		if submission is None:
+			release_id = ''
+		else:
+			release_id = submission.id
 
-	#
-	@staticmethod
-	def post_control_upsert(pg, post_id, snap_freq):
-		cur = pg.cursor()
-		cur.execute("select post_control_upsert(%s, %s)", (post_id, snap_freq))
-		cur.close()
-		return True
+		with pg.cursor() as cur:
+			cur.execute("select submission_schedule_release(%s)", (release_id,))
 
-	#
-	@staticmethod
-	def post_detail_control_get(pg, thread_id, limit=10):
-		cur = pg.cursor()
-		cur.execute("select * from post_detail_control_get(%s, %s)", (thread_id, limit))
-
-		# todo: change this to map()?
-		output = []
-		for row_raw in cur.fetchall():
-			row = Helper.pg_col_map(cur.description, row_raw)
-			output.append(row)
-
-		cur.close()
-		return output
-
-	#
-	@staticmethod
-	def post_detail_control_insert(pg, post_id):
-		cur = pg.cursor()
-		cur.execute("select post_detail_control_insert(%s)", (post_id,))
-		cur.close()
 		return True
