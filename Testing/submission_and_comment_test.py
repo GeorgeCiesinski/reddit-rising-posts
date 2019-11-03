@@ -24,7 +24,7 @@ class Praw:
 class SubmissionFunctionUnitTest(unittest.TestCase):
 	"""Test for SubmissionFunctions.py"""
 
-	def __init__(self, lib, reddit, sr, sub_id, limit):
+	def __init__(self, lib, reddit, sr, submission, limit):
 
 		# Prints test name
 		print('\nTesting results for SubmissionFunctions.py : ')
@@ -39,7 +39,7 @@ class SubmissionFunctionUnitTest(unittest.TestCase):
 		self.get_top_test(lib, reddit, sr, limit)
 
 		# Tests get_snapshot
-		self.get_snapshot_test(lib, reddit, sub_id)
+		self.get_snapshot_test(lib, reddit, submission)
 
 	@staticmethod
 	def get_hot_test(lib, reddit, subreddit, limit):
@@ -96,13 +96,13 @@ class SubmissionFunctionUnitTest(unittest.TestCase):
 			print(ls.id)
 
 	@staticmethod
-	def get_snapshot_test(lib, reddit, id):
+	def get_snapshot_test(lib, reddit, submissino):
 
 		# Gets snapshot of submission
-		snapshot = SubmissionFunctions.get_snapshot(lib, reddit, id)
+		snapshot = SubmissionFunctions.get_snapshot(lib, reddit, submission)
 
 		# Testing
-		assert snapshot.id == id
+		assert snapshot.id == submission.id
 		assert isinstance(snapshot.title, str)
 
 		# Print Results
@@ -122,6 +122,9 @@ class CommentFunctionsUnitTest(unittest.TestCase):
 		# Tests get_all_comments
 		self.get_all_comments_test(lib, submission, replace_more)
 
+		# Tests get_root_comments
+		self.get_root_comments_test(lib, submission)
+
 	@staticmethod
 	def get_all_comments_test(lib, submission, replace_more):
 
@@ -137,15 +140,23 @@ class CommentFunctionsUnitTest(unittest.TestCase):
 		for x in range(4):
 			print(comment_list[x].id)
 
-	def get_root_comments_test(self):
+		print(f'The total number of comments is: {len(comment_list)}')
+
+	@staticmethod
+	def get_root_comments_test(lib, submission):
 
 		# Gets Comment List
+		comment_list = CommentFunctions.get_root_comments(lib, submission)
 
 		# Testing
+		assert isinstance(comment_list, list)
 
 		# Print a few comments
+		print('\nResults of get_root_comments')
+		for x in range(4):
+			print(comment_list[x].id)
 
-		pass
+		print(f'The total number of root comments is: {len(comment_list)}')
 
 
 if __name__ == "__main__":
@@ -163,6 +174,10 @@ if __name__ == "__main__":
 	# Submission ID
 	sub_id = 'dr35z5'
 
+	# Submission object
+	submission_praw = praw.submission(sub_id)
+	submission = Submission(lib, submission_praw)
+
 	"""
 	SubmissionFunctions.py Settings
 	"""
@@ -177,9 +192,6 @@ if __name__ == "__main__":
 	CommentFunctions.py Settings
 	"""
 
-	submission = praw.submission(sub_id)
-	s = Submission(submission)
-
 	replace_more = 32
 
 	"""
@@ -187,8 +199,8 @@ if __name__ == "__main__":
 	"""
 
 	# SubmissionFunctions.py Unit Test
-	sf = SubmissionFunctionUnitTest(lib, praw, sr, sub_id, limit)
-	cf = CommentFunctionsUnitTest(lib, s, replace_more)
+	sf = SubmissionFunctionUnitTest(lib, praw, sr, submission, limit)
+	cf = CommentFunctionsUnitTest(lib, submission, replace_more)
 
 	# Cleanup
 	lib.end()
