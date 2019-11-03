@@ -17,9 +17,11 @@ def get_hot(lib=None, praw=None, subreddit=None, limit=None):
 	:return: List of submissions
 	:rtype: list
 	"""
+
 	# Ensure lib, praw_instance and subreddit are not none
 	if (lib is None) or (praw is None) or (subreddit is None):
 		return None
+
 	# Get hot submissions from subreddit limited by given value
 	try:
 		submissions = praw.subreddit(subreddit).hot(limit=limit)
@@ -27,12 +29,14 @@ def get_hot(lib=None, praw=None, subreddit=None, limit=None):
 		lib.write_log("Failed to get hot submissions due to the exception: {}".format(str(e)))
 		return None
 	submission_list = []
+
 	# Make submissions objects
 	for submission in submissions:
 		s = Submission(submission)
 		submission_list.append(s)
 		lib.write_log(s.title)
 	lib.write_log("Completed subreddit {}".format(subreddit))
+
 	# Return submissions list
 	return submission_list
 
@@ -49,9 +53,11 @@ def get_rising(lib=None, praw=None, subreddit=None, limit=None):
 	:return: List of submissions
 	:rtype: list
 	"""
+
 	# Ensure lib, praw_instance and subreddit are not none
 	if (lib is None) or (praw is None) or (subreddit is None):
 		return None
+
 	# Get rising submissions from subreddit limited by given value
 	try:
 		submissions = praw.subreddit(subreddit).rising(limit=limit)
@@ -59,6 +65,7 @@ def get_rising(lib=None, praw=None, subreddit=None, limit=None):
 		lib.write_log("Failed to get rising submissions due to the exception: {}".format(str(e)))
 		return None
 	submission_list = []
+
 	# Make submissions objects
 	for submission in submissions:
 		s = Submission(submission)
@@ -82,9 +89,11 @@ def get_top(lib=None, praw=None, subreddit=None, time_filter='all', limit=None):
 	:return: List of submissions
 	:rtype: list
 	"""
+
 	# Ensure lib, praw_instance and subreddit are not none
 	if (lib is None) or (praw is None) or (subreddit is None):
 		return None
+
 	# Get top submissions from subreddit limited by given value
 	try:
 		# time_filter – Can be one of: all, day, hour, month, week, year (default: all).
@@ -93,16 +102,29 @@ def get_top(lib=None, praw=None, subreddit=None, time_filter='all', limit=None):
 		lib.write_log("Failed to get top submissions due to the exception: {}".format(str(e)))
 		return None
 	submission_list = []
+
 	# Make submissions objects
 	for submission in submissions:
 		s = Submission(submission)
 		submission_list.append(s)
 		lib.write_log(s.title)
 	lib.write_log("Completed subreddit {}".format(subreddit))
+
 	# Return submissions list
 	return submission_list
 
 
-def get_snapshot(lib=None, praw_q=None, submission_id=None):
+def get_snapshot(lib=None, praw=None, submission_id=None):
 
-	pass
+	# Ensure lib, praw_instance and submission_id are not none
+	if (lib is None) or (praw is None) or (submission_id is None):
+		return None
+
+	# Get snapshot of submission
+	snapshot = praw.submission(id=submission_id)
+
+	# Make submission object
+	s = Submission(snapshot)
+
+	# Return submission object
+	return s
