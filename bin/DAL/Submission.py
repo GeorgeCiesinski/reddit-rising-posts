@@ -37,14 +37,15 @@ class Submission:
 		return True
 
 	@staticmethod
-	def submission_schedule_set(pg, submission_id, snapshot_frequency=300):
-		cur = pg.cursor()
-		cur.execute(
-			"select submission_control_set(%s, %s)",
-			(
-				submission_id,
-				snapshot_frequency
+	def submission_schedule_set(pg, submission, snapshot_frequency=300, next_snap=None):
+		with pg.cursor() as cur:
+			cur.execute(
+				"select submission_control_set(%s, %s, %s)",
+				(
+					submission.id,
+					snapshot_frequency,
+					next_snap  # None = default
+				)
 			)
-		)
-		cur.close()
+
 		return True

@@ -38,34 +38,31 @@ language plpgsql;
 
 
 -- Reset the subreddit crawling schedule
-create or replace function
-	subreddit_schedule_release
+create or replace function subreddit_schedule_release
 	(
-		release_subreddit_name text default ''
+		_subreddit_name text default ''
 	)
 returns void
 as $$
 begin
 	-- Reset all crawling
-	if release_subreddit_name = '' then
+	if _subreddit_name = '' then
 		update
 			subreddit
 		set
 			next_crawl = now(),
-			thread_id = 0,
 			thread_assigned_on = null
 		where
-			thread_id <> 0;
+			thread_assigned_on is not null;
 	-- Or only update one specific subreddit
 	else
 		update
 			subreddit
 		set
 			next_crawl = now(),
-			thread_id = 0,
 			thread_assigned_on = null
 		where
-			name = release_subreddit_name;
+			name = _subreddit_name;
 	end if;
 end;
 $$
@@ -73,11 +70,10 @@ language plpgsql;
 
 
 -- Reset the post crawling schedule
-create or replace function
-	post_control_release
-	(
-		release_id text default ''
-	)
+create or replace function submission_schedule_release
+(
+    release_id text default ''
+)
 returns void
 as $$
 begin
@@ -87,17 +83,16 @@ begin
 			post_control
 		set
 			next_snap = now(),
-			thread_id = 0,
 			thread_assigned_on = null
 		where
-			thread_id <> 0;
+			thread_assigned_on is not null;
 	-- Or only update one specific post
 	else
 		update
 			post_control
 		set
-			next_snap = now(),
-			thread_id = 0,
+		    last_snap = now(),
+			next_snap = now() + (snapshot_frequency * interval '1 second'),
 			thread_assigned_on = null
 		where
 			post_id = release_id;
@@ -216,7 +211,6 @@ language plpgsql;
 -- Get the next subreddit to crawl
 create or replace function subreddits_to_crawl_get
 (
-	_tid int,
 	_row_limit int
 )
 returns table
@@ -240,11 +234,8 @@ begin
 	limit (_row_limit);
 
 	-- Claim the subreddits, in the name of tid!
-	update
-		subreddit
-	set
-		thread_id = _tid,
-		thread_assigned_on = now()
+	update subreddit
+	set	thread_assigned_on = now()
 	from
 		output_subreddit sr
 		join subreddit p
@@ -261,58 +252,53 @@ language plpgsql;
 -- Schedule a post to be scraped
 create or replace function submission_control_set
 (
-    in _pid /*post_id*/	text,
-    in _snap_freq	 	int
+    _pid /*post_id*/text,
+    _snap_freq	 	int,
+    _next_snap      timestamp default null
 )
 returns void
 as $$
 begin
 	-- Insert the row into post_control (if it doesn't exist)
-	insert into post_control
-		(post_id, snapshot_frequency)
+	insert into post_control as t
+		(post_id, snapshot_frequency, next_snap)
 	values
-		(_pid, _snap_freq)
+		(_pid, _snap_freq, coalesce(_next_snap, (now() + (_snap_freq * interval '1 second'))))
 	on conflict on constraint post_control_pkey
 		do update
 		set
-			snapshot_frequency=_snap_freq;
+			snapshot_frequency = _snap_freq,
+		    next_snap = coalesce(_next_snap, (t.last_snap + (_snap_freq * interval '1 second')));
 end;
 $$
 language plpgsql;
 
 
 -- Get the next set of posts to scrape
-create or replace function
-	post_control_get
-	(
-		in tid int,
-		in row_limit int
-	)
+create or replace function submission_schedule_get
+(
+    _row_limit int
+)
 returns table
-	(
-		post_id text
-	)
+(
+    id text
+)
 as $$
 begin
 	-- Pick the posts
 	create temp table posts on commit drop as
-	select
-		post_id
-	from
-		post_control
+	select t.post_id
+	from post_control t
 	where
-		next_snap <= now()
-		and thread_assigned_on is null
+		t.next_snap <= now()
+		and t.thread_assigned_on is null
 	order by
-		next_snap desc
-	limit (row_limit);
+		t.next_snap desc
+	limit (_row_limit);
 
 	-- Claim the posts, in the name of tid!
-	update
-		post_control
-	set
-		thread_id = tid,
-		thread_assigned_on = now()
+	update post_control
+	set thread_assigned_on = now()
 	from
 		post_control pc
 		join posts p
@@ -320,45 +306,31 @@ begin
 
 	-- Return the list of post_ids
 	return query
-	select post_id from posts;
+	select post_id as id from posts;
 end;
 $$
 language plpgsql;
 
 
 -- Insert a scraped summary
-create or replace function
-	submission_snapshot_insert
-	(
-		_pid /*post_id*/	text,
-		_rank				int,
-		_upvotes			int,
-		_downvotes		    int,
-		_num_comments		int,
-		_is_hot			    boolean
-	)
+create or replace function submission_snapshot_insert
+(
+    _pid /*post_id*/	text,
+    _rank				int,
+    _upvotes			int,
+    _downvotes		    int,
+    _num_comments		int,
+    _is_hot			    boolean
+)
 returns void
 as $$
-declare
-	_snapped timestamp := now();
 begin
 	-- Insert the snapshot
 	insert into
 		post_snapshot
 		(post_id, snapped_on, rank, upvotes, downvotes, comments, is_hot)
 	values
-		(_pid, _snapped, _rank, _upvotes, _downvotes, _num_comments, _is_hot);
-
-	-- Release the post for another thread to snap it again
-	update
-		post_control
-	set
-		thread_id = 0,
-		thread_assigned_on = null,
-		last_snap = _snapped,
-		next_snap = _snapped + (snapshot_frequency * interval '1 second')
-	where
-		post_id = _pid;
+		(_pid, now(), _rank, _upvotes, _downvotes, _num_comments, _is_hot);
 end;
 $$
 language plpgsql;

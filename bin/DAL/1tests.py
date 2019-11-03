@@ -18,24 +18,33 @@ s = SubmissionTuple(
 	10, 'SubComments', 20, 'test_user', datetime.now()
 )
 
-thread_id = 1
 
 # Perform tests:
 with Pg.pg_connect() as pg:
 	# Release all praw logins
 	Praw.praw_login_release(pg, 0)
 	# Grab a praw login
-	print(Praw.praw_login_get(pg, thread_id))
+	print(Praw.praw_login_get(pg))
 
 	# Release all scheduled subreddits
 	Queue.subreddit_schedule_release(pg, '')
-	print(Queue.subreddits_to_crawl_get(pg, thread_id, 10))
+	# Grab the subreddits scheduled for crawling
+	print(Queue.subreddit_schedule_get(pg, 10))
 
 	# Insert a submission
 	print(Submission.submission_detail_upsert(pg, s))
 	print(Submission.submission_snapshot_insert(pg, s))
-	print(Submission.submission_schedule_set(pg, s.id, 60))
+	print(Submission.submission_schedule_set(pg, s, 60))
+
+	# Release all scheduled submissions
+	print(Queue.submission_schedule_release(pg, None))
+	# Grab all scheduled submissions
+	qsub = Queue.submission_schedule_get(pg, 10)
+	print(qsub)
+	# Release one of the submissions
+	print(Queue.submission_schedule_release(pg, s))
 
 	# Clean up
 	Praw.praw_login_release(pg, 0)
 	Queue.subreddit_schedule_release(pg, '')
+	Queue.submission_schedule_release(pg, None)
