@@ -5,10 +5,17 @@ Comments object: retrieves comments from post
 """
 
 
-# Get all comments and replies, replace more
-# Input: LIB lib, MP Queue, Post post
-# Output: list of Comment comment
 def get_all_comments(lib=None, praw_instance=None, submission=None, replace_more_limit=None):
+    """
+    Get all comments and replies using PRAW
+
+    :param lib: Anu's Lib
+    :param praw_instance: PRAW object
+    :param submission: Specified submission
+    :param replace_more_limit: Max number of MoreComments to replace
+    :return: List of comments
+    :rtype: list
+    """
     # Ensure lib, praw_instance and post are not none
     if (lib is None) or (praw_instance is None) or (submission is None):
         return None
@@ -36,10 +43,16 @@ def get_all_comments(lib=None, praw_instance=None, submission=None, replace_more
     return comment_list
 
 
-# Get all root comments, comments that have the submission as the parent
-# Input: LIB lib, MP Queue, Post post
-# Output: list of Comment comment
 def get_root_comments(lib=None, praw_instance=None, submission=None):
+    """
+    Get all root comments, comments that have the submission as the parent
+
+    :param lib: Anu's lib file
+    :param praw_instance: PRAW object
+    :param submission: Specified submission file
+    :return: List of comments
+    :rtype: list
+    """
     # Ensure lib, praw_instance and post are not none
     if (lib is None) or (praw_instance is None) or (submission is None):
         return None
@@ -62,3 +75,7 @@ def get_root_comments(lib=None, praw_instance=None, submission=None):
     lib.write_log("Completed top-level comments from post {}".format(submission.id))
     # Return list of all comments
     return comment_list
+
+
+def get_snapshot(lib=None, praw_q=None, comment_id=None):
+    pass
