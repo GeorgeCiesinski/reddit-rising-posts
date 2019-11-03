@@ -128,7 +128,7 @@ class LIB:
                     continue
                 dic = line.split("=")
                 key = self.clean_string(dic[0].lower())
-                value = self.clean_string(dic[1])
+                value = self.clean_string("=".join(dic[1:]))
 
                 if value[0] == '"':
                     value = self.clean_string(value.replace('"', ""))
