@@ -275,6 +275,7 @@ language plpgsql;
 
 
 -- Get the next set of posts to scrape
+-- todo: handle race conditions - do not let concurrent calls to the function retrieve the same rows
 create or replace function submission_schedule_get
 (
     _row_limit int
@@ -285,28 +286,23 @@ returns table
 )
 as $$
 begin
-	-- Pick the posts
-	create temp table posts on commit drop as
-	select t.post_id
-	from post_control t
-	where
-		t.next_snap <= now()
-		and t.thread_assigned_on is null
-	order by
-		t.next_snap desc
-	limit (_row_limit);
-
-	-- Claim the posts, in the name of tid!
-	update post_control
+    return query
+    with pc as (
+        select t.post_id
+        from post_control t
+        where
+            t.next_snap <= now()
+            and t.thread_assigned_on is null
+        order by
+            t.next_snap desc
+        limit (_row_limit)
+        for update
+    )
+	update post_control p
 	set thread_assigned_on = now()
-	from
-		post_control pc
-		join posts p
-			on (pc.post_id=p.post_id);
-
-	-- Return the list of post_ids
-	return query
-	select post_id as id from posts;
+	from pc
+    where pc.post_id=p.post_id
+    returning pc.post_id as id;
 end;
 $$
 language plpgsql;
