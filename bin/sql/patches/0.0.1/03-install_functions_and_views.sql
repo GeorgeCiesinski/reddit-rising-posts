@@ -259,25 +259,23 @@ language plpgsql;
 
 
 -- Schedule a post to be scraped
-create or replace function
-	post_control_upsert
-	(
-		in pid /*post_id*/	text,
-		in snap_freq	 	int
-	)
+create or replace function submission_control_set
+(
+    in _pid /*post_id*/	text,
+    in _snap_freq	 	int
+)
 returns void
 as $$
 begin
 	-- Insert the row into post_control (if it doesn't exist)
-	insert into
-		post_control
+	insert into post_control
 		(post_id, snapshot_frequency)
 	values
-		(pid, snap_freq)
+		(_pid, _snap_freq)
 	on conflict on constraint post_control_pkey
 		do update
 		set
-			snapshot_frequency=snap_freq;
+			snapshot_frequency=_snap_freq;
 end;
 $$
 language plpgsql;

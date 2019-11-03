@@ -34,6 +34,7 @@ with Pg.pg_connect() as pg:
 	# Insert a submission
 	print(Submission.submission_detail_upsert(pg, s))
 	print(Submission.submission_snapshot_insert(pg, s))
+	print(Submission.submission_schedule_set(pg, s.id, 60))
 
 	# Clean up
 	Praw.praw_login_release(pg, 0)
