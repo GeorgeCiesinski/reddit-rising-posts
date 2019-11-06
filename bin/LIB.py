@@ -52,6 +52,7 @@ class LIB:
     OS = None
     OUT_LOG = None
     ERR_LOG = None
+    USING_CONFIG_FILE = None
 
     def __init__(self, home=None, cfg=None, out_log=None, err_log=None):
         # find out home if none is given. lib location is used.
@@ -83,6 +84,8 @@ class LIB:
         if self.read_config(cfg) == -1:
             self.CFG = {}
 
+        self.USING_CONFIG_FILE = cfg
+
         # set the output log file and error log file
         if out_log is None:
             self.OUT_LOG = self.get_config_value("outputlog","output.log")
@@ -102,12 +105,17 @@ class LIB:
         self.OS = self.clean_string(str(sys.platform).lower())
         self.write_log("Using OS: {}".format(self.OS))
 
+
+        '''
         # Start the config file reload thread
+        self.reload_kill_q = MP.Queue()
         if self.get_config_value("ConfigReloadInterval", 0) != 0:
-            confi_reloader = MP.Process(name = "Config_Reloader", target=self.reload_config, args=(cfg,))
+            confi_reloader = MP.Process(name = "Config_Reloader", target=self.reload_config, args=(cfg,self.reload_kill_q,))
             confi_reloader.start()
+            print(confi_reloader.pid)
             self.write_log("Starting config reload process")
             self.PROCESSLIST.append(confi_reloader)
+        '''
 
     """
     CONFIG
@@ -158,8 +166,8 @@ class LIB:
     # Reload the given lib with the given config file
     # input: String config file
     # output: None
-    def reload_config(self, config_file):
-        while True:
+    def reload_config(self, config_file,reload_kill_q):
+        while reload_kill_q.empty():
             if os.getppid() == 1:
                 return 0
             self.write_log("Reloading confing '{}'".format(config_file))
@@ -175,7 +183,7 @@ class LIB:
         for process in self.PROCESSLIST:
             if process.is_alive():
                 self.write_log("Stopping process: {}".format(process.name))
-                process.terminate()
+                self.reload_kill_q.put(-1)
         del self
 
     # Get the name of the parent script that called lib

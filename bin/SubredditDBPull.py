@@ -31,7 +31,7 @@ class SubredditDBPull:
         with Pg.pg_connect(processname) as my_db_connection:
             #TODO: write code for the file here
             while self.keep_ruinning:
-                list_of_subreddits = Queue.subreddits_to_crawl_get(my_db_connection,0,limit=10)
+                list_of_subreddits = Queue.subreddit_schedule_get(my_db_connection,limit=10)
                 self.lib.write_log("Got Subreddits: {}".format(list_of_subreddits))
                 for subreddit in list_of_subreddits:
                     submission_praw_pull_q.put(subreddit)
