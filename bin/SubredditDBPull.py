@@ -1,4 +1,3 @@
-import multiprocessing as MP
 import signal
 from sys import exit
 

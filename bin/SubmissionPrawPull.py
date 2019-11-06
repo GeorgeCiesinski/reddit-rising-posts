@@ -3,34 +3,32 @@ Description: Used to Submission snapshots or source
 """
 
 import bin.SubmissionFunctions as SubmissionFunctions
-import bin.CommentFunctions as CommentFunctions
-from .LIB import LIB
+import signal
+from sys import exit
+
+from bin.LIB import LIB
+from bin.DAL import *
 
 class SubmissionPrawPull:
 
-    def __init__(self, subreddit=None, praw_q = None):
-#        output_name = "{}_output.log".format(subreddit)
-#        error_name = "{}_error.log".format(subreddit)
-#        lib = LIB(cfg="config/DataCollection.cfg", out_log=output_name, err_log=error_name)
-#        lib.write_log("Data Collector {}".format(subreddit))
+    def sig_handler(self, sig, frame):
+        self.keep_ruinning = False
 
-        # while True: #TODO:  read "server_says" from shared memory --- keep running other wise
-            # TODO: get submissions from reddit for the subreddit (Submissions.get_hot(subreddit='funny', limit = 10) for example)
-            # for each submission
-                # TODO: Upsert submission into database details
-                # TODO: Get comments (Comments.get_root_comments(Post post))
-                #for each comment in comments:
-                    # TODO: Upsert comment into database details
+    def process_end(self):
+        self.lib.end()
+        exit(0)
 
-            # TODO: Get all submissions from database that are due for data collection; collect and add snapshot
 
-            # TODO: Get all comments from database that are due for data collection; collect and  add snapshot
+    def __init__(self, processname=None, submission_praw_pull_q = None, submission_db_push_q = None, comment_db_push_q = None ):
+        self.keep_ruinning = True
+        if (processname is None) or (submission_praw_pull_q is None) or (submission_db_push_q is None) or (comment_db_push_q is None):
+            exit(-1)
+        signal.signal(signal.SIGTERM, self.sig_handler)
+        signal.signal(signal.SIGINT, self.sig_handler)
+        self.output_name = "{}_output.log".format(processname)
+        self.error_name = "{}_error.log".format(processname)
+        self.lib = LIB(cfg="config/SubmissionPrawPull.cfg", out_log=self.output_name, err_log=self.error_name)
 
-            # TODO: Run decision making processes (these need to be though about some more, but they will update the polling interval based on some formulas)
-
-#        submissions = SubmissionFunctions.get_hot(lib=lib, subreddit=subreddit, limit=10, praw_q=praw_q)
-#        lib.write_log("Got {} submissions from {}".format(len(submissions),subreddit))
-
-        ## END PROCESSING STEPS
-#        lib.end()
-        pass
+        with Pg.pg_connect(processname) as my_db_connection:
+            while self.keep_ruinning:
+                

@@ -106,9 +106,6 @@ def process_count_update():
 
 
 
-
-
-
     # TODO: Start submission praw pull processs (for the subreddit)
 
     # TODO:  Start submission db push processs
@@ -149,7 +146,6 @@ if __name__ == '__main__':
     submission_snapshot_praw_pull_q = MP.Queue()
     submission_snapshot_db_push_q = MP.Queue()
 
-    comment_praw_pull_q = MP.Queue()
     comment_db_push_q = MP.Queue()
 
     comment_snapshot_praw_pull_q = MP.Queue()
