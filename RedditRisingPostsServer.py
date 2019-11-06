@@ -30,7 +30,7 @@ def db_cleanups():
     :return:
     """
     with Pg.pg_connect("MAIN_REDDIT_RISING_POSTS") as my_db_connection:
-        Queue.post_control_release(my_db_connection, '')
+        Queue.submission_schedule_release(my_db_connection)
         Queue.subreddit_schedule_release(my_db_connection)
         Praw.praw_login_release(my_db_connection)
 
@@ -54,20 +54,60 @@ def main_exit():
 
 def process_count_update():
     '''
-    get the process counts that are running and ensure that is whats configured in the config file; TODO: Start or stop as needed
+    get the process counts that are running and ensure that is whats configured in the config file;;
     :param my_db_connection: the database connection for this main server process
     :return: None
     '''
+
+    print("process_count_update")
+
+    lib.read_config(lib.USING_CONFIG_FILE)
+
     # TODO: Start subreddit db pull processs
+
+    #Read for the config how many process should be running
     process_start_count = lib.get_config_value("subredditdbpullprocesscount",1)
     if type(process_start_count) is not int:
         process_start_count = 1
-    for x in range(0,process_start_count,+1):
-        process_name = "subreddit_db_pull_{}".format(x)
-        new_process = MP.Process(name=process_name.lower(), target=SubredditDBPull, args=(process_name, submission_praw_pull_q,))
-        new_process.start()
-        print("Staring process {} {}".format(process_name, new_process.pid))
-        PROCESSLIST[process_name]=new_process
+
+    #Calculate the running and start process difference
+    currently_running_process_count = 0
+    for process_key in PROCESSLIST:
+        if "subreddit_db_pull_" in process_key:
+            currently_running_process_count+=1
+    print(currently_running_process_count)
+    print(process_start_count)
+    #action the results
+    if currently_running_process_count != process_start_count:
+        process_count_different = currently_running_process_count - process_start_count
+        print(process_count_different)
+        # TODO: Start the difference
+        if process_count_different < 0:
+            for x in range(0, abs(process_count_different), 1):
+                process_name = "subreddit_db_pull_{}_{}".format(x,lib.get_now().replace(" ","_"))
+                new_process = MP.Process(name=process_name.lower(), target=SubredditDBPull, args=(process_name, submission_praw_pull_q,))
+                new_process.start()
+                print("Staring process {} {}".format(process_name, new_process.pid))
+                PROCESSLIST[process_name] = new_process
+        # TODO: shutdown the difference
+        elif process_count_different > 0:
+            shutdown_count = 0
+            stop_list = []
+            for x in PROCESSLIST:
+                if shutdown_count is not abs(process_count_different):
+                    if "subreddit_db_pull_" in x:
+                        shutdown_count +=1
+                        tmp_process = PROCESSLIST[x]
+                        print("Stopping {}".format(x))
+                        tmp_process.terminate()
+                        stop_list.append(x)
+            for remove_process_from_list in stop_list:
+                del PROCESSLIST[remove_process_from_list]
+
+
+
+
+
 
     # TODO: Start submission praw pull processs (for the subreddit)
 
@@ -97,7 +137,7 @@ if __name__ == '__main__':
     signal.signal(signal.SIGTERM, sig_handler)
 
     # Create the lib object
-    config_file = "config/RedditRisingPost.cfg"
+    config_file = "config/RedditRisingPostsServer.cfg"
     lib = LIB(cfg=config_file)
 
     PROCESSLIST = {}
@@ -182,15 +222,15 @@ if __name__ == '__main__':
 
                 if len(parts) == 1:
                     # TODO: request to server commands
-                    if parts[0] == "list_commands":
+                    if parts[0] == "help":
                         return_string = "Commands..\n"
+                        return_string = "{} help -- list this outputr\n".format(return_string)
                         return_string = "{} stop -- stop the server\n".format(return_string)
                         return_string = "{} stop (process name) -- not available\n".format(return_string)
                         return_string = "{} start (sub reddit name) -- not available\n".format(return_string)
-                        return_string = "{} status -- return the status of all the processs\n".format(return_string)
-                        return_string = "{} reload (process name) -- not available\n".format(return_string)
-                        return_string = "{} reload all-- not available\n".format(return_string)
-                        return_string = "{} queue_size -- not available\n".format(return_string)
+                        return_string = "{} status -- return the status of all the process\n".format(return_string)
+                        return_string = "{} update_processes -- Update the process count\n".format(return_string)
+                        return_string = "{} queue_size -- List the size of all the queues\n".format(return_string)
                         lib.write_log(return_string)
                         conn.sendall(return_string.encode(ENCODING))
                         conn.close()
@@ -215,7 +255,25 @@ if __name__ == '__main__':
                         conn.close()
                         break
 
-                    # TODO: status of one process is requested
+                    #TODO: update process count
+                    if parts[0] == "update_processes":
+                        return_string = ""
+                        process_count_update()
+                        if len(PROCESSLIST) == 0:
+                            return_string = "No processes"
+                            conn.sendall(return_string.encode(ENCODING))
+                            conn.close()
+                            break
+                        for key in PROCESSLIST:
+                            process = PROCESSLIST[key]
+                            if not process.is_alive():
+                                return_string = "{}{}\n".format(return_string, "{} not running".format(process.name))
+                            else:
+                                return_string = "{}{}\n".format(return_string, "{} running".format(process.name))
+                        lib.write_log(return_string)
+                        conn.sendall(return_string.encode(ENCODING))
+                        conn.close()
+                        break
 
                     # TODO: request to stop the application
                     if parts[0] == "stop":
@@ -277,27 +335,7 @@ if __name__ == '__main__':
                 if len(parts) == 2:
                     # TODO: request to stop a process (data collector)
                     if parts[0] == "stop":
-                        stop_name = parts[1].lower()
-                        return_string = "Stopping {}: ".format(stop_name)
-                        return_status = ""
-                        try:
-                            for key in PROCESSLIST:
-                                process = PROCESSLIST[key]
-                                if process.name ==  "{}".format(stop_name):
-                                    if process.is_alive():
-                                        process.terminate()
-                                        return_status = "Stopped"
-                                    else:
-                                        return_status = "Stopped"
-                                if return_status == "":
-                                    return_status = "No such process"
-
-                        except Exception as e:
-                            return_status = "Failed"
-                            error_string = "Could not stop {}".format(stop_name)
-                            lib.write_log(error_string)
-                            lib.write_error("{} {}".format(error_string,e))
-                        return_string = "{}{}".format(return_string,return_status)
+                        return_string = "No avalible"
                         lib.write_log(return_string)
                         conn.sendall(return_string.encode(ENCODING))
                         conn.close()
