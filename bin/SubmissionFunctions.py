@@ -89,6 +89,7 @@ def get_top(lib=None, praw=None, subreddit=None, time_filter='all', limit=None):
 
 	# Ensure lib, praw_instance and subreddit are not none
 	if (lib is None) or (praw is None) or (subreddit is None):
+		print("missing something")
 		return None
 
 	# Get top submissions from subreddit limited by given value
