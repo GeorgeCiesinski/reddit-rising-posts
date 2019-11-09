@@ -46,7 +46,7 @@ class SubmissionPrawPull:
         self.error_name = "{}_error.log".format(processname)
         self.lib = LIB(cfg="config/SubmissionPrawPull.cfg", out_log=self.output_name, err_log=self.error_name) #make lib instance
 
-        with Pg.pg_connect() as my_db_connection:
+        with Pg.pg_connect(processname) as my_db_connection:
             self.praw = Praw.praw_login_get(my_db_connection)
 
         while self.keep_ruinning: # keep this process running
@@ -57,10 +57,23 @@ class SubmissionPrawPull:
                     submission_limit = int(self.lib.get_config_value("SubmissionLimit", 10))
                 except:
                     submission_limit = 10
-
-                if subreddit_filer is "rising":
-                    submission_list = SubmissionFunctions.get_rising(self.lib,self.praw,subreddit,submission_limit)
+                self.lib.write_log("{} {} {}".format(subreddit[0], subreddit_filer, submission_limit))
+                if subreddit_filer == "rising":
+                    submission_list = SubmissionFunctions.get_rising(lib=self.lib,praw=self.praw,subreddit=subreddit[0],limit=submission_limit)
                     for submission in submission_list:
+                        self.lib.write_log("Submission ID '{}'".format(submission.id))
+                        submission_db_push_q.put(submission)
+                        comment_db_push_q.put(submission)
+                elif subreddit_filer == "top":
+                    submission_list = SubmissionFunctions.get_top(lib=self.lib,praw=self.praw,subreddit=subreddit[0],limit=submission_limit)
+                    for submission in submission_list:
+                        self.lib.write_log("Submission ID '{}'".format(submission.id))
+                        submission_db_push_q.put(submission)
+                        comment_db_push_q.put(submission)
+                elif subreddit_filer == "hot":
+                    submission_list = SubmissionFunctions.get_hot(lib=self.lib,praw=self.praw,subreddit=subreddit[0],limit=submission_limit)
+                    for submission in submission_list:
+                        self.lib.write_log("Submission ID '{}'".format(submission.id))
                         submission_db_push_q.put(submission)
                         comment_db_push_q.put(submission)
             else:

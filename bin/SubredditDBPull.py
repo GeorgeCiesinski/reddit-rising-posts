@@ -49,6 +49,6 @@ class SubredditDBPull:
                 for subreddit in list_of_subreddits:
                     submission_praw_pull_q.put(subreddit) # put the subreddits into the queue for SubmissionPrawPull
                 if len(list_of_subreddits) == 0:
-                    self.lib.sleep(.5)
+                    self.lib.sleep(self.lib.get_config_value("SleepOnEmptyQueue",60))
 
         self.process_end() #after kill signal, properly shutdown
