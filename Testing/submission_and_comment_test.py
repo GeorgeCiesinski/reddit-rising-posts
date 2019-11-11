@@ -168,13 +168,13 @@ if __name__ == "__main__":
     # LIB
     lib = LIB()
 
-    praw = zPraw.login()
+    # praw = zPraw.login()
 
     # Todo: Make this work consistently. Sometimes works, sometimes doesn't. Unreliable for testing at this time.
-    # # Praw Login
-    # # Opens connection to db, gets praw login, and closes connection
-    # with Pg.pg_connect() as db:
-    #     praw = Praw.praw_login_get(db)
+    # Praw Login
+    # Opens connection to db, gets praw login, and closes connection
+    with Pg.pg_connect() as db:
+        praw = Praw.praw_login_get(db)
 
     # Submission ID
     sub_id = 'dr35z5'
@@ -209,3 +209,6 @@ if __name__ == "__main__":
 
     # Cleanup
     lib.end()
+
+    # Release login
+    Praw.praw_login_release(db)
