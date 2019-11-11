@@ -1,5 +1,4 @@
 import praw
-import unittest
 from bin.DAL.Praw import Praw
 from bin.DAL.Pg import Pg
 from bin.Submission import Submission
@@ -23,7 +22,7 @@ class zPraw:
         return r
 
 
-class SubmissionFunctionUnitTest(unittest.TestCase):
+class SubmissionFunctionUnitTest():
     """Test for SubmissionFunctions.py"""
 
     def __init__(self, lib, reddit, sr, submission, limit):
@@ -32,19 +31,19 @@ class SubmissionFunctionUnitTest(unittest.TestCase):
         print('\nTesting results for SubmissionFunctions.py : ')
 
         # Tests get_hot
-        self.get_hot_test(lib, reddit, sr, limit)
+        self.test_get_hot(lib, reddit, sr, limit)
 
         # Tests get_rising
-        self.get_rising_test(lib, reddit, sr, limit)
+        self.test_get_rising(lib, reddit, sr, limit)
 
         # Tests get_top
-        self.get_top_test(lib, reddit, sr, limit)
+        self.test_get_top(lib, reddit, sr, limit)
 
         # Tests get_snapshot
-        self.get_snapshot_test(lib, reddit, submission)
+        self.test_get_snapshot(lib, reddit, submission)
 
     @staticmethod
-    def get_hot_test(lib, reddit, subreddit, limit):
+    def test_get_hot(lib, reddit, subreddit, limit):
 
         # Gets submission list
         submission_list = SubmissionFunctions.get_hot(lib, reddit, subreddit, limit)
@@ -62,7 +61,7 @@ class SubmissionFunctionUnitTest(unittest.TestCase):
             print(ls.id)
 
     @staticmethod
-    def get_rising_test(lib, reddit, subreddit, limit):
+    def test_get_rising(lib, reddit, subreddit, limit):
 
         # Gets submission list
         submission_list = SubmissionFunctions.get_rising(lib, reddit, subreddit, limit)
@@ -80,7 +79,7 @@ class SubmissionFunctionUnitTest(unittest.TestCase):
             print(ls.id)
 
     @staticmethod
-    def get_top_test(lib, reddit, subreddit, limit):
+    def test_get_top(lib, reddit, subreddit, limit):
 
         # Gets submission list
         submission_list = SubmissionFunctions.get_top(lib, reddit, subreddit, 'all', limit)
@@ -98,7 +97,7 @@ class SubmissionFunctionUnitTest(unittest.TestCase):
             print(ls.id)
 
     @staticmethod
-    def get_snapshot_test(lib, reddit, submissino):
+    def test_get_snapshot(lib, reddit, submissino):
 
         # Gets snapshot of submission
         snapshot = SubmissionFunctions.get_snapshot(lib, reddit, submission)
@@ -113,7 +112,7 @@ class SubmissionFunctionUnitTest(unittest.TestCase):
         print(snapshot.title)
 
 
-class CommentFunctionsUnitTest(unittest.TestCase):
+class CommentFunctionsUnitTest():
     """Test for CommentFunctions.py"""
 
     def __init__(self, lib, submission, replace_more):
@@ -122,13 +121,13 @@ class CommentFunctionsUnitTest(unittest.TestCase):
         print('\nTesting results for SubmissionFunctions.py : ')
 
         # Tests get_all_comments
-        self.get_all_comments_test(lib, submission, replace_more)
+        self.test_get_all_comments(lib, submission, replace_more)
 
         # Tests get_root_comments
-        self.get_root_comments_test(lib, submission)
+        self.test_get_root_comments(lib, submission)
 
     @staticmethod
-    def get_all_comments_test(lib, submission, replace_more):
+    def test_get_all_comments(lib, submission, replace_more):
 
         # Gets Comment List
         comment_list = CommentFunctions.get_all_comments(lib, submission, replace_more)
@@ -145,7 +144,7 @@ class CommentFunctionsUnitTest(unittest.TestCase):
         print(f'The total number of comments is: {len(comment_list)}')
 
     @staticmethod
-    def get_root_comments_test(lib, submission):
+    def test_get_root_comments(lib, submission):
 
         # Gets Comment List
         comment_list = CommentFunctions.get_root_comments(lib, submission)
@@ -169,10 +168,13 @@ if __name__ == "__main__":
     # LIB
     lib = LIB()
 
-    # Praw Login
-    # Opens connection to db, gets praw login, and closes connection
-    with Pg.pg_connect() as db:
-        praw = Praw.praw_login_get(db)
+    praw = zPraw.login()
+
+    # Todo: Make this work consistently. Sometimes works, sometimes doesn't. Unreliable for testing at this time.
+    # # Praw Login
+    # # Opens connection to db, gets praw login, and closes connection
+    # with Pg.pg_connect() as db:
+    #     praw = Praw.praw_login_get(db)
 
     # Submission ID
     sub_id = 'dr35z5'
