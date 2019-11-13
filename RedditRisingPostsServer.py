@@ -6,13 +6,10 @@ import praw
 
 from bin.LIB import LIB
 from bin.SubredditDBPull import SubredditDBPull
-from bin.SubredditDBPush import SubredditDBPush
 from bin.SubmissionPrawPull import SubmissionPrawPull
 from bin.SubmissionDBPull import SubmissionDBPull
 from bin.SubmissionDBPush import SubmissionDBPush
 from bin.SubmissionSnapshotDBPush import SubmissionSnapshotDBPush
-from bin.CommentPrawPull import CommentPrawPull
-from bin.CommentDBPull import CommentDBPull
 from bin.CommentDBPush import CommentDBPush
 from bin.CommentSnapshotDBPush import CommentSnapshotDBPush
 from bin.DAL import *
