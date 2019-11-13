@@ -50,37 +50,28 @@ def main_exit():
     lib.end()
     sys.exit()
 
-def process_count_update():
-    '''
-    get the process counts that are running and ensure that is whats configured in the config file;;
-    :param my_db_connection: the database connection for this main server process
-    :return: None
-    '''
-
-    #print("process_count_update")
-
-    lib.read_config(lib.USING_CONFIG_FILE)
-
+def start_subreddit_db_pull():
     # TODO: Start subreddit db pull processs
-
-    #Read for the config how many process should be running
-    process_start_count = lib.get_config_value("subredditdbpullprocesscount",1)
+    lib.read_config(lib.USING_CONFIG_FILE)
+    # Read for the config how many process should be running
+    process_start_count = lib.get_config_value("subredditdbpullprocesscount", 1)
     if type(process_start_count) is not int:
         process_start_count = 1
 
-    #Calculate the running and start process difference
+    # Calculate the running and start process difference
     currently_running_process_count = 0
     for process_key in PROCESSLIST:
         if "subreddit_db_pull_" in process_key:
-            currently_running_process_count+=1
-    #action the results
+            currently_running_process_count += 1
+    # action the results
     if currently_running_process_count != process_start_count:
         process_count_different = currently_running_process_count - process_start_count
         # TODO: Start the difference
         if process_count_different < 0:
             for x in range(0, abs(process_count_different), 1):
-                process_name = "subreddit_db_pull_{}_{}".format(x,lib.get_now().replace(" ","_"))
-                new_process = MP.Process(name=process_name.lower(), target=SubredditDBPull, args=(process_name, submission_praw_pull_q,))
+                process_name = "subreddit_db_pull_{}_{}".format(x, lib.get_now().replace(" ", "_"))
+                new_process = MP.Process(name=process_name.lower(), target=SubredditDBPull,
+                                         args=(process_name, submission_praw_pull_q,))
                 new_process.start()
                 lib.write_log("Staring process {} {}".format(process_name, new_process.pid))
                 PROCESSLIST[process_name] = new_process
@@ -91,7 +82,7 @@ def process_count_update():
             for x in PROCESSLIST:
                 if shutdown_count is not abs(process_count_different):
                     if "subreddit_db_pull_" in x:
-                        shutdown_count +=1
+                        shutdown_count += 1
                         tmp_process = PROCESSLIST[x]
                         lib.write_log("Stopping {}".format(x))
                         tmp_process.terminate()
@@ -99,28 +90,28 @@ def process_count_update():
             for remove_process_from_list in stop_list:
                 del PROCESSLIST[remove_process_from_list]
 
-
-
+def start_submission_parw_pull():
     # TODO: Start submission praw pull processs (for the subreddit)
-
-    #Read for the config how many process should be running
-    process_start_count = lib.get_config_value("submissionprawpullprocesscount",1)
+    lib.read_config(lib.USING_CONFIG_FILE)
+    # Read for the config how many process should be running
+    process_start_count = lib.get_config_value("submissionprawpullprocesscount", 1)
     if type(process_start_count) is not int:
         process_start_count = 1
 
-    #Calculate the running and start process difference
+    # Calculate the running and start process difference
     currently_running_process_count = 0
     for process_key in PROCESSLIST:
         if "submission_praw_pull" in process_key:
-            currently_running_process_count+=1
-    #action the results
+            currently_running_process_count += 1
+    # action the results
     if currently_running_process_count != process_start_count:
         process_count_different = currently_running_process_count - process_start_count
         # TODO: Start the difference
         if process_count_different < 0:
             for x in range(0, abs(process_count_different), 1):
-                process_name = "submission_praw_pull_{}_{}".format(x,lib.get_now().replace(" ","_"))
-                new_process = MP.Process(name=process_name.lower(), target=SubmissionPrawPull, args=(process_name, submission_praw_pull_q,submission_db_push_q,comment_db_push_q,))
+                process_name = "submission_praw_pull_{}_{}".format(x, lib.get_now().replace(" ", "_"))
+                new_process = MP.Process(name=process_name.lower(), target=SubmissionPrawPull, args=(
+                process_name, submission_praw_pull_q, submission_db_push_q, comment_db_push_q,))
                 new_process.start()
                 lib.write_log("Staring process {} {}".format(process_name, new_process.pid))
                 PROCESSLIST[process_name] = new_process
@@ -131,7 +122,7 @@ def process_count_update():
             for x in PROCESSLIST:
                 if shutdown_count is not abs(process_count_different):
                     if "submission_praw_pull" in x:
-                        shutdown_count +=1
+                        shutdown_count += 1
                         tmp_process = PROCESSLIST[x]
                         lib.write_log("Stopping {}".format(x))
                         tmp_process.terminate()
@@ -140,6 +131,17 @@ def process_count_update():
                 del PROCESSLIST[remove_process_from_list]
 
 
+def process_count_update():
+    '''
+    get the process counts that are running and ensure that is whats configured in the config file;;
+    :param my_db_connection: the database connection for this main server process
+    :return: None
+    '''
+
+    #print("process_count_update")
+
+    start_subreddit_db_pull()
+    start_submission_parw_pull()
 
     # TODO:  Start submission db push processs
 
