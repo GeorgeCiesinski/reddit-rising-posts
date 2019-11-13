@@ -13,11 +13,10 @@ import base64
 import re
 import shutil
 
-
-# file object, stores information about a given file... no need to import this.
+#file object, stores information about a given file... no need to import this.
 class File:
-    # set the file properties
-    def __init__(self, name=None, permissions=None, size=None, modified_time=None, path=None):
+    #set the file properties
+    def __init__(self,name=None, permissions=None, size=None, modified_time=None, path=None):
         self.name = name
         self.permissions = permissions
         self.size = size
@@ -40,13 +39,12 @@ class File:
     def to_string(self):
         return str(self.__dict__)
 
-
 class LIB:
     PUNCTUATION = ['"', '\'', '*']
     HOME = None
     LOG = None
-    CFG = None
-    ARGS = None
+    CFG = {}
+    ARGS = {}
     MSGLIST = []
     PROCESSLIST = []
     OS = None
@@ -54,8 +52,8 @@ class LIB:
     ERR_LOG = None
     USING_CONFIG_FILE = None
 
-    def __init__(self, home=None, cfg=None, out_log=None, err_log=None):
-        # find out home if none is given. lib location is used.
+    def __init__(self, home=None, cfg=None, out_log = None, err_log = None):
+        #find out home if none is given. lib location is used.
         self.PROCESSLIST = []
         if home is None:
             home = os.getcwd()
@@ -69,24 +67,25 @@ class LIB:
             if not self.make_path(self.HOME):
                 return
 
-        # set the logs directory
+        #set the logs directory
         self.LOG = "{}/logs".format(self.HOME)
         if not self.path_exists(self.LOG):
             if not self.make_path(self.LOG):
                 return
 
-        # get and store the sys arguments
+        #get and store the sys arguments
         self.ARGS = sys.argv
 
-        # load the config file
+        #load the config file
         if cfg is None:
             cfg = self.get_args_value("-cfg", "{}/config/config.cfg".format(self.HOME))
-        if self.read_config(cfg) == -1:
+        self.CFG = self.read_config(cfg)
+        if self.CFG is None:
             self.CFG = {}
 
         self.USING_CONFIG_FILE = cfg
 
-        # set the output log file and error log file
+        #set the output log file and error log file
         if out_log is None:
             self.OUT_LOG = self.get_config_value("outputlog","output.log")
         else:
@@ -101,21 +100,21 @@ class LIB:
         self.write_log("Using Config file: '{}'".format(cfg))
         self.write_log("Config: '{}'".format(self.CFG))
 
-        # set the current running OS
+        #set the current running OS
         self.OS = self.clean_string(str(sys.platform).lower())
         self.write_log("Using OS: {}".format(self.OS))
 
-
-        '''
         # Start the config file reload thread
-        self.reload_kill_q = MP.Queue()
         if self.get_config_value("ConfigReloadInterval", 0) != 0:
-            confi_reloader = MP.Process(name = "Config_Reloader", target=self.reload_config, args=(cfg,self.reload_kill_q,))
+            mp_manager = MP.Manager()
+            self.CFG = mp_manager.dict()
+            tmp_cfg = self.read_config(cfg)
+            for key in tmp_cfg:
+                self.CFG[key] = tmp_cfg[key]
+            confi_reloader = MP.Process(name = "Config_Reloader", target=self.reload_config, args=(cfg,self.CFG,))
             confi_reloader.start()
-            print(confi_reloader.pid)
             self.write_log("Starting config reload process")
             self.PROCESSLIST.append(confi_reloader)
-        '''
 
     """
     CONFIG
@@ -125,7 +124,7 @@ class LIB:
     # Input  : config file
     # Output : None
     def read_config(self, cfgFile):
-        self.CFG = {}
+        TMP_CFG = {}
         data = self.read_file(cfgFile)
         if (data == -1) or (data is None):
             return None
@@ -136,7 +135,7 @@ class LIB:
                     continue
                 dic = line.split("=")
                 key = self.clean_string(dic[0].lower())
-                value = self.clean_string("=".join(dic[1:]))
+                value = self.clean_string(dic[1])
 
                 if value[0] == '"':
                     value = self.clean_string(value.replace('"', ""))
@@ -150,8 +149,9 @@ class LIB:
                     except:
                         value = self.clean_string(value).lower()
 
-                self.CFG[key] = value
-        self.write_log("CFG: '{}'".format(self.CFG))
+                TMP_CFG[key] = value
+        self.write_log("CFG: '{}'".format(TMP_CFG))
+        return TMP_CFG
 
     # Get a config key value, if no key exists, the given default value is returned
     # Input  : key, default value
@@ -166,14 +166,20 @@ class LIB:
     # Reload the given lib with the given config file
     # input: String config file
     # output: None
-    def reload_config(self, config_file,reload_kill_q):
-        while reload_kill_q.empty():
+    def reload_config(self, config_file,lib_config):
+        while True:
             if os.getppid() == 1:
                 return 0
             self.write_log("Reloading confing '{}'".format(config_file))
-            self.read_config(config_file)
+            tmp_cfg = self.read_config(config_file)
+            for key in tmp_cfg:
+                lib_config[key] = tmp_cfg[key]
             self.write_log("Reloading done")
-            self.sleep(self.get_config_value("ConfigReloadInterval", 60))
+            sleep_time = self.get_config_value("ConfigReloadInterval", 60)
+            if sleep_time == 0:
+                self.write_log("Reload Interval disabled, stopping. Note this can not be restart")
+                return 0
+            self.sleep(sleep_time)
 
     # Destroy this lib instance... it will become unusable if this is called
     # Input: None
@@ -181,9 +187,9 @@ class LIB:
     def end(self):
         self.write_log("Terminating LIB instance")
         for process in self.PROCESSLIST:
-            if process.is_alive():
-                self.write_log("Stopping process: {}".format(process.name))
-                self.reload_kill_q.put(-1)
+                if process.is_alive():
+                        self.write_log("Stopping process: {}".format(process.name))
+                        process.terminate()
         del self
 
     # Get the name of the parent script that called lib
@@ -231,7 +237,7 @@ class LIB:
                         name = name.split("/")[-1]
                     return "{}".format(name)
                 # if the next entry is not the same return script and function name
-                if next_entry[FILENAME_INDEX] is not name:
+                if (next_entry[FILENAME_INDEX] is not name):
                     if self.HOME in name:
                         name = name.split("/")[-1]
                     return "{}/{}".format(name, function)
@@ -410,6 +416,107 @@ class LIB:
             return None
         return 0
 
+    # rotate the files thats given, the full path is needed or LIB.file is needed
+    #Input: LIB.File OR string (full file path)
+    #output: None
+    def file_rotate(self, in_file=None):
+        if type(in_file) is not File:
+            if type(in_file) is str:
+                if self.file_exists(in_file):
+                    working_file = self.make_file(in_file)
+                else:
+                    logMessage = "File does not exist '{}'".format(in_file)
+                    self.write_log(logMessage)
+                    return None
+            else:
+                logMessage = "Unknown file type '{}'".format(in_file)
+                self.write_log(logMessage)
+                return None
+        else:
+            working_file = in_file
+
+        if working_file is None:
+            logMessage = "File is none"
+            self.write_log(logMessage)
+            return None
+
+        self.write_log("File Rotation started: '{}'".format(working_file.path))
+
+        list = working_file.path.split("/")
+        dir = "/".join(list[:len(list) - 1])
+
+        SIZELIMIT = float(self.get_config_value("sizelimit", 20))
+        FILELIMIT = float(self.get_config_value("filelimit", 10))
+
+        # get all the files at this path
+        dirFiles = self.directory_listing(dir)
+
+        # if forceRotation is set, this is ignored
+        if self.get_config_value("forcerotation", 0) == 0:
+            # ensure this file has a size grater than whats defined
+            for dirFile in dirFiles:
+                if dirFile.path == working_file.path:
+                    print(float((SIZELIMIT * 1000) * 1024))
+                    print(float(dirFile.size))
+                    if float(dirFile.size) < float(((SIZELIMIT * 1000) * 1024)):
+                        self.write_log("Size not at limit: '{}'".format(working_file.path))
+                        return False
+        else:
+            self.write_log("Force Rotation")
+
+        tmpList = []
+        # remove files that are not an iteration of the file in question
+        for dirFile in dirFiles:
+            if working_file.name in dirFile.name:
+                tmpList.append(dirFile)
+        dirFiles = tmpList
+
+        while int(len(dirFiles)) > int(FILELIMIT):
+            # find the oldest files
+            oldest = None
+            for dirFile in dirFiles:
+                if dirFile.name != working_file.name:
+                    if (oldest is None):
+                        oldest = dirFile
+                    else:
+                        if oldest.modified_time > dirFile.modified_time:
+                            oldest = dirFile
+            cmd = "rm -f {}".format(oldest.path)
+            out, err, return_code = self.run_os_cmd(cmd)
+            if return_code != 0:
+                logMessage = "Could not remove file '{}'".format(oldest.path)
+                self.write_log(logMessage)
+            dirFiles.remove(oldest)
+
+        # rotate and make new files
+        cmd = "mv {} {}.{}".format(working_file.path, working_file.path, self.get_now().replace(" ", "-").replace(":", "-").split(".")[0])
+        out, err, return_code = self.run_os_cmd(cmd)
+        if return_code != 0:
+            logMessage = "Could not move '{}'".format(working_file.path)
+            self.write_log(logMessage)
+        cmd = "touch {}".format(working_file.path)
+        out, err, return_code = self.run_os_cmd(cmd)
+        if return_code != 0:
+            logMessage = "Could not create file '{}'".format(working_file.path)
+            self.write_log(logMessage)
+        self.write_log("File Rotation done: '{}'".format(working_file.path))
+
+
+    #Make the file object
+    #Input: Absolute path to the file
+    #Ouput: self.File
+    def make_file(self, file_path=None):
+        if file_path is None:
+            self.write_log("Need path")
+            return None
+        if not self.file_exists(file_path):
+            self.write_log("No such file '{}'".format(file_path))
+            return None
+        file_parts = file_path.split("/")
+        name = file_parts[-1:][0]
+        stats = os.stat(file_path)
+        return File(name=name, path=file_path,size=stats.st_size, modified_time=stats.st_mtime, permissions=oct(stats.st_mode))
+
     # List all the files and directories in a given path
     # Input: String path
     # Output: list of Files
@@ -446,13 +553,24 @@ class LIB:
     # Input: absolute path TODO: Make relative safe
     # Output: boolean
     def path_exists(self, path):
-        self.write_log("Check path: {}".format(path))
         try:
             value = os.path.exists(path)
         except Exception as e:
             self.write_error("Error:\n####\n{}\n####\n".format(e))
             value = False
-        self.write_log("Result: {}".format(value))
+        self.write_log("Path Exists '{}' Result: {}".format(path,value))
+        return value
+
+    # Check if the given file exists
+    # Input: absolute path to file
+    # Output: boolean
+    def file_exists(self, file_path):
+        try:
+            value = os.path.isfile(file_path)
+        except Exception as e:
+            self.write_error("Error:\n####\n{}\n####\n".format(e))
+            value = False
+        self.write_log("File Exists '{}' Result: {}".format(file_path,value))
         return value
 
     # Create the given path. This is a recursive operation.
@@ -571,27 +689,27 @@ class LIB:
         measure = measure.lower()
         return_value = None
         if future:
-            if measure == "seconds":
-                return_value = str(now + TD(seconds=delta)).split(".")[0]
-            if measure == "minutes":
-                return_value = str(now + TD(minutes=delta)).split(".")[0]
-            if measure == "hours":
-                return_value = str(now + TD(hours=delta)).split(".")[0]
-            if measure == "days":
-                return_value = str(now + TD(days=delta)).split(".")[0]
-            if measure == "weeks":
-                return_value = str(now + TD(weeks=delta)).split(".")[0]
+                if measure == "seconds":
+                    return_value = str(now + TD(seconds=delta)).split(".")[0]
+                if measure == "minutes":
+                    return_value = str(now + TD(minutes=delta)).split(".")[0]
+                if measure == "hours":
+                    return_value = str(now + TD(hours=delta)).split(".")[0]
+                if measure == "days":
+                    return_value = str(now + TD(days=delta)).split(".")[0]
+                if measure == "weeks":
+                    return_value = str(now + TD(weeks=delta)).split(".")[0]
         if not future:
-            if measure == "seconds":
-                return_value = str(now - TD(seconds=delta)).split(".")[0]
-            if measure == "minutes":
-                return_value = str(now - TD(minutes=delta)).split(".")[0]
-            if measure == "hours":
-                return_value = str(now - TD(hours=delta)).split(".")[0]
-            if measure == "days":
-                return_value = str(now - TD(days=delta)).split(".")[0]
-            if measure == "weeks":
-                return_value = str(now - TD(weeks=delta)).split(".")[0]
+                if measure == "seconds":
+                    return_value = str(now - TD(seconds=delta)).split(".")[0]
+                if measure == "minutes":
+                    return_value = str(now - TD(minutes=delta)).split(".")[0]
+                if measure == "hours":
+                    return_value = str(now - TD(hours=delta)).split(".")[0]
+                if measure == "days":
+                    return_value = str(now - TD(days=delta)).split(".")[0]
+                if measure == "weeks":
+                    return_value = str(now - TD(weeks=delta)).split(".")[0]
         return return_value
 
     """
@@ -649,10 +767,10 @@ class LIB:
         return string
 
     # Encode a given value using base64. A key can be given to further secure the encoding
-    #  NOTE: THIS IS NOT SECURE ENCRYPTION... BUT AT LEAST ITS NOT PLAIN TEXT
+    #  NOTE: THIS IS NOT SECURE ENCRIPTION... BUT ALTEAST ITS NOT PLAIN TEXT
     # Input: String value, String key
     # Output: String encoded_value
-    def encode(self, value=None, key="secret"):
+    def encode(self, value = None, key="secret"):
         self.write_log("Encoding: {}".format(value))
         encoded_value = None
         if value is None:
@@ -660,7 +778,7 @@ class LIB:
         try:
             encoded_key = base64.b64encode(key.encode(self.get_config_value('CharEncoding','utf-8'))).decode(self.get_config_value('CharEncoding','utf-8'))
             value_lenght = len(value)
-            m_value = "{}{}{}".format(value[:int(value_lenght/2)], encoded_key, value[int(value_lenght/2):])
+            m_value = "{}{}{}".format(value[:int(value_lenght/2)],encoded_key,value[int(value_lenght/2):])
             encoded_value = base64.b64encode(m_value.encode(self.get_config_value('CharEncoding', 'utf-8'))).decode(self.get_config_value('CharEncoding', 'utf-8'))
         except Exception as e:
             self.write_error("Error:\n####\n{}\n####\n".format(e))
@@ -668,10 +786,10 @@ class LIB:
         return encoded_value
 
     # Decode a given value using base64. A key has to be given if it was encoded using one
-    #  NOTE: THIS IS NOT SECURE ENCRYPTION... BUT AT LEAST ITS NOT PLAIN TEXT
+    #  NOTE: THIS IS NOT SECURE ENCRIPTION... BUT ALTEAST ITS NOT PLAIN TEXT
     # Input: String value, String key
     # Output: String decoded_value
-    def decode(self, value=None, key="secret"):
+    def decode(self, value = None, key="secret"):
         self.write_log("Decoding: {}".format(value))
         m_value = None
         if value is None:
@@ -720,7 +838,6 @@ class LIB:
 ####################################################################################################
 """
 
-
 class MySQL:
     CONN = None
     CUR = None
@@ -730,33 +847,33 @@ class MySQL:
     # Create a MySQL object (and connection)
     # Input: String host, String username, String password, String database, LIB lib)
     # Output: None
-    def __init__(self, host=None, username=None, password=None, database=None, lib=None):
-        # import the mysql connector return if it's not installed
+    def __init__(self,host=None,username=None,password=None,database=None, lib = None):
+        #import the mysql connector return if it's not installed
         try:
             import mysql.connector
         except:
             return
 
-        # make sure all the values are given
+        #make sure all the values are given
         if (host is None) or (username is None) or (password is None) or (database is None):
             return
 
-        # make a lib instance for itself
+        #make a lib instance for itself
         if (lib is None) and (self.lib is None):
             self.lib = LIB(home="/tmp",out_log="mysql_{}_{}_output.log".format(host,database),err_log="mysql_{}_{}_error.log".format(host,database))
         else:
             self.lib = lib
-            self.lib.OUT_LOG = "mysql_{}_{}_output.log"
-            self.lib.ERR_LOG = "mysql_{}_{}_error.log"
+            self.lib.OUT_LOG = "mysql_{}_{}_output.log".format(host,database)
+            self.lib.ERR_LOG = "mysql_{}_{}_error.log".format(host,database)
 
-        # make the config dict for mysql conn
+        #make the config dict for mysql conn
         self.config = {
             'user': username,
             'password': password,
             'host': host,
             'database': database
         }
-        # try to make the mysql connection
+        #try to make the mysql connection
         try:
             self.CONN = mysql.connector.connect(**self.config)
         except Exception as e:
@@ -766,7 +883,7 @@ class MySQL:
             self.lib.write_error("Error: {}".format(e))
             self.end()
             return
-        # get the cursor
+        #get the cursor
         self.CUR = self.CONN.cursor(dictionary=True)
 
         self.lib.write_log("Connected {}".format(self.config))
@@ -813,16 +930,16 @@ class MySQL:
     # Input: String query, Tuples (values)
     # Output: list rows (as dictionaries)
     def select(self,query=None, variables=None):
-        # ensure a query is given
+        #ensure a query is given
         if query is None:
             self.lib.write_log("Query is None")
             return None
-        # ensure the query is a select statement
+        #ensure the query is a select statement
         if query.lower().split(" ")[0] != "select":
             self.lib.write_log("Query not select statement")
             return None
         self.lib.write_log("Running '{}'".format(query))
-        # there are no variables in this query
+        #there are no variables in this query
         if variables is None:
             try:
                 self.CUR.execute(query)
@@ -835,9 +952,9 @@ class MySQL:
                 self.lib.write_error(string)
                 self.lib.write_error("Error: {}".format(e))
                 return None
-        # there are variables in this query
+        #there are variables in this query
         elif variables is not None:
-            # ensure the variables are given as tuples
+            #ensure the variables are given as tuples
             if type(variables) is not tuple:
                 self.lib.write_log("Variables need to be a tuple")
                 return None
