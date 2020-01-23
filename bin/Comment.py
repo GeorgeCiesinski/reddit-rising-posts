@@ -13,8 +13,7 @@ class Comment:
 		"""
 
 		self.permalink = comment.permalink
-		self.body = comment.body
-		self.author = comment.author
+		self.link_id = comment.link_id  # Refers to submission ID
 		self.score = comment.score
 		self.created_utc = comment.created_utc
 		self.edited = comment.edited

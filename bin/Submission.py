@@ -19,16 +19,10 @@ class Submission (object):
 		self.id = submission.id
 		self.url = submission.url
 		self.subreddit = submission.subreddit
-
-		try:
-			self.selftext = submission.selftext
-		except Exception as e:
-			self.selftext = None
-			lib.write_log(f'Submission {submission.id} does not have self text.')
-
 		self.num_comments = submission.num_comments
 		self.comments = submission.comments
 		self.score = submission.score
+		self.upvote_ratio = submission.upvote_ratio
 
 		try:
 			self.author = submission.author
