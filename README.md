@@ -2,12 +2,47 @@
 
 A bot that observes rising posts in Reddit for Analysis.
 
-## Purpose
+## Overview
 
-The purpose of this project is to better understand tools such as the Reddit API, postgresql, and Python.
+### Purpose
 
+The purpose of this project is to build a bot that monitors rising posts and collects
+data for later analysis. 
 
-Directory Structure
+### Screenshots and video
+
+TBA
+
+- Pics of consoles
+- Gif of PostgresSQL receiving data
+- Gifs showing project in action
+
+## Features
+
+TBA
+
+- Expand on docker
+- Multiprocessing
+- etc.
+
+## Setup & Installation
+
+Should we have this section? Do we intend for this to be cloned by others?
+
+## Usage & Details
+
+- How to use the project
+- Design diagram
+
+## ChangeLog & Roadmap
+
+TBA
+
+- Start basic changelog from some working version. Maybe next master.
+- Lay out vision for project future
+
+##Directory Structure
+
     - bin : Usually used for compiled binaries, will be used for store python files that will be imported by the main script
     - config : All config files will be kept here
     - Main executable scripts (the ones humans will run and or start) are kept at the project root
@@ -77,4 +112,14 @@ Directory Structure
         - start an application server on port 500
         - listen for incoming requests on the port.DataCollector
             - status, start <sub-reddit>, stop <sub_reddit>, stop
-            - each client connection is treated as a transaction, client connects with request, server process the request and returns results to the client connection, the client connection is then closed.  
+            - each client connection is treated as a transaction, client connects with request, server process the request and returns results to the client connection, the client connection is then closed.
+            
+## Credits
+
+This bot was built by: 
+- Anupam Sharma
+- Robbie Toyota
+- George Ciesinski  
+
+With special thanks to: 
+- The PRAW team for creating the PRAW api. 
