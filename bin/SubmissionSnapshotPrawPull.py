@@ -1,0 +1,3 @@
+class SubmissionSnapshotPrawPull:
+
+	pass
