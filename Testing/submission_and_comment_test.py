@@ -100,14 +100,14 @@ class SubmissionFunctionUnitTest():
     def test_get_snapshot(lib, reddit, submissino):
 
         # Gets snapshot of submission
-        snapshot = SubmissionFunctions.get_snapshot(lib, reddit, submission)
+        snapshot = SubmissionFunctions.submission_snapshot_praw_pull(lib, reddit, submission)
 
         # Testing
         assert snapshot.id == submission.id
         assert isinstance(snapshot.title, str)
 
         # Print Results
-        print('\nResults of snapshot: ')
+        print('\nResults of submission_snapshot_praw_pull: ')
         print(snapshot.id)
         print(snapshot.title)
 

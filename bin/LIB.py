@@ -795,9 +795,14 @@ class LIB:
         if value is None:
             return m_value
         try:
-            encoded_key = base64.b64encode(key.encode(self.get_config_value('CharEncoding', 'utf-8'))).decode(self.get_config_value('CharEncoding', 'utf-8'))
-            decoded_value = base64.b64decode(value.encode(self.get_config_value('CharEncoding', 'utf-8'))).decode(self.get_config_value('CharEncoding', 'utf-8'))
-            m_value = decoded_value.replace(encoded_key,"")
+            data = value.encode(self.get_config_value('CharEncoding', 'utf-8'))
+            missing_padding = len(data) % 4
+            if missing_padding != 0:
+                data += b'=' * (4 - missing_padding)
+            encoded_key = base64.b64encode(key.encode(self.get_config_value('CharEncoding', 'utf-8'))).decode(
+                self.get_config_value('CharEncoding', 'utf-8'))
+            decoded_value = base64.b64decode(data).decode(self.get_config_value('CharEncoding', 'utf-8'))
+            m_value = decoded_value.replace(encoded_key, "")
         except Exception as e:
             self.write_error("Error:\n####\n{}\n####\n".format(e))
             return None
