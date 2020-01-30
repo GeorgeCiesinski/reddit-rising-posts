@@ -173,7 +173,6 @@ $$
 language plpgsql;
 
 
-
 -- Retrieve one login of
 create or replace function praw_login_get ()
 returns table
@@ -334,7 +333,7 @@ language plpgsql;
 create or replace function
 	post_detail_control_insert
 	(
-		in pid /*post_id*/	text
+		_pid /*post_id*/	text
 	)
 returns void
 as $$
@@ -344,7 +343,7 @@ begin
 		post_detail_control
 		(post_id)
 	values
-		(pid)
+		(_pid)
 	on conflict
 		(post_detail_control_pkey)
 		do nothing;
@@ -355,10 +354,10 @@ language plpgsql;
 
 -- Select a list of posts that need to be scraped for their details
 create or replace function
-	post_detail_control_get
+    post_detail_control_get
 	(
-		in tid 			int,
-		in row_limit	int
+		_tid 		int,
+		_row_limit	int
 	)
 returns void
 as $$
@@ -371,13 +370,13 @@ begin
 		post_detail_control
 	order by
 		inserted_on
-	limit (row_limit);
+	limit (_row_limit);
 
 	-- Claim those posts
 	update
 		post_detail_control
 	set
-		thread_id = tid,
+		thread_id = _tid,
 		thread_assigned_on = now()
 	where
 		post_id in (select post_id from posts);
@@ -389,12 +388,12 @@ language plpgsql;
 -- Upsert a row into post_details
 create or replace function submission_detail_upsert
 	(
-		in _pid /*post_id*/	    text,
-		in _subreddit_name	    text,
-		in _posted_by		    text,
-		in _title				text,
-		in _posted_on			timestamp,
-		in _url                 text
+		_pid /*post_id*/	text,
+		_subreddit_name	    text,
+		_posted_by		    text,
+		_title				text,
+		_posted_on			timestamp,
+		_url                text
 	)
 returns void
 as $$
@@ -403,7 +402,7 @@ begin
 	insert into post_detail as pd
 		(post_id, subreddit_id, posted_by, title, posted_on, url)
 	values
-		(_pid, _subreddit_name, _posted_by, _title, _posted_on, _url)
+		(_pid, 0/*_subreddit_name*/, 0/*_posted_by*/, _title, _posted_on, _url)
 	on conflict on constraint post_detail_pkey do
 		update
 		set
@@ -412,11 +411,51 @@ begin
 			updated_on = now()
 		where
 			pd.post_id = _pid
-	        and subreddit_id <> excluded.subreddit_id
-			and title <> excluded.title;
+	        and pd.subreddit_id <> excluded.subreddit_id
+			and pd.title <> excluded.title;
 
 	-- TODO: Upsert the row into the user table (upsert instead of insert, in case user changes name)
 	-- TODO: Query to get the subreddit_id (this function accepts the subreddit name)
+end;
+$$
+language plpgsql;
+
+
+-- Upsert a row into comment_details
+create or replace function comment_detail_upsert
+(
+    _comment_id     text,
+    _submission_id  text,
+    _posted_on      timestamp
+)
+returns void
+as $$
+begin
+	-- Upsert the row into post_detail
+	insert into comment_detail as d
+		(comment_id, submission_id, posted_on)
+	values
+		(_comment_id, _submission_id, _posted_on)
+	on conflict on constraint comment_detail_pkey
+	    do nothing;
+end;
+$$
+language plpgsql;
+
+-- Insert a scraped summary
+create or replace function comment_snapshot_insert
+(
+    _comment_id     text,
+    _score          int
+)
+returns void
+as $$
+begin
+	-- Insert the snapshot
+	insert into comment_snapshot
+		(comment_id, score, snapped_on)
+	values
+		(_comment_id, _score, now());
 end;
 $$
 language plpgsql;
@@ -426,7 +465,7 @@ language plpgsql;
 create or replace function
 	maint_post_detail_sync
 	(
-		in pid /*post_id*/	text
+		_pid /*post_id*/	text
 	)
 returns void
 as $$
@@ -437,14 +476,14 @@ begin
 		-- Set the last_snapped to the latest snapshot
 		last_snapped = coalesce(
 			-- First, check the live post_snapshot table
-			(select max(snapped_on) from post_snapshot where post_id=pid),
+			(select max(snapped_on) from post_snapshot where post_id=_pid),
 			-- Second (if not found), check the archived post_snapshot table
-			(select max(snapped_on) from post_snapshot_archived where post_id=pid),
+			(select max(snapped_on) from post_snapshot_archived where post_id=_pid),
 			-- Finally (else), leave with the original value
 			last_snapped
 		)
 	where
-		post_id = pid;
+		post_id = _pid;
 end;
 $$
 language plpgsql;
@@ -454,7 +493,7 @@ language plpgsql;
 create or replace function
 	archive_post
 	(
-		in pid /*post_id*/	text
+		_pid /*post_id*/	text
 	)
 returns void
 as $$

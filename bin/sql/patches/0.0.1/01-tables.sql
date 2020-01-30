@@ -108,13 +108,10 @@ create index comment_detail_control_idx_ins on comment_detail_control (inserted_
 create table post_snapshot
 (
 	post_id 			text,
-	thread_id			int,
 	snapped_on			timestamp,
-	rank				int,
-	upvotes				int,
-	downvotes			int,
-	comments 			int,
-	is_hot				boolean,
+	score				int,
+	num_comments 		int,
+	upvote_ratio        float,
 	primary key (post_id, snapped_on)
 );
 
@@ -137,14 +134,10 @@ create table post_snapshot_archive
 -- Snapshot details for comments being actively monitored
 create table comment_snapshot
 (
-	comment_id 			text,
-	thread_id			int,
-	snapped_on			timestamp,
-	rank				int,
-	upvotes				int,
-	downvotes			int,
-	replies 			int,
-	primary key (comment_id, snapped_on)
+    comment_id 			text,
+    score				int,
+    snapped_on			timestamp,
+    primary key (comment_id, snapped_on)
 );
 
 
@@ -166,10 +159,10 @@ create table comment_snapshot_archive
 create table post_detail
 (
 	post_id				text not null primary key,
-	subreddit_id		text,
+	subreddit_id		int,
 	posted_by			int,
 	title				text,
-	body				text,
+	url                 text,
 	posted_on			timestamp,
 	last_snapped		timestamp default null,
 	archived			timestamp default null,
@@ -184,18 +177,14 @@ create index post_detail_idx_subreddit on post_detail (subreddit_id);
 create table comment_detail
 (
 	comment_id		text not null primary key,
-	post 			int,
-	parent_comment	int default 0,
-	body			text,
-	replies			int,
-	posted_by		int,
+	submission_id	text,
 	posted_on		timestamp,
 	last_snapped	timestamp default null,
 	archived		timestamp default null,
 	inserted_on		timestamp default now(),
 	updated_on		timestamp default now()
 );
-create index comment_detail_idx_parent on comment_detail (parent_comment);
+create index comment_detail_idx_submission_id on comment_detail (submission_id);
 
 grant all privileges on all tables in schema public to rr_pool;
 select 'drop table '||tablename||';' from pg_catalog.pg_tables where schemaname='public';
