@@ -112,7 +112,7 @@ def get_top(lib=None, praw=None, subreddit=None, time_filter='all', limit=None):
 	return submission_list
 
 
-def get_snapshot(lib=None, praw=None, submission=None):
+def submission_snapshot_praw_pull(lib=None, praw=None, submission=None):
 
 	# Ensure lib, praw_instance and submission_id are not none
 	if (lib is None) or (praw is None) or (submission is None):
