@@ -31,16 +31,19 @@ class SubmissionFunctionUnitTest():
         print('\nTesting results for SubmissionFunctions.py : ')
 
         # Tests get_hot
-        self.test_get_hot(lib, reddit, sr, limit)
+        #self.test_get_hot(lib, reddit, sr, limit)
 
         # Tests get_rising
-        self.test_get_rising(lib, reddit, sr, limit)
+        #self.test_get_rising(lib, reddit, sr, limit)
 
         # Tests get_top
-        self.test_get_top(lib, reddit, sr, limit)
+        #self.test_get_top(lib, reddit, sr, limit)
 
-        # Tests get_snapshot
-        self.test_get_snapshot(lib, reddit, submission)
+        # Tests submission_snapshot_praw_pull
+        # self.test_submission_snapshot_praw_pull(lib, reddit, submission)
+
+        # Tests submission_snapshot_db_push
+        self.test_submission_snapshot_db_push(lib, submission)
 
     @staticmethod
     def test_get_hot(lib, reddit, subreddit, limit):
@@ -97,7 +100,7 @@ class SubmissionFunctionUnitTest():
             print(ls.id)
 
     @staticmethod
-    def test_get_snapshot(lib, reddit, submissino):
+    def test_submission_snapshot_praw_pull(lib, reddit, submission):
 
         # Gets snapshot of submission
         snapshot = SubmissionFunctions.submission_snapshot_praw_pull(lib, reddit, submission)
@@ -111,6 +114,15 @@ class SubmissionFunctionUnitTest():
         print(snapshot.id)
         print(snapshot.title)
 
+    @staticmethod
+    def test_submission_snapshot_db_push(lib, submission):
+
+        with Pg.pg_connect() as db:
+            test_result = SubmissionFunctions.submission_snapshot_db_push(lib, db, submission)
+
+        print('\nResults of submission_snapshot_db_push: ')
+        print(f"Insert successful: {test_result}")
+
 
 class CommentFunctionsUnitTest():
     """Test for CommentFunctions.py"""
@@ -121,10 +133,10 @@ class CommentFunctionsUnitTest():
         print('\nTesting results for SubmissionFunctions.py : ')
 
         # Tests get_all_comments
-        self.test_get_all_comments(lib, submission, replace_more)
+        #self.test_get_all_comments(lib, submission, replace_more)
 
         # Tests get_root_comments
-        self.test_get_root_comments(lib, submission)
+        #self.test_get_root_comments(lib, submission)
 
     @staticmethod
     def test_get_all_comments(lib, submission, replace_more):
@@ -177,7 +189,7 @@ if __name__ == "__main__":
         praw = Praw.praw_login_get(db)
 
     # Submission ID
-    sub_id = 'dr35z5'
+    sub_id = 'ekhgba'
 
     # Submission object
     submission_praw = praw.submission(sub_id)

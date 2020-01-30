@@ -1,4 +1,5 @@
 from bin.Submission import Submission
+from bin.DAL.Submission import Submission as DAL_submission
 
 """
 Submission functions: retrieves submission from subreddit
@@ -126,3 +127,26 @@ def submission_snapshot_praw_pull(lib=None, praw=None, submission=None):
 
 	# Return submission object
 	return s
+
+
+def submission_snapshot_db_push(lib=None, pg=None, submission=None):
+	"""
+	Submits updated submission object to database.
+
+	:param pg:
+	:param submission:
+	:return snapshot_inserted:
+	"""
+
+	# Ensure lib, praw_instance and submission_id are not none
+	if (lib is None) or (pg is None) or (submission is None):
+		return None
+
+	try:
+		snapshot_inserted = DAL_submission.submission_snapshot_insert(pg, submission)
+	except Exception:
+		lib.write_log("Failed to insert submission snapshot into db due to exception: {}".format(Exception))
+		raise
+	else:
+		lib.write_log("Successfully inserted submission snapshot into db.")
+	return snapshot_inserted
