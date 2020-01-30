@@ -9,11 +9,11 @@ class Pg:
 		lib = LIB(cfg="config/Pg.cfg", out_log="{}_pg_out.log".format(process_name), err_log="{}_pg_error.log".format(process_name))
 		# TODO: Change this to pooling: http://initd.org/psycopg/docs/pool.html
 
-		dbhost = lib.get_config_value("dbhost","23.233.33.158")
-		dbport = lib.get_config_value("dbport","5432")
-		db_name = lib.get_config_value("dbname","reddit_rising")
-		db_username = lib.get_config_value("dbusername","reddit-rising-posts")
-		db_password = lib.decode(lib.get_config_value("dbpassword",'czNjYzJWamNtVjByM3Q='))
+		dbhost = lib.get_config_value("dbhost", "23.233.32.54")
+		dbport = lib.get_config_value("dbport", "5432")
+		db_name = lib.get_config_value("dbname", "reddit_rising")
+		db_username = lib.get_config_value("dbusername", "reddit-rising-posts")
+		db_password = lib.decode(lib.get_config_value("dbpassword", 'czNjYzJWamNtVjByM3Q='))
 		connection = psycopg2.connect(
 			# host='23.233.33.158',
 			host=dbhost,

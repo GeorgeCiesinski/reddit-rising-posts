@@ -312,11 +312,9 @@ language plpgsql;
 create or replace function submission_snapshot_insert
 (
     _pid /*post_id*/	text,
-    _rank				int,
-    _upvotes			int,
-    _downvotes		    int,
+    _score				int,
     _num_comments		int,
-    _is_hot			    boolean
+    _upvote_ratio       float
 )
 returns void
 as $$
@@ -324,9 +322,9 @@ begin
 	-- Insert the snapshot
 	insert into
 		post_snapshot
-		(post_id, snapped_on, rank, upvotes, downvotes, comments, is_hot)
+		(post_id, snapped_on, score, num_comments, upvote_ratio)
 	values
-		(_pid, now(), _rank, _upvotes, _downvotes, _num_comments, _is_hot);
+		(_pid, now(), _score, _num_comments, _upvote_ratio);
 end;
 $$
 language plpgsql;
@@ -391,30 +389,31 @@ language plpgsql;
 -- Upsert a row into post_details
 create or replace function submission_detail_upsert
 	(
-		in _pid /*post_id*/	text,
-		in _subreddit_name	text,
-		in _posted_by_id		int,
+		in _pid /*post_id*/	    text,
+		in _subreddit_name	    text,
+		in _posted_by		    text,
 		in _title				text,
-		in _body				text,
-		in _posted_on			timestamp
+		in _posted_on			timestamp,
+		in _url                 text
 	)
 returns void
 as $$
 begin
 	-- Upsert the row into post_detail
 	insert into post_detail as pd
-		(post_id, subreddit_id, posted_by, title, body, posted_on)
+		(post_id, subreddit_id, posted_by, title, posted_on, url)
 	values
-		(_pid, _subreddit_name, _posted_by_id, _title, _body, _posted_on)
+		(_pid, _subreddit_name, _posted_by, _title, _posted_on, _url)
 	on conflict on constraint post_detail_pkey do
 		update
 		set
 			subreddit_id = excluded.subreddit_id,
 			title = excluded.title,
-			body = excluded.body,
 			updated_on = now()
 		where
-			pd.post_id = _pid;
+			pd.post_id = _pid
+	        and subreddit_id <> excluded.subreddit_id
+			and title <> excluded.title;
 
 	-- TODO: Upsert the row into the user table (upsert instead of insert, in case user changes name)
 	-- TODO: Query to get the subreddit_id (this function accepts the subreddit name)
