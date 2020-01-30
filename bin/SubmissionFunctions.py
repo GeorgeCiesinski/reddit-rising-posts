@@ -129,7 +129,7 @@ def submission_snapshot_praw_pull(lib=None, praw=None, submission=None):
 	return s
 
 
-def submission_snapshot_db_push(lib, pg, submission):
+def submission_snapshot_db_push(lib=None, pg=None, submission=None):
 	"""
 	Submits updated submission object to database.
 
@@ -138,6 +138,15 @@ def submission_snapshot_db_push(lib, pg, submission):
 	:return snapshot_inserted:
 	"""
 
-	snapshot_inserted = DAL_submission.submission_snapshot_insert(pg, submission)
+	# Ensure lib, praw_instance and submission_id are not none
+	if (lib is None) or (pg is None) or (submission is None):
+		return None
 
+	try:
+		snapshot_inserted = DAL_submission.submission_snapshot_insert(pg, submission)
+	except Exception:
+		lib.write_log("Failed to insert submission snapshot into db due to exception: {}".format(Exception))
+		raise
+	else:
+		lib.write_log("Successfully inserted submission snapshot into db.")
 	return snapshot_inserted

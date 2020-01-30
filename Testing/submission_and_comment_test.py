@@ -40,10 +40,10 @@ class SubmissionFunctionUnitTest():
         #self.test_get_top(lib, reddit, sr, limit)
 
         # Tests submission_snapshot_praw_pull
-        self.test_submission_snapshot_praw_pull(lib, reddit, submission)
+        # self.test_submission_snapshot_praw_pull(lib, reddit, submission)
 
         # Tests submission_snapshot_db_push
-        self.test_submission_snapshot_db_push(lib, reddit, submission)
+        self.test_submission_snapshot_db_push(lib, submission)
 
     @staticmethod
     def test_get_hot(lib, reddit, subreddit, limit):
@@ -100,7 +100,7 @@ class SubmissionFunctionUnitTest():
             print(ls.id)
 
     @staticmethod
-    def test_submission_snapshot_praw_pull(lib, reddit, submissino):
+    def test_submission_snapshot_praw_pull(lib, reddit, submission):
 
         # Gets snapshot of submission
         snapshot = SubmissionFunctions.submission_snapshot_praw_pull(lib, reddit, submission)
@@ -115,9 +115,10 @@ class SubmissionFunctionUnitTest():
         print(snapshot.title)
 
     @staticmethod
-    def test_submission_snapshot_db_push(lib, reddit, submission):
+    def test_submission_snapshot_db_push(lib, submission):
 
-        test_result = SubmissionFunctions.submission_snapshot_db_push(lib, reddit, submission)
+        with Pg.pg_connect() as db:
+            test_result = SubmissionFunctions.submission_snapshot_db_push(lib, db, submission)
 
         print('\nResults of submission_snapshot_db_push: ')
         print(f"Insert successful: {test_result}")
