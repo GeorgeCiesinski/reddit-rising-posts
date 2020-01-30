@@ -1,22 +1,3 @@
-# Make submissions snapshot and detail line up with the Submission and Comment object
-#	*Rename post tables to submission
-#
-#	*Change post.subreddit_id to int (normalize)
-#	/Drop post.body
-#	/Add post.url
-#	/Add post.user (author) (normalize)
-#
-# 	/Change post_snapshot.rank to score
-#	/Drop post_snapshot.upvotes
-#	/Drop post_snapshot.downvotes
-#	/Rename post_snapshot.comments to num_comments
-#	/Add post_snapshot.upvote_ratio
-#	/Drop post_snapshot.thread_id
-#	/Drop post_snapshot.is_hot
-#
-# /Populate Comment.py
-#
-
 from collections import namedtuple
 from datetime import datetime
 
@@ -24,17 +5,27 @@ from bin.DAL.Pg import Pg
 from bin.DAL.Praw import Praw
 from bin.DAL.Queue import Queue
 from bin.DAL.Submission import Submission
+from bin.DAL.Comment import Comment
 
 
 # Test data:
 # Create a submission (simulate a response from praw object by creating a named tuple)
 SubmissionTuple = namedtuple(
 	'SubmissionTuple',
-	'id title url subreddit selftext num_comments comments score author created_utc'
+	'id title url subreddit num_comments score author created_utc upvote_ratio'
 )
-s = SubmissionTuple(
-	'SubID#1', 'SubTitle', 'SubURL', 'SubredditName', 'SubSelftext',
-	10, 'SubComments', 20, 'test_user', datetime.now()
+my_submission = SubmissionTuple(
+	'SubID#1', 'SubTitle', 'SubURL', 'SubredditName',
+	10, 9001, 'test_user', datetime.now(), 0.5
+)
+
+# Create a comment (simulate a response from praw object by creating a named tuple)
+CommentTuple = namedtuple(
+	'SubmissionTuple',
+	'id link_id score created_utc'
+)
+my_comment = CommentTuple(
+	'ComID#1', 'SubID#1', 300, datetime.now()
 )
 
 
@@ -51,9 +42,9 @@ with Pg.pg_connect() as pg:
 	print(Queue.subreddit_schedule_get(pg, 10))
 
 	# Insert a submission
-	print(Submission.submission_detail_upsert(pg, s))
-	print(Submission.submission_snapshot_insert(pg, s))
-	print(Submission.submission_schedule_set(pg, s, 60))
+	print(Submission.submission_detail_upsert(pg, my_submission))
+	print(Submission.submission_snapshot_insert(pg, my_submission))
+	print(Submission.submission_schedule_set(pg, my_submission, 60))
 
 	# Release all scheduled submissions
 	print(Queue.submission_schedule_release(pg, None))
@@ -61,7 +52,11 @@ with Pg.pg_connect() as pg:
 	qsub = Queue.submission_schedule_get(pg, 10)
 	print(qsub)
 	# Release one of the submissions
-	print(Queue.submission_schedule_release(pg, s))
+	print(Queue.submission_schedule_release(pg, my_submission))
+
+	# Insert a comment
+	print(Comment.comment_detail_upsert(pg, my_comment))
+	print(Comment.comment_snapshot_insert(pg, my_comment))
 
 	# Clean up
 	Praw.praw_login_release(pg, 0)
