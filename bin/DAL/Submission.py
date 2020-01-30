@@ -12,8 +12,8 @@ class Submission:
 				submission.subreddit,
 				999,  # submission.author,
 				submission.title,
-				submission.selftext,
-				submission.created_utc
+				submission.created_utc,
+				submission.url
 			)
 		)
 		cur.close()
@@ -23,14 +23,12 @@ class Submission:
 	def submission_snapshot_insert(pg, submission):
 		cur = pg.cursor()
 		cur.execute(
-			"select submission_snapshot_insert(%s, %s, %s, %s, %s, %s)",
+			"select submission_snapshot_insert(%s, %s, %s, %s)",
 			(
 				submission.id,
-				0,  # submission.rank,
-				0,  # submission.upvotes,
-				0,  # submission.downvotes,
+				submission.score,
 				submission.num_comments,
-				False,  # submission.is_hot
+				submission.upvote_ratio,
 			)
 		)
 		cur.close()

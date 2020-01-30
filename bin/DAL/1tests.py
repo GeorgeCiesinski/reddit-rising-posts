@@ -1,3 +1,22 @@
+# Make submissions snapshot and detail line up with the Submission and Comment object
+#	*Rename post tables to submission
+#
+#	*Change post.subreddit_id to int (normalize)
+#	/Drop post.body
+#	/Add post.url
+#	/Add post.user (author) (normalize)
+#
+# 	/Change post_snapshot.rank to score
+#	/Drop post_snapshot.upvotes
+#	/Drop post_snapshot.downvotes
+#	/Rename post_snapshot.comments to num_comments
+#	/Add post_snapshot.upvote_ratio
+#	/Drop post_snapshot.thread_id
+#	/Drop post_snapshot.is_hot
+#
+# /Populate Comment.py
+#
+
 from collections import namedtuple
 from datetime import datetime
 
