@@ -15,7 +15,7 @@ def get_all_comments(lib=None, submission=None, replace_more_limit=None):
     :return: List of comments
     :rtype: list
     """
-    # Ensure lib and post are not none
+    # Ensure lib and submission are not none
     if (lib is None) or (submission is None):
         return None
     lib.write_log("Getting all comments from the post {}".format(submission.id))
@@ -50,7 +50,7 @@ def get_root_comments(lib=None, submission=None):
     :return: List of comments
     :rtype: list
     """
-    # Ensure lib and post are not none
+    # Ensure lib and submission are not none
     if (lib is None) or (submission is None):
         return None
     lib.write_log("Getting all top-level comments from the post {}".format(submission.id))
@@ -71,3 +71,45 @@ def get_root_comments(lib=None, submission=None):
     lib.write_log("Completed top-level comments from post {}".format(submission.id))
     # Return list of all comments
     return comment_list
+
+
+def comment_db_push(lib = None, pg = None, submission = None):
+    """
+    ---> More than snapshot, details
+    ---> Entire comment object (Details)
+    ---> Input: Submission Object (single)
+    ---> Function:
+    For each comment:
+    Retreive comments, calls Robbie's DAL Function: Dal.Comments.comment_detail_upsert
+    ---> Output: True (successfully sent), or False, or None
+    ---> With Robbie: DAL to return true'
+    :return:
+    """
+
+    # Ensure lib, pg, and submission are not none
+    if (lib is None) or (pg is None) or (submission is None):
+        return None
+
+    # Get submission comment object
+
+    # Call
+
+    pass
+
+
+def comment_snapshot_db_push(lib = None, pg = None, submission = None):
+    """
+    ---> Input: Submission Object
+    ---> Function:
+    For each comment: Call Robbie's Function: Dal.Comments.comment_snapshot_insert
+    ---> Output: True or False
+    :return:
+    """
+
+    # Ensure lib, pg, and submission are not none
+    if (lib is None) or (pg is None) or (submission is None):
+        return None
+
+
+
+    pass
