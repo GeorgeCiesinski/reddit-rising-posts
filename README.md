@@ -1,4 +1,8 @@
 # reddit-rising-posts
+<!-- To update the below, alter the version number in the below url: Python-version-blue  -->
+![Python Version](https://img.shields.io/badge/Python-3.8-blue)
+![Open Issues](https://img.shields.io/github/issues/GeorgeCiesinski/reddit-rising-posts)
+![Last Commit](https://img.shields.io/github/last-commit/georgeciesinski/reddit-rising-posts)
 
 A bot that collects data on rising posts on Reddit as they either reach the front page, or stops rising for another reason. 
 
@@ -32,7 +36,7 @@ TBA
 - Start basic changelog from some working version. Maybe next master.
 - Lay out vision for project future
 
-## Directory Structure
+## Project Directory
 
 - config : All config files will be kept here
 - Main executable scripts (the ones humans will run and or start) are kept at the project root
