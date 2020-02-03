@@ -32,7 +32,7 @@ TBA
 - Start basic changelog from some working version. Maybe next master.
 - Lay out vision for project future
 
-## Directory Structure
+## Project Directory
 
 - config : All config files will be kept here
 - Main executable scripts (the ones humans will run and or start) are kept at the project root
