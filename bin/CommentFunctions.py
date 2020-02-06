@@ -81,14 +81,14 @@ def get_root_comments(lib=None, submission=None):
     return comment_list
 
 
-def comment_db_push(lib = None, pg = None, submission = None):
+def comment_db_push(lib=None, pg=None, submission=None):
     """
     Sends a snapshot of submission comments to comment_detail_upsert to collect detailed data.
 
     :param lib: Anu's library
     :param pg: Postgress Object
     :param submission: Submission object
-    :return: Returns true if upsert is completely successful
+    :return upsert_result: Returns true if upsert is completely successful
     :rtype bool:
     """
 
@@ -99,12 +99,13 @@ def comment_db_push(lib = None, pg = None, submission = None):
     upsert_result = True  # Remains true as long as no comment upsert fails
 
     # Get comment list // Gets root comments. Can get all comments, but must provide replace_more variable.
-    comment_list = get_root_comments(lib, submission)
+    # comment_list = get_root_comments(lib, submission)
+    comment_list = get_all_comments(lib, submission, 32)
 
     # Loop through comments in comment list
     for comment in comment_list:
 
-        successful_upsert = DalComment.comment_detail_upsert(pg, comment)  # Call dal to insert each comment
+        successful_upsert = DalComment.comment_detail_upsert(pg, comment)  # Upsert comment
 
         if not successful_upsert:
 
@@ -115,19 +116,36 @@ def comment_db_push(lib = None, pg = None, submission = None):
     return upsert_result
 
 
-def comment_snapshot_db_push(lib = None, pg = None, submission = None):
+def comment_snapshot_db_push(lib=None, pg=None, submission=None):
     """
-    ---> Input: Submission Object
-    ---> Function:
-    For each comment: Call Robbie's Function: Dal.Comments.comment_snapshot_insert
-    ---> Output: True or False
-    :return:
+    Sends a snapshot of submission comments to comment_snapshot_insert to collect snapshot.
+
+    :param lib: Anu's library
+    :param pg: Postgress object
+    :param submission: Submission object
+    :return insert_result: Returns true if upsert is completely successful
+    :rtype bool:
     """
 
     # Ensure lib, pg, and submission are not none
     if (lib is None) or (pg is None) or (submission is None):
         return None
 
+    insert_result = True  # Remains true as long as no comment upsert fails
 
+    # Get comment list // Gets root comments. Can get all comments, but must provide replace_more variable.
+    # comment_list = get_root_comments(lib, submission)
+    comment_list = get_all_comments(lib, submission, 32)
 
-    pass
+    # Loop through comments in comment list
+    for comment in comment_list:
+
+        successful_upsert = DalComment.comment_snapshot_insert(pg, comment)  # Insert Comment
+
+        if not successful_upsert:
+
+            lib.write_log(f"Failed to upsert comment: {comment.id}")  # Log if unsuccessful
+
+            insert_result = False  # Upsert has failed one or more comments
+
+    return insert_result

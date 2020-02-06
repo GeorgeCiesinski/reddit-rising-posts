@@ -28,7 +28,7 @@ class SubmissionFunctionUnitTest():
     def __init__(self, lib, reddit, sr, submission, limit):
 
         # Prints test name
-        print('\nTesting results for SubmissionFunctions.py : ')
+        # print('\nTesting results for SubmissionFunctions.py : ')
 
         # Tests get_hot
         #self.test_get_hot(lib, reddit, sr, limit)
@@ -43,7 +43,9 @@ class SubmissionFunctionUnitTest():
         # self.test_submission_snapshot_praw_pull(lib, reddit, submission)
 
         # Tests submission_snapshot_db_push
-        self.test_submission_snapshot_db_push(lib, submission)
+        # self.test_submission_snapshot_db_push(lib, submission)
+
+        pass
 
     @staticmethod
     def test_get_hot(lib, reddit, subreddit, limit):
@@ -130,13 +132,19 @@ class CommentFunctionsUnitTest():
     def __init__(self, lib, submission, replace_more):
 
         # Prints test name
-        print('\nTesting results for SubmissionFunctions.py : ')
+        # print('\nTesting results for SubmissionFunctions.py : ')
 
         # Tests get_all_comments
-        #self.test_get_all_comments(lib, submission, replace_more)
+        # self.test_get_all_comments(lib, submission, replace_more)
 
         # Tests get_root_comments
-        #self.test_get_root_comments(lib, submission)
+        # self.test_get_root_comments(lib, submission)
+
+        # tests comment_db_push
+        self.test_comment_db_push(lib, submission)
+
+        # tests comment_snapshot_db_push
+        self.test_comment_snapshot_db_push(lib, submission)
 
     @staticmethod
     def test_get_all_comments(lib, submission, replace_more):
@@ -171,6 +179,24 @@ class CommentFunctionsUnitTest():
 
         print(f'The total number of root comments is: {len(comment_list)}')
 
+    @staticmethod
+    def test_comment_db_push(lib, submission):
+
+        with Pg.pg_connect() as db:
+
+            test_result = CommentFunctions.comment_db_push(lib, db, submission)
+
+        print('\nResults of comment_db_push: ')
+        print(f"Upsert successful: {test_result}")
+
+    @staticmethod
+    def test_comment_snapshot_db_push(lib, submission):
+
+        with Pg.pg_connect() as db:
+            test_result = CommentFunctions.comment_snapshot_db_push(lib, db, submission)
+
+        print('\nResults of comment_snapshot_db_push: ')
+        print(f"Upsert successful: {test_result}")
 
 if __name__ == "__main__":
     """
@@ -189,7 +215,7 @@ if __name__ == "__main__":
         praw = Praw.praw_login_get(db)
 
     # Submission ID
-    sub_id = 'ekhgba'
+    sub_id = 'ezgp2e'
 
     # Submission object
     submission_praw = praw.submission(sub_id)  # Returns praw submission object
