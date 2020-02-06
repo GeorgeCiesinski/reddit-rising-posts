@@ -24,7 +24,7 @@ class Queue:
 	@staticmethod
 	def submission_schedule_get(pg, limit=10):
 		cur = pg.cursor()
-		cur.execute("select id from submission_schedule_get(%s)", (limit,))
+		cur.execute("select id from submission_control_get(%s)", (limit,))
 
 		output = [row for row in cur]
 
