@@ -192,8 +192,8 @@ if __name__ == "__main__":
     sub_id = 'ekhgba'
 
     # Submission object
-    submission_praw = praw.submission(sub_id)
-    submission = Submission(lib, submission_praw)
+    submission_praw = praw.submission(sub_id)  # Returns praw submission object
+    submission = Submission(lib, submission_praw)  # Creates our own submission object
 
     """
     SubmissionFunctions.py Settings

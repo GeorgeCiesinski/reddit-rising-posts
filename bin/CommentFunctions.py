@@ -1,4 +1,5 @@
 from bin.Comment import Comment
+from bin.DAL.Comment import Comment as DalComment
 
 """
 Comments object: retrieves comments from post
@@ -53,16 +54,23 @@ def get_root_comments(lib=None, submission=None):
     # Ensure lib and submission are not none
     if (lib is None) or (submission is None):
         return None
+
     lib.write_log("Getting all top-level comments from the post {}".format(submission.id))
+
     # Get all top-level comments from post
     try:
         comments = submission.comments
+
         # Remove all MoreComments
         comments.replace_more(limit=0)
+
     except Exception as e:
         lib.write_log("Failed to get top-level comments from post due to the exception: {}".format(str(e)))
+
         return None
+
     comment_list = []
+
     # Make Comment objects
     for comment in comments:
         c = Comment(comment)
@@ -75,26 +83,36 @@ def get_root_comments(lib=None, submission=None):
 
 def comment_db_push(lib = None, pg = None, submission = None):
     """
-    ---> More than snapshot, details
-    ---> Entire comment object (Details)
-    ---> Input: Submission Object (single)
-    ---> Function:
-    For each comment:
-    Retreive comments, calls Robbie's DAL Function: Dal.Comments.comment_detail_upsert
-    ---> Output: True (successfully sent), or False, or None
-    ---> With Robbie: DAL to return true'
-    :return:
+    Sends a snapshot of submission comments to comment_detail_upsert to collect detailed data.
+
+    :param lib: Anu's library
+    :param pg: Postgress Object
+    :param submission: Submission object
+    :return: Returns true if upsert is completely successful
+    :rtype bool:
     """
 
     # Ensure lib, pg, and submission are not none
     if (lib is None) or (pg is None) or (submission is None):
         return None
 
-    # Get submission comment object
+    upsert_result = True  # Remains true as long as no comment upsert fails
 
-    # Call
+    # Get comment list // Gets root comments. Can get all comments, but must provide replace_more variable.
+    comment_list = get_root_comments(lib, submission)
 
-    pass
+    # Loop through comments in comment list
+    for comment in comment_list:
+
+        successful_upsert = DalComment.comment_detail_upsert(pg, comment)  # Call dal to insert each comment
+
+        if not successful_upsert:
+
+            lib.write_log(f"Failed to upsert comment: {comment.id}")  # Log if unsuccessful
+
+            upsert_result = False  # Upsert has failed one or more comments
+
+    return upsert_result
 
 
 def comment_snapshot_db_push(lib = None, pg = None, submission = None):
