@@ -132,7 +132,7 @@ class CommentFunctionsUnitTest():
     def __init__(self, lib, submission, replace_more):
 
         # Prints test name
-        print('\nTesting results for SubmissionFunctions.py : ')
+        print('\nTesting results for CommentFunctions.py : ')
 
         # Tests get_all_comments
         self.test_get_all_comments(lib, submission, replace_more)
