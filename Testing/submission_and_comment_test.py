@@ -28,22 +28,22 @@ class SubmissionFunctionUnitTest():
     def __init__(self, lib, reddit, sr, submission, limit):
 
         # Prints test name
-        # print('\nTesting results for SubmissionFunctions.py : ')
+        print('\nTesting results for SubmissionFunctions.py : ')
 
         # Tests get_hot
-        #self.test_get_hot(lib, reddit, sr, limit)
+        self.test_get_hot(lib, reddit, sr, limit)
 
         # Tests get_rising
-        #self.test_get_rising(lib, reddit, sr, limit)
+        self.test_get_rising(lib, reddit, sr, limit)
 
         # Tests get_top
-        #self.test_get_top(lib, reddit, sr, limit)
+        self.test_get_top(lib, reddit, sr, limit)
 
         # Tests submission_snapshot_praw_pull
-        # self.test_submission_snapshot_praw_pull(lib, reddit, submission)
+        self.test_submission_snapshot_praw_pull(lib, reddit, submission)
 
         # Tests submission_snapshot_db_push
-        # self.test_submission_snapshot_db_push(lib, submission)
+        self.test_submission_snapshot_db_push(lib, submission)
 
         pass
 
@@ -132,19 +132,19 @@ class CommentFunctionsUnitTest():
     def __init__(self, lib, submission, replace_more):
 
         # Prints test name
-        # print('\nTesting results for SubmissionFunctions.py : ')
+        print('\nTesting results for SubmissionFunctions.py : ')
 
         # Tests get_all_comments
-        # self.test_get_all_comments(lib, submission, replace_more)
+        self.test_get_all_comments(lib, submission, replace_more)
 
         # Tests get_root_comments
-        # self.test_get_root_comments(lib, submission)
+        self.test_get_root_comments(lib, submission)
 
         # tests comment_db_push
-        self.test_comment_db_push(lib, submission)
+        #self.test_comment_db_push(lib, submission)
 
         # tests comment_snapshot_db_push
-        self.test_comment_snapshot_db_push(lib, submission)
+        #self.test_comment_snapshot_db_push(lib, submission)
 
     @staticmethod
     def test_get_all_comments(lib, submission, replace_more):
