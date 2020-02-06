@@ -114,6 +114,14 @@ def get_top(lib=None, praw=None, subreddit=None, time_filter='all', limit=None):
 
 
 def submission_snapshot_praw_pull(lib=None, praw=None, submission=None):
+	"""
+	Retreives a submission snapshot by using the submission id
+
+	:param lib:
+	:param praw:
+	:param submission:
+	:return:
+	"""
 
 	# Ensure lib, praw_instance and submission_id are not none
 	if (lib is None) or (praw is None) or (submission is None):
@@ -133,6 +141,7 @@ def submission_snapshot_db_push(lib=None, pg=None, submission=None):
 	"""
 	Submits updated submission object to database.
 
+	:param lib:
 	:param pg:
 	:param submission:
 	:return snapshot_inserted:
