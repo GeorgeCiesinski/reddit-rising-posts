@@ -2,10 +2,10 @@
 Description: Used to Submission snapshots or source
 """
 
-import bin.SubmissionFunctions as SubmissionFunctions
 import signal
 from sys import exit
 
+import bin.SubmissionFunctions as SubmissionFunctions
 from bin.LIB import LIB
 from bin.DAL import *
 
