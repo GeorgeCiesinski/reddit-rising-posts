@@ -43,3 +43,8 @@ class CommentDBPush:
                 if not comment_db_push_q.empty():
                     m_submission = comment_db_push_q.get()
                     CommentFunctions.comment_db_push(self.lib,my_db_conneciton,m_submission)
+                else:
+                    self.lib.sleep(self.lib.get_config_value("SleepOnEmptyQueue", 60))
+
+        self.lib.write_log("Stopping process {}".format(processname))
+        self.process_end()

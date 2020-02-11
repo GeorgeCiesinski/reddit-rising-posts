@@ -78,3 +78,6 @@ class SubmissionPrawPull:
                         comment_db_push_q.put(submission)
             else:
                 self.lib.sleep(self.lib.get_config_value("SleepOnEmptyQueue",60))
+
+        self.lib.write_log("Stopping process {}".format(processname))
+        self.process_end()
