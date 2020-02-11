@@ -5,7 +5,7 @@ Description: Used to push comment entires into the database
 import signal
 from sys import exit
 
-import bin.SubmissionFunctions as SubmissionFunctions
+import bin.CommentFunctions as CommentFunctions
 from bin.LIB import LIB
 from bin.DAL import *
 
@@ -38,4 +38,8 @@ class CommentDBPush:
         self.error_name = "{}_error.log".format(processname)
         self.lib = LIB(cfg="config/CommentDBPush.cfg", out_log=self.output_name, err_log=self.error_name)  # make lib instance
 
-        pass
+        with Pg.pg_connect(processname) as my_db_conneciton:
+            while self.keep_ruinning:
+                if not comment_db_push_q.empty():
+                    m_submission = comment_db_push_q.get()
+                    CommentFunctions.comment_db_push(self.lib,my_db_conneciton,m_submission)
