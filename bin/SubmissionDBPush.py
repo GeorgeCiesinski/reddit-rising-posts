@@ -1,6 +1,6 @@
-'''
+"""
 Description: Used to push submission entires into the database
-'''
+"""
 
 import signal
 from sys import exit
@@ -37,12 +37,18 @@ class SubmissionDBPush:
         """
         
         self.keep_ruinning = True #used to keep the process running
-        if (processname is None) or (submission_db_push_q is None)): # make sure all the required parameters are given
+        if (processname is None) or (submission_db_push_q is None): # make sure all the required parameters are given
             exit(-1)
         signal.signal(signal.SIGTERM, self.sig_handler) #signal handler for terminate
         signal.signal(signal.SIGINT, self.sig_handler)#signal handler for interrupt
         self.output_name = "{}_output.log".format(processname)
         self.error_name = "{}_error.log".format(processname)
-        self.lib = LIB(cfg="config/SubmissionDbPush.cfg", out_log=self.output_name, err_log=self.error_name) #make lib instance
-        
+        self.lib = LIB(cfg="config/SubmissionDBPush.cfg", out_log=self.output_name, err_log=self.error_name) #make lib instance
+
+        with Pg.pg_connect(processname) as my_db_conneciton:
+            while self.keep_ruinning:
+                if not submission_db_push_q.empty():
+                    m_submission = submission_db_push_q.get()
+                    #from the submission functions, call the details insert function
+
         pass
