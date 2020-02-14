@@ -68,7 +68,7 @@ def start_subreddit_db_pull():
         # TODO: Start the difference
         if process_count_different < 0:
             for x in range(0, abs(process_count_different), 1):
-                process_name = "subreddit_db_pull_{}_{}".format(x, lib.get_now().replace(" ", "_"))
+                process_name = "subreddit_db_pull_{}_{}".format(x, lib.get_now().replace(" ", "_").replace(":", "_").replace(".", "_"))
                 new_process = MP.Process(name=process_name.lower(), target=SubredditDBPull,
                                          args=(process_name, submission_praw_pull_q,))
                 new_process.start()
@@ -108,7 +108,7 @@ def start_submission_parw_pull():
         # TODO: Start the difference
         if process_count_different < 0:
             for x in range(0, abs(process_count_different), 1):
-                process_name = "submission_praw_pull_{}_{}".format(x, lib.get_now().replace(" ", "_"))
+                process_name = "submission_praw_pull_{}_{}".format(x, lib.get_now().replace(" ", "_").replace(":", "_").replace(".", "_"))
                 new_process = MP.Process(name=process_name.lower(), target=SubmissionPrawPull, args=(
                 process_name, submission_praw_pull_q, submission_db_push_q, comment_db_push_q,))
                 new_process.start()
@@ -148,7 +148,7 @@ def start_submission_snapshot_db_push():
         # TODO: Start the difference
         if process_count_different < 0:
             for x in range(0, abs(process_count_different), 1):
-                process_name = "submission_snapshot_db_push_{}_{}".format(x, lib.get_now().replace(" ", "_"))
+                process_name = "submission_snapshot_db_push_{}_{}".format(x, lib.get_now().replace(" ", "_").replace(":", "_").replace(".", "_"))
                 new_process = MP.Process(name=process_name.lower(), target=SubmissionSnapshotDBPush, args=(
                     process_name, comment_db_push_q,))
                 new_process.start()
@@ -188,7 +188,7 @@ def start_comment_db_push():
         # TODO: Start the difference
         if process_count_different < 0:
             for x in range(0, abs(process_count_different), 1):
-                process_name = "comment_db_push_{}_{}".format(x, lib.get_now().replace(" ", "_"))
+                process_name = "comment_db_push_{}_{}".format(x, lib.get_now().replace(" ", "_").replace(":", "_").replace(".", "_"))
                 new_process = MP.Process(name=process_name.lower(), target=CommentDBPush, args=(
                     process_name, comment_db_push_q,))
                 new_process.start()
@@ -229,7 +229,7 @@ def start_comment_snapshot_db_push():
         # TODO: Start the difference
         if process_count_different < 0:
             for x in range(0, abs(process_count_different), 1):
-                process_name = "comment_snapshot_db_push_{}_{}".format(x, lib.get_now().replace(" ", "_"))
+                process_name = "comment_snapshot_db_push_{}_{}".format(x, lib.get_now().replace(" ", "_").replace(":", "_").replace(".", "_"))
                 new_process = MP.Process(name=process_name.lower(), target=CommentSnapshotDBPush, args=(
                     process_name, comment_db_push_q,))
                 new_process.start()
