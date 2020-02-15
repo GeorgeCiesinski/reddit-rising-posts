@@ -212,7 +212,7 @@ if __name__ == "__main__":
     # Praw Login
     # Opens connection to db, gets praw login, and closes connection
     with Pg.pg_connect() as db:
-        praw = Praw.praw_login_get(db)
+        praw = Praw.praw_login_get(lib,db)
 
     # Submission ID
     sub_id = 'ezgp2e'

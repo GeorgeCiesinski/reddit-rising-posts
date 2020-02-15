@@ -104,7 +104,12 @@ def comment_db_push(lib=None, pg=None, submission=None):
 
     # Get comment list // Gets root comments. Can get all comments, but must provide replace_more variable.
     # comment_list = get_root_comments(lib, submission)
-    comment_list = get_all_comments(lib, submission, 32)
+
+    comment_list = None
+
+    #hacky.. keep trying untill there is a list
+    while comment_list is None:
+        comment_list = get_all_comments(lib, submission, 32)
 
     # Loop through comments in comment list
     for comment in comment_list:

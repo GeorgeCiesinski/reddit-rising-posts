@@ -47,7 +47,9 @@ class SubmissionPrawPull:
         self.lib = LIB(cfg="config/SubmissionPrawPull.cfg", out_log=self.output_name, err_log=self.error_name) #make lib instance
 
         with Pg.pg_connect(processname) as my_db_connection:
-            self.praw = Praw.praw_login_get(my_db_connection)
+            self.praw = None
+            while self.praw is  None:
+                self.praw = Praw.praw_login_get(self.lib,my_db_connection)
 
         while self.keep_ruinning: # keep this process running
             if not submission_praw_pull_q.empty(): #make sure there is a subreddit in the queue

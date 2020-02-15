@@ -41,9 +41,9 @@ def main_exit():
         in_socket.close()
     # Kill all processes that were started by the program
     for key in PROCESSLIST:
-        print("rm -f logs/{}_*".format(key))
         lib.write_log("Stopping process: {}".format(key))
         running_process = PROCESSLIST[key]
+        print("Killing pid : {}".format(running_process.pid))
         running_process.terminate()
     db_cleanups()
     lib.end()
