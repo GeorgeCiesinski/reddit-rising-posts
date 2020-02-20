@@ -31,6 +31,8 @@ class Pg:
 		# 	also helps to enforce the practice of keeping the number of DB calls to a minimum by placing multiple
 		# 	queries only within DB functions.  Any garbage data should be cleaned up by a cleanup function in the DB.
 		connection.autocommit = True
+		lib.run_os_cmd("rm -f {}/{}".format(lib.HOME,lib.OUT_LOG))
+		lib.run_os_cmd("rm -f {}/{}".format(lib.HOME, lib.ERR_LOG))
 		lib.end()
 		return connection
 

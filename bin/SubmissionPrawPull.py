@@ -2,10 +2,10 @@
 Description: Used to Submission snapshots or source
 """
 
-import bin.SubmissionFunctions as SubmissionFunctions
 import signal
 from sys import exit
 
+import bin.SubmissionFunctions as SubmissionFunctions
 from bin.LIB import LIB
 from bin.DAL import *
 
@@ -47,7 +47,9 @@ class SubmissionPrawPull:
         self.lib = LIB(cfg="config/SubmissionPrawPull.cfg", out_log=self.output_name, err_log=self.error_name) #make lib instance
 
         with Pg.pg_connect(processname) as my_db_connection:
-            self.praw = Praw.praw_login_get(my_db_connection)
+            self.praw = None
+            while self.praw is  None:
+                self.praw = Praw.praw_login_get(self.lib,my_db_connection)
 
         while self.keep_ruinning: # keep this process running
             if not submission_praw_pull_q.empty(): #make sure there is a subreddit in the queue
@@ -78,3 +80,6 @@ class SubmissionPrawPull:
                         comment_db_push_q.put(submission)
             else:
                 self.lib.sleep(self.lib.get_config_value("SleepOnEmptyQueue",60))
+
+        self.lib.write_log("Stopping process {}".format(processname))
+        self.process_end()
