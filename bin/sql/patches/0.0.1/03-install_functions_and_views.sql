@@ -42,7 +42,7 @@ language plpgsql;
 create or replace function
 	maint_submission_detail_sync
 	(
-		_sid    text
+		_sid	text
 	)
 returns void
 as $$
@@ -81,7 +81,7 @@ begin
 			subreddit
 		set
 			next_crawl = last_crawled + (snapshot_frequency || ' seconds')::interval,
-		    assigned_on = null
+			assigned_on = null
 		where
 			assigned_on is not null;
 	-- Or only update one specific subreddit
@@ -90,7 +90,7 @@ begin
 			subreddit
 		set
 			next_crawl = last_crawled + (snapshot_frequency || ' seconds')::interval,
-		    assigned_on = null
+			assigned_on = null
 		where
 			name = _subreddit_name;
 	end if;
@@ -101,7 +101,7 @@ language plpgsql;
 -- Reset the post crawling schedule
 create or replace function submission_schedule_release
 (
-    _release_id text default ''
+	_release_id text default ''
 )
 returns void
 as $$
@@ -207,7 +207,7 @@ begin
 		order by released_on -- Get the thread that was released the longest time ago
 		limit 1
 	)
-    -- Mark the praw login as "in use"
+	-- Mark the praw login as "in use"
 	update praw_login p
 	set	provided_on = now()
 	from cid
@@ -232,55 +232,55 @@ returns table
 )
 as $$
 begin
-    return query
-    with sr as (
-        -- Pick the subreddits
-        select s.name, s.last_crawled
-        from subreddit s
-        where
-            s.next_crawl <= now()
-            and s.assigned_on is null
-        limit (_row_limit)
-    )
+	return query
+	with sr as (
+		-- Pick the subreddits
+		select s.name, s.last_crawled
+		from subreddit s
+		where
+			s.next_crawl <= now()
+			and s.assigned_on is null
+		limit (_row_limit)
+	)
 	-- Claim the subreddits
 	update subreddit
 	set	assigned_on = now()
 	from
 		subreddit p
-        join sr
+		join sr
 			on (sr.name=p.name)
-    returning p.name, p.last_crawled;
+	returning p.name, p.last_crawled;
 end;
 $$
 language plpgsql;
 
 create or replace function submission_control_get
 (
-    _row_limit int
+	_row_limit int
 )
 returns table
 (
-    id text
+	id text
 )
 as $$
 begin
-    return query
-    with s_id as (
-        select t.submission_id
-        from submission_control t
-        where
-            t.next_snap <= now()
-            and t.assigned_on is null
-        order by
-            t.next_snap desc
-        limit (_row_limit)
-        for update
-    )
+	return query
+	with s_id as (
+		select t.submission_id
+		from submission_control t
+		where
+			t.next_snap <= now()
+			and t.assigned_on is null
+		order by
+			t.next_snap desc
+		limit (_row_limit)
+		for update
+	)
 	update submission_control s
 	set assigned_on = now()
 	from s_id
-    where s.submission_id=s_id.submission_id
-    returning s.submission_id as id;
+	where s.submission_id=s_id.submission_id
+	returning s.submission_id as id;
 end;
 $$
 language plpgsql;
@@ -288,53 +288,60 @@ language plpgsql;
 
 /* Submission */
 
-create or replace function submission_snapshot_insert
+create or replace function
+	submission_snapshot_insert
 (
-    _sid        	text,
-    _score			int,
-    _num_comments	int,
-    _upvote_ratio    float
+	_sid			text,
+	_score			int,
+	_num_comments	int,
+	_upvote_ratio   float
 )
 returns void
 as $$
 begin
 	-- Insert the snapshot
-	insert into
-		submission_snapshot
+	insert into submission_snapshot
 		(submission_id, snapped_on, score, num_comments, upvote_ratio)
-	values
+	values 
 		(_sid, now(), _score, _num_comments, _upvote_ratio);
+
+	-- Release and update the schedule table to mark when the last snapshot was scraped
+	update submission_control t
+	set
+	    last_snap = now(),
+		assigned_on = null
+	where submission_id = _sid;
 end;
 $$
 language plpgsql;
 
--- Insert a row into the post_detail_control queue
+-- Reschedule the submission (with the new frequency, if supplied)
 create or replace function
-	submission_control_insert
-	(
-		_sid    text
-	)
+	reschedule_submission
+(
+	_sid			text,
+	_snapshot_frequency int=null,
+	_next_crawl		timestamp=null
+)
 returns void
 as $$
 begin
-	-- Insert the row if it does not exist
-	insert into	submission_control
-		(submission_id)
-	values
-		(_sid)
-	on conflict
-		(submission_control_pkey)
-		do nothing;
+	-- Update the detail table to reschedule it (with the new frequency, if supplied)
+	update submission_control t
+	set
+		snapshot_frequency = coalesce(_snapshot_frequency, t.snapshot_frequency),
+		next_snap = last_snap + (coalesce(_next_crawl, t.next_crawl) || ' seconds')::interval
+	where submission_id = _sid;
 end;
 $$
 language plpgsql;
 
 -- Schedule a post to be scraped
-create or replace function submission_control_set
+create or replace function submission_control_upsert
 (
-    _sid            text,
-    _snap_freq	 	int,
-    _next_snap      timestamp default null
+	_sid			text,
+	_snap_freq	 	int = 300,
+	_next_snap	  	timestamp = null
 )
 returns void
 as $$
@@ -348,7 +355,13 @@ begin
 		do update
 		set
 			snapshot_frequency = _snap_freq,
-		    next_snap = coalesce(_next_snap, (t.last_snap + (_snap_freq * interval '1 second')));
+			next_snap = coalesce(
+				_next_snap,
+				(
+					coalesce(t.last_snap, now())
+					+ (_snap_freq * interval '1 second')
+				)
+			);
 end;
 $$
 language plpgsql;
@@ -356,12 +369,12 @@ language plpgsql;
 -- Upsert a row into post_details
 create or replace function submission_detail_upsert
 	(
-		_sid            	text,
-		_subreddit_name	    text,
-		_posted_by		    text,
+		_sid				text,
+		_subreddit_name		text,
+		_posted_by			text,
 		_title				text,
 		_posted_on			timestamp,
-		_url                text
+		_url				text
 	)
 returns void
 as $$
@@ -379,7 +392,7 @@ begin
 			updated_on = now()
 		where
 			pd.submission_id = _sid
-	        and pd.subreddit_id <> excluded.subreddit_id
+			and pd.subreddit_id <> excluded.subreddit_id
 			and pd.title <> excluded.title;
 
 	-- TODO: Upsert the row into the user table (upsert instead of insert, in case user changes name)
@@ -393,9 +406,9 @@ language plpgsql;
 -- Upsert a row into comment_details
 create or replace function comment_detail_upsert
 (
-    _comment_id     text,
-    _submission_id  text,
-    _posted_on      timestamp
+	_comment_id	 text,
+	_submission_id  text,
+	_posted_on	  timestamp
 )
 returns void
 as $$
@@ -406,7 +419,7 @@ begin
 	values
 		(_comment_id, _submission_id, _posted_on)
 	on conflict on constraint comment_detail_pkey
-	    do nothing;
+		do nothing;
 end;
 $$
 language plpgsql;
@@ -414,8 +427,8 @@ language plpgsql;
 -- Insert a scraped summary
 create or replace function comment_snapshot_insert
 (
-    _comment_id     text,
-    _score          int
+	_comment_id	 text,
+	_score		  int
 )
 returns void
 as $$
@@ -425,6 +438,64 @@ begin
 		(comment_id, score, snapped_on)
 	values
 		(_comment_id, _score, now());
+
+	-- Release and update the schedule table to mark when the last snapshot was scraped
+	update comment_control
+	set
+	    last_snap = now(),
+	    assigned_on = null
+	where comment_id = _comment_id;
+end;
+$$
+language plpgsql;
+
+-- Reschedule the submission (with the new frequency, if supplied)
+create or replace function
+	reschedule_comment
+(
+	_id			text,
+	_snapshot_frequency int=null,
+	_next_crawl		timestamp=null
+)
+returns void
+as $$
+begin
+	-- Update the detail table to reschedule it (with the new frequency, if supplied)
+	update comment_control t
+	set
+		snapshot_frequency = coalesce(_snapshot_frequency, t.snapshot_frequency),
+		next_snap = last_snap + (coalesce(_next_crawl, t.next_crawl) || ' seconds')::interval
+	where comment_id = _id;
+end;
+$$
+language plpgsql;
+
+-- Schedule a post to be scraped
+create or replace function comment_control_upsert
+(
+	_id			text,
+	_snap_freq	 	int = 300,
+	_next_snap	  	timestamp = null
+)
+returns void
+as $$
+begin
+	-- Insert the row into post_control (if it doesn't exist)
+	insert into comment_control as t
+		(comment_id, snapshot_frequency, next_snap)
+	values
+		(_id, _snap_freq, coalesce(_next_snap, (now() + (_snap_freq * interval '1 second'))))
+	on conflict on constraint comment_control_pkey
+		do update
+		set
+			snapshot_frequency = _snap_freq,
+			next_snap = coalesce(
+				_next_snap,
+				(
+					coalesce(t.last_snap, now())
+					+ (_snap_freq * interval '1 second')
+				)
+			);
 end;
 $$
 language plpgsql;
