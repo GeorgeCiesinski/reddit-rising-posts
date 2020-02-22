@@ -4,8 +4,8 @@
 class Submission:
 	@staticmethod
 	def submission_detail_upsert(pg, submission):
-		# Insert the submission details
 		with pg.cursor() as cur:
+			# Insert the submission details
 			cur.execute(
 				"select submission_detail_upsert(%s, %s, %s, %s, %s, %s)",
 				(
@@ -17,6 +17,9 @@ class Submission:
 					submission.url
 				)
 			)
+
+		# Schedule the submission to get its snapshot scraped
+		Submission.schedule_upsert(pg, submission.id)
 		return True
 
 	@staticmethod
@@ -32,6 +35,9 @@ class Submission:
 					submission.upvote_ratio,
 				)
 			)
+
+		# Reschedule the submission to get scraped again
+		Submission.reschedule(pg, submission.id)
 		return True
 
 	@staticmethod
