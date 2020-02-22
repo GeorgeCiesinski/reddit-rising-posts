@@ -17,6 +17,8 @@ class Comment:
 				)
 			)
 
+		# Schedule the comment to get its snapshot scraped
+		Comment.schedule_upsert(pg, comment.id)
 		return True
 
 	@staticmethod
@@ -33,7 +35,8 @@ class Comment:
 				)
 			)
 
-			# Reschedule the comment
+		# Reschedule the comment
+		Comment.reschedule(pg, comment.id)
 		return True
 
 	@staticmethod
