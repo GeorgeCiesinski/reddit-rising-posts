@@ -20,7 +20,6 @@ class Submission (object):
 		self.url = submission.url
 		self.subreddit = submission.subreddit
 		self.num_comments = submission.num_comments
-		self.comments = submission.comments
 		self.score = submission.score
 		self.upvote_ratio = submission.upvote_ratio
 
