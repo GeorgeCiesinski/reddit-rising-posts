@@ -120,6 +120,10 @@ def get_top(lib=None, praw=None, subreddit=None, time_filter='all', limit=None):
 	return submission_list
 
 
+def submission_db_pull(lib=None, pg=None):
+	pass
+
+
 def submission_snapshot_praw_pull(lib=None, praw=None, submission=None):
 	"""
 	Retreives a submission snapshot by using the submission id
@@ -139,6 +143,19 @@ def submission_snapshot_praw_pull(lib=None, praw=None, submission=None):
 	s = Submission(lib, snapshot)  # Make submission object
 
 	return s  # Return submission object
+
+
+def submission_dp_push(lib=None, pg=None, submission=None):
+	"""
+	Submits detailed submission into database.
+
+	:param lib: Anu's library
+	:param pg: Postgress object
+	:param submission: Submission object
+	:return: submission_inserted: Result of insert
+	:rtype bool:
+	"""
+	pass
 
 
 def submission_snapshot_db_push(lib=None, pg=None, submission=None):
