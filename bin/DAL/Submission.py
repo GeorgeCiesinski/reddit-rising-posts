@@ -11,7 +11,7 @@ class Submission:
 				(
 					submission.id,
 					submission.subreddit,
-					'999',  # submission.author,
+					submission.author,
 					submission.title,
 					submission.created_utc,
 					submission.url

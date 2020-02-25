@@ -1,5 +1,5 @@
 -- Set the app version
-insert into app_control values ('1900-01-01', '0.0.1');
+insert into app_control values ('0.0.1');
 
 -- Insert the data for the praw_threads
 insert into praw_login (client_id, client_secret, username, password, user_agent) values
@@ -11,3 +11,9 @@ insert into praw_login (client_id, client_secret, username, password, user_agent
 
 -- Populate a subreddit
 insert into subreddit (name) values ('science');
+insert into subreddit (name) values ('funny');
+insert into subreddit (name) values ('worldnews');
+insert into subreddit (name) values ('nextfuckinglevel');
+insert into subreddit (name) values ('WatchPeopleDieInside');
+insert into subreddit (name) values ('dataisbeautiful');
+insert into subreddit (name) values ('datahoarder');
