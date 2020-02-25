@@ -1,5 +1,6 @@
 from bin.Submission import Submission
 from bin.DAL.Submission import Submission as DAL_submission
+from bin.DAL.Queue import Queue as DAL_queue
 
 """
 Submission functions: retrieves submission from subreddit
@@ -107,26 +108,56 @@ def get_top(lib=None, praw=None, subreddit=None, time_filter='all', limit=None):
 	except Exception as e:
 		lib.write_log("Failed to get top submissions due to the exception: {}".format(str(e)))
 		return None
-	submission_list = []
+
+	submission_list = []  # Create empty submission list
 
 	# Make submissions objects
 	for submission in submissions:
-		s = Submission(lib, submission)
-		submission_list.append(s)
-		lib.write_log(s.title)
+		s = Submission(lib, submission)  # Create submission object
+		submission_list.append(s)  # Append object to submission_list
+		lib.write_log(s.title)  # Write log
 	lib.write_log("Completed subreddit {}".format(subreddit))
 
 	# Return submissions list
 	return submission_list
 
 
-def submission_db_pull(lib=None, pg=None):
-	pass
+def submission_db_pull(lib=None, pg=None, limit=10):
+	"""
+	Retrieves a list of submissions that needs their snapshot taken from database
+
+	:param lib: Anu's library
+	:param pg: Praw object
+	:param limit: Number of submissions to retrieve
+	:return submission_list: List of submission objects
+	"""
+
+	# Ensure lib, praw_instance and submission_id are not none
+	if (lib is None) or (pg is None):
+		return None
+
+	submission_list = []
+
+	try:
+		submissions = DAL_queue.submission_schedule_get(pg, limit)
+	except Exception:
+		lib.write_log("Robbie's submission_schedule_get probably fucked up.")
+		raise
+	else:
+
+		for submission in submissions:
+
+			s = Submission(lib, submission)
+			submission_list.append(s)
+
+		lib.write_log("Retrieved {} submissions from the database pending snapshots.".format(limit))
+
+		return submission_list
 
 
 def submission_snapshot_praw_pull(lib=None, praw=None, submission=None):
 	"""
-	Retreives a submission snapshot by using the submission id
+	Retrieves a submission snapshot from Reddit by using the submission id
 
 	:param lib: Anu's library
 	:param praw: Praw object
@@ -155,7 +186,15 @@ def submission_dp_push(lib=None, pg=None, submission=None):
 	:return: submission_inserted: Result of insert
 	:rtype bool:
 	"""
-	pass
+
+	try:
+		submission_upserted = DAL_submission.submission_detail_upsert(pg, submission)
+	except Exception:
+		lib.write_log("Robbie's submission_detail_upsert probably fucked up.")
+		raise
+	else:
+		lib.write_log("Successfully upserted submission to database.")
+		return submission_upserted
 
 
 def submission_snapshot_db_push(lib=None, pg=None, submission=None):

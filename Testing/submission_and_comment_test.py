@@ -30,14 +30,14 @@ class SubmissionFunctionUnitTest():
         # Prints test name
         print('\nTesting results for SubmissionFunctions.py : ')
 
-        # Tests get_hot
-        self.test_get_hot(lib, reddit, sr, limit)
-
-        # Tests get_rising
-        self.test_get_rising(lib, reddit, sr, limit)
-
-        # Tests get_top
-        self.test_get_top(lib, reddit, sr, limit)
+        # # Tests get_hot
+        # self.test_get_hot(lib, reddit, sr, limit)
+        #
+        # # Tests get_rising
+        # self.test_get_rising(lib, reddit, sr, limit)
+        #
+        # # Tests get_top
+        # self.test_get_top(lib, reddit, sr, limit)
 
         # Tests submission_snapshot_praw_pull
         self.test_submission_snapshot_praw_pull(lib, reddit, submission)
@@ -45,7 +45,11 @@ class SubmissionFunctionUnitTest():
         # Tests submission_snapshot_db_push
         self.test_submission_snapshot_db_push(lib, submission)
 
-        pass
+        # Tests submission db pull
+        self.test_submission_db_pull(lib)
+
+        # Tests submission db push
+        self.test_submission_db_push
 
     @staticmethod
     def test_get_hot(lib, reddit, subreddit, limit):
@@ -125,6 +129,23 @@ class SubmissionFunctionUnitTest():
         print('\nResults of submission_snapshot_db_push: ')
         print(f"Insert successful: {test_result}")
 
+    @staticmethod
+    def test_submission_db_pull(lib):
+
+        with Pg.pg_connect() as db:
+            test_result = SubmissionFunctions.submission_db_pull(lib, db, 10)
+
+        print('\nResults of submission_db_pull: ')
+        print(f"Upsert successful: {test_result}")
+
+    @staticmethod
+    def test_submission_db_push(lib, submission):
+
+        with Pg.pg_connect() as db:
+            test_result = SubmissionFunctions.submission_dp_push(lib, db, submission)
+
+        print('\nResults of submission_db_pull: ')
+        print(f"Upsert successful: {test_result}")
 
 class CommentFunctionsUnitTest():
     """Test for CommentFunctions.py"""
@@ -141,10 +162,10 @@ class CommentFunctionsUnitTest():
         self.test_get_root_comments(lib, submission)
 
         # tests comment_db_push
-        #self.test_comment_db_push(lib, submission)
+        self.test_comment_db_push(lib, submission)
 
         # tests comment_snapshot_db_push
-        #self.test_comment_snapshot_db_push(lib, submission)
+        self.test_comment_snapshot_db_push(lib, submission)
 
     @staticmethod
     def test_get_all_comments(lib, submission, replace_more):
@@ -243,7 +264,7 @@ if __name__ == "__main__":
 
     # SubmissionFunctions.py Unit Test
     sf = SubmissionFunctionUnitTest(lib, praw, sr, submission, limit)
-    cf = CommentFunctionsUnitTest(lib, submission, replace_more)
+    # cf = CommentFunctionsUnitTest(lib, submission, replace_more)
 
     # Cleanup
     lib.end()
