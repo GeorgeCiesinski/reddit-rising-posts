@@ -453,7 +453,7 @@ language plpgsql;
 create or replace function
 	reschedule_comment
 (
-	_id			text,
+	_id				text,
 	_snapshot_frequency int=null,
 	_next_crawl		timestamp=null
 )

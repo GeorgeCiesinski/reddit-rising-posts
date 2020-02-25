@@ -13,7 +13,7 @@ create table app_control
 );
 
 
-create table praw_logins
+create table praw_login
 (
 	client_id			text primary key,
 	client_secret		text,
