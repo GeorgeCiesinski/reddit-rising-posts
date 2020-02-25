@@ -15,7 +15,10 @@ class Submission (object):
 		:param submission: Submission object
 		"""
 
+		self.lib = lib
+
 		if submission is None:
+
 			self.title = None
 			self.id = None
 			self.url = None
@@ -44,3 +47,22 @@ class Submission (object):
 
 			# created date
 			self.created_utc = submission.created_utc
+
+	def populate_from_praw(self, submission):
+		self.title = submission.title
+		self.id = submission.id
+		self.url = submission.url
+		self.subreddit = submission.subreddit
+		self.num_comments = submission.num_comments
+		self.score = submission.score
+		self.upvote_ratio = submission.upvote_ratio
+
+		try:
+			self.author = submission.author
+		except:
+			# In case author is deleted or otherwise doesn't exist
+			self.author = None
+			self.lib.write_log(f'Submission {submission.id} does not have author.')
+
+		# created date
+		self.created_utc = submission.created_utc

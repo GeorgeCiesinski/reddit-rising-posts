@@ -172,10 +172,9 @@ def submission_snapshot_praw_pull(lib=None, praw=None, submission=None):
 		return None
 
 	snapshot = praw.submission(id=submission.id)  # Get snapshot of submission
+	submission.populate_from_praw(snapshot)  # Populate object from Praw
 
-	s = Submission(lib, snapshot)  # Make submission object
-
-	return s  # Return submission object
+	return submission  # Return submission object
 
 
 def submission_dp_push(lib=None, pg=None, submission=None):
