@@ -380,10 +380,32 @@ returns void
 as $$
 begin
 	-- Upsert the row into post_detail
+	with subreddit_insert as (  -- Try to insert the subreddit if it does not already exist
+        insert into subreddit (name)
+        values (_subreddit_name)
+        on conflict on constraint subreddit_pkey do nothing
+	    returning subreddit_id
+	),
+	sr_id as (  -- Get the ID of the subreddit (either existing, or newly inserted)
+		select subreddit_id as id from subreddit_insert  -- Newly inserted
+	    union all
+	    select subreddit_id as id from subreddit where name=_subreddit_name
+	),
+	user_insert as (  -- Try to insert the user if they do not already exist
+        insert into reddit_user (name)
+        values (_posted_by)
+        on conflict on constraint reddit_user_name_key do nothing
+	    returning id
+	),
+	user_id as (  -- Get the ID of the user (either existing, or newly inserted)
+		select id from user_insert  -- Newly inserted
+	    union all
+	    select id from reddit_user where name=_posted_by
+	)
 	insert into submission_detail as pd
 		(submission_id, subreddit_id, posted_by, title, posted_on, url)
 	values
-		(_sid, 0/*_subreddit_name*/, 0/*_posted_by*/, _title, _posted_on, _url)
+		(_sid, (select id from user_id), (select id from sr_id), _title, _posted_on, _url)
 	on conflict on constraint submission_detail_pkey do
 		update
 		set
@@ -464,7 +486,7 @@ begin
 	update comment_control t
 	set
 		snapshot_frequency = coalesce(_snapshot_frequency, t.snapshot_frequency),
-		next_snap = last_snap + (coalesce(_next_crawl, t.next_crawl) || ' seconds')::interval
+		next_snap = last_snap + (coalesce(_next_crawl, t.next_snap) || ' seconds')::interval
 	where comment_id = _id;
 end;
 $$

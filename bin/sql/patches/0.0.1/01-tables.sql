@@ -28,11 +28,10 @@ create table praw_login
 
 create table reddit_user
 (
-	user_id				text not null primary key,
-	name 				text,
+	id					serial,
+	name 				text unique,
 	inserted_on			timestamp default now()
 );
-create index reddit_user_idx_name on reddit_user (name);
 
 
 -- Both a control and lookup table for the subreddits
