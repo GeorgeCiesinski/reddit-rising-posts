@@ -139,15 +139,17 @@ def submission_db_pull(lib=None, pg=None, limit=10):
 	submission_list = []
 
 	try:
-		submissions = DAL_queue.submission_schedule_get(pg, limit)
+		submission_ids = DAL_queue.submission_schedule_get(pg, limit)  # Get a list of submission IDs
 	except Exception:
 		lib.write_log("Robbie's submission_schedule_get probably fucked up.")
 		raise
 	else:
 
-		for submission in submissions:
+		# For submission id in list
+		for s_id in submission_ids:
 
-			s = Submission(lib, submission)
+			s = Submission(lib, None)  # Create empty submission object
+			s.id = s_id  # Change submission id to id from list
 			submission_list.append(s)
 
 		lib.write_log("Retrieved {} submissions from the database pending snapshots.".format(limit))

@@ -15,20 +15,32 @@ class Submission (object):
 		:param submission: Submission object
 		"""
 
-		self.title = submission.title
-		self.id = submission.id
-		self.url = submission.url
-		self.subreddit = submission.subreddit
-		self.num_comments = submission.num_comments
-		self.score = submission.score
-		self.upvote_ratio = submission.upvote_ratio
-
-		try:
-			self.author = submission.author
-		except:
-			# In case author is deleted or otherwise doesn't exist
+		if submission is None:
+			self.title = None
+			self.id = None
+			self.url = None
+			self.subreddit = None
+			self.score = None
+			self.upvote_ratio = None
 			self.author = None
-			lib.write_log(f'Submission {submission.id} does not have author.')
+			self.created_utc = None
 
-		# created date
-		self.created_utc = submission.created_utc
+		else:
+
+			self.title = submission.title
+			self.id = submission.id
+			self.url = submission.url
+			self.subreddit = submission.subreddit
+			self.num_comments = submission.num_comments
+			self.score = submission.score
+			self.upvote_ratio = submission.upvote_ratio
+
+			try:
+				self.author = submission.author
+			except:
+				# In case author is deleted or otherwise doesn't exist
+				self.author = None
+				lib.write_log(f'Submission {submission.id} does not have author.')
+
+			# created date
+			self.created_utc = submission.created_utc
