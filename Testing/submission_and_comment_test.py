@@ -49,7 +49,7 @@ class SubmissionFunctionUnitTest():
         self.test_submission_db_pull(lib)
 
         # Tests submission db push
-        self.test_submission_db_push
+        self.test_submission_db_push(lib, submission)
 
     @staticmethod
     def test_get_hot(lib, reddit, subreddit, limit):
@@ -135,14 +135,22 @@ class SubmissionFunctionUnitTest():
         with Pg.pg_connect() as db:
             test_result = SubmissionFunctions.submission_db_pull(lib, db, 10)
 
-        print('\nResults of submission_db_pull: ')
-        print(f"Upsert successful: {test_result}")
+        result_id_list = []
+
+        print('\nResults of submission_snapshot_db_push: ')
+        for result in test_result:
+            result_id_list.append(result.id)
+
+        print(result_id_list)
+
 
     @staticmethod
     def test_submission_db_push(lib, submission):
 
+        print(f'submission_db_pull, submission subreddit: {submission.subreddit}.')
+
         with Pg.pg_connect() as db:
-            test_result = SubmissionFunctions.submission_dp_push(lib, db, submission)
+            test_result = SubmissionFunctions.submission_db_push(lib, db, submission)
 
         print('\nResults of submission_db_pull: ')
         print(f"Upsert successful: {test_result}")
@@ -219,6 +227,7 @@ class CommentFunctionsUnitTest():
         print('\nResults of comment_snapshot_db_push: ')
         print(f"Upsert successful: {test_result}")
 
+
 if __name__ == "__main__":
     """
     Universal settings
@@ -233,7 +242,8 @@ if __name__ == "__main__":
     # Praw Login
     # Opens connection to db, gets praw login, and closes connection
     with Pg.pg_connect() as db:
-        praw = Praw.praw_login_get(lib,db)
+        Praw.praw_login_release(db)
+        praw = Praw.praw_login_get(lib, db)
 
     # Submission ID
     sub_id = 'ezgp2e'

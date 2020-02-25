@@ -177,7 +177,7 @@ def submission_snapshot_praw_pull(lib=None, praw=None, submission=None):
 	return submission  # Return submission object
 
 
-def submission_dp_push(lib=None, pg=None, submission=None):
+def submission_db_push(lib=None, pg=None, submission=None):
 	"""
 	Submits detailed submission into database.
 
