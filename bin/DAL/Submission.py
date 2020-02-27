@@ -4,19 +4,6 @@
 class Submission:
 	@staticmethod
 	def submission_detail_upsert(pg, submission):
-
-		print("select submission_detail_upsert(%s, %s, %s, %s, %s, %s)" %
-			  (
-				  submission.id,
-				  submission.subreddit,
-				  '999',  # submission.author,
-				  submission.title,
-				  submission.created_utc,
-				  submission.url
-			  ))
-
-		print(f"Subreddit variable type: {type(submission.subreddit)}")
-
 		with pg.cursor() as cur:
 			# Insert the submission details
 			cur.execute(
@@ -24,7 +11,7 @@ class Submission:
 				(
 					submission.id,
 					submission.subreddit,
-					'999',  # submission.author,
+					submission.author,
 					submission.title,
 					submission.created_utc,
 					submission.url
