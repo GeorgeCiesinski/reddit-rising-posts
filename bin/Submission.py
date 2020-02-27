@@ -41,7 +41,7 @@ class Submission (object):
 			self.upvote_ratio = submission.upvote_ratio
 
 			try:
-				self.author = submission.author
+				self.author = str(submission.author)
 			except:
 				# In case author is deleted or otherwise doesn't exist
 				self.author = None
@@ -60,7 +60,7 @@ class Submission (object):
 		self.upvote_ratio = submission.upvote_ratio
 
 		try:
-			self.author = submission.author
+			self.author = str(submission.author)
 		except:
 			# In case author is deleted or otherwise doesn't exist
 			self.author = None
