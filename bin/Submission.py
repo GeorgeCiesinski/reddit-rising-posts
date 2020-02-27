@@ -1,3 +1,5 @@
+from datetime import datetime
+
 """
 Post Object: contains post information
 """
@@ -33,7 +35,7 @@ class Submission (object):
 			self.title = submission.title
 			self.id = submission.id
 			self.url = submission.url
-			self.subreddit = submission.subreddit
+			self.subreddit = str(submission.subreddit)
 			self.num_comments = submission.num_comments
 			self.score = submission.score
 			self.upvote_ratio = submission.upvote_ratio
@@ -46,13 +48,13 @@ class Submission (object):
 				lib.write_log(f'Submission {submission.id} does not have author.')
 
 			# created date
-			self.created_utc = submission.created_utc
+			self.created_utc = datetime.utcfromtimestamp(submission.created_utc).strftime('%Y-%m-%d %H:%M:%S')
 
 	def populate_from_praw(self, submission):
 		self.title = submission.title
 		self.id = submission.id
 		self.url = submission.url
-		self.subreddit = submission.subreddit
+		self.subreddit = str(submission.subreddit)
 		self.num_comments = submission.num_comments
 		self.score = submission.score
 		self.upvote_ratio = submission.upvote_ratio
@@ -65,4 +67,4 @@ class Submission (object):
 			self.lib.write_log(f'Submission {submission.id} does not have author.')
 
 		# created date
-		self.created_utc = submission.created_utc
+		self.created_utc = datetime.utcfromtimestamp(submission.created_utc).strftime('%Y-%m-%d %H:%M:%S')

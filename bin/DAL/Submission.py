@@ -15,6 +15,8 @@ class Submission:
 				  submission.url
 			  ))
 
+		print(f"Subreddit variable type: {type(submission.subreddit)}")
+
 		with pg.cursor() as cur:
 			# Insert the submission details
 			cur.execute(
