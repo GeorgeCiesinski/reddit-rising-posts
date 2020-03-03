@@ -50,5 +50,10 @@ class SubmissionDBPush:
                 if not submission_db_push_q.empty():
                     m_submission = submission_db_push_q.get()
                     #from the submission functions, call the details insert function
+                    try:
+                        SubmissionFunctions.submission_db_push(self.lib,my_db_conneciton,m_submission)
+                        self.lib.write_log("Submission inserted")
+                    except Exception as e:
+                        self.lib.write_log("Submission insertion fail")
 
         pass

@@ -18,7 +18,7 @@ class SubmissionPrawPull:
         :param frame: The execution stack frame
         :return:
         """
-        self.keep_ruinning = False
+        self.keep_running = False
 
     def process_end(self):
         """
@@ -29,7 +29,7 @@ class SubmissionPrawPull:
         exit(0)
 
 
-    def __init__(self, processname=None, submission_praw_pull_q = None, submission_db_push_q = None, comment_db_push_q = None ):
+    def __init__(self, processname=None, submission_praw_pull_q = None, submission_db_push_q = None ):
         """
         Pull submission from praw and put them in submission bd push queue and comment db push queue
         :param processname: Name of this process, used to identify logs.
@@ -37,8 +37,8 @@ class SubmissionPrawPull:
         :param submission_db_push_q: queue of submissions for db push
         :param comment_db_push_q: queue of comment for db push
         """
-        self.keep_ruinning = True #used to keep the process running
-        if (processname is None) or (submission_praw_pull_q is None) or (submission_db_push_q is None) or (comment_db_push_q is None): # make sure all the required parameters are given
+        self.keep_running = True #used to keep the process running
+        if (processname is None) or (submission_praw_pull_q is None) or (submission_db_push_q is None): # make sure all the required parameters are given
             exit(-1)
         signal.signal(signal.SIGTERM, self.sig_handler) #signal handler for terminate
         signal.signal(signal.SIGINT, self.sig_handler)#signal handler for interrupt
@@ -49,9 +49,11 @@ class SubmissionPrawPull:
         with Pg.pg_connect(processname) as my_db_connection:
             self.praw = None
             while self.praw is  None:
-                self.praw = Praw.praw_login_get(self.lib,my_db_connection)
+                self.praw = Praw.praw_login_get(self.lib, my_db_connection)
+                if self.praw is None:
+                    self.lib.sleep(self.lib.get_config_value("SleepOnPrawLoginFail", 60))
 
-        while self.keep_ruinning: # keep this process running
+        while self.keep_running: # keep this process running
             if not submission_praw_pull_q.empty(): #make sure there is a subreddit in the queue
                 subreddit = submission_praw_pull_q.get() #get a subreddit from the queue
                 subreddit_filer = self.lib.get_config_value("SubredditFilter", "top")
@@ -65,19 +67,16 @@ class SubmissionPrawPull:
                     for submission in submission_list:
                         self.lib.write_log("Submission ID '{}'".format(submission.id))
                         submission_db_push_q.put(submission)
-                        comment_db_push_q.put(submission)
                 elif subreddit_filer == "top":
                     submission_list = SubmissionFunctions.get_top(lib=self.lib,praw=self.praw,subreddit=subreddit[0],limit=submission_limit)
                     for submission in submission_list:
                         self.lib.write_log("Submission ID '{}'".format(submission.id))
                         submission_db_push_q.put(submission)
-                        comment_db_push_q.put(submission)
                 elif subreddit_filer == "hot":
                     submission_list = SubmissionFunctions.get_hot(lib=self.lib,praw=self.praw,subreddit=subreddit[0],limit=submission_limit)
                     for submission in submission_list:
                         self.lib.write_log("Submission ID '{}'".format(submission.id))
                         submission_db_push_q.put(submission)
-                        comment_db_push_q.put(submission)
             else:
                 self.lib.sleep(self.lib.get_config_value("SleepOnEmptyQueue",60))
 

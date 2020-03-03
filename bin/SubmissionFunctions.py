@@ -171,7 +171,7 @@ def submission_snapshot_praw_pull(lib=None, praw=None, submission=None):
 	if (lib is None) or (praw is None) or (submission is None):
 		return None
 
-	snapshot = praw.submission(id=submission.id)  # Get snapshot of submission
+	snapshot = praw.submission(id=submission.id[0])  # Get snapshot of submission
 	submission.populate_from_praw(snapshot)  # Populate object from Praw
 
 	return submission  # Return submission object

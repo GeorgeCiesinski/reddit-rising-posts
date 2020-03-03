@@ -9,8 +9,8 @@ from bin.SubmissionPrawPull import SubmissionPrawPull
 from bin.SubmissionDBPull import SubmissionDBPull
 from bin.SubmissionDBPush import SubmissionDBPush
 from bin.SubmissionSnapshotDBPush import SubmissionSnapshotDBPush
-from bin.CommentDBPush import CommentDBPush
-from bin.CommentSnapshotDBPush import CommentSnapshotDBPush
+from bin.SubmissionSnapshotPrawPull import SubmissionSnapshotPrawPull
+
 from bin.DAL import *
 
 # used to listen for ^C to gracefully terminate the program
@@ -44,7 +44,8 @@ def main_exit():
         lib.write_log("Stopping process: {}".format(key))
         running_process = PROCESSLIST[key]
         print("Killing pid : {}".format(running_process.pid))
-        running_process.terminate()
+        cmd = "kill -9 {}".format(running_process.pid)
+        lib.run_os_cmd(cmd)
     db_cleanups()
     lib.end()
     sys.exit()
@@ -72,7 +73,7 @@ def start_subreddit_db_pull():
                 new_process = MP.Process(name=process_name.lower(), target=SubredditDBPull,
                                          args=(process_name, submission_praw_pull_q,))
                 new_process.start()
-                lib.write_log("Staring process {} {}".format(process_name, new_process.pid))
+                lib.write_log("Staring process {} {}".format(new_process.pid, process_name))
                 PROCESSLIST[process_name] = new_process
         # TODO: shutdown the difference
         elif process_count_different > 0:
@@ -84,7 +85,8 @@ def start_subreddit_db_pull():
                         shutdown_count += 1
                         tmp_process = PROCESSLIST[x]
                         lib.write_log("Stopping {}".format(x))
-                        tmp_process.terminate()
+                        cmd = "kill -9 {}".format(tmp_process.pid)
+                        lib.run_os_cmd(cmd)
                         stop_list.append(x)
             for remove_process_from_list in stop_list:
                 del PROCESSLIST[remove_process_from_list]
@@ -110,9 +112,9 @@ def start_submission_parw_pull():
             for x in range(0, abs(process_count_different), 1):
                 process_name = "submission_praw_pull_{}_{}".format(x, lib.get_now().replace(" ", "_").replace(":", "_").replace(".", "_"))
                 new_process = MP.Process(name=process_name.lower(), target=SubmissionPrawPull, args=(
-                process_name, submission_praw_pull_q, submission_db_push_q, comment_db_push_q,))
+                process_name, submission_praw_pull_q, submission_db_push_q,))
                 new_process.start()
-                lib.write_log("Staring process {} {}".format(process_name, new_process.pid))
+                lib.write_log("Staring process {} {}".format(new_process.pid, process_name))
                 PROCESSLIST[process_name] = new_process
         # TODO: shutdown the difference
         elif process_count_different > 0:
@@ -124,7 +126,8 @@ def start_submission_parw_pull():
                         shutdown_count += 1
                         tmp_process = PROCESSLIST[x]
                         lib.write_log("Stopping {}".format(x))
-                        tmp_process.terminate()
+                        cmd = "kill -9 {}".format(tmp_process.pid)
+                        lib.run_os_cmd(cmd)
                         stop_list.append(x)
             for remove_process_from_list in stop_list:
                 del PROCESSLIST[remove_process_from_list]
@@ -150,9 +153,9 @@ def start_submission_snapshot_db_push():
             for x in range(0, abs(process_count_different), 1):
                 process_name = "submission_snapshot_db_push_{}_{}".format(x, lib.get_now().replace(" ", "_").replace(":", "_").replace(".", "_"))
                 new_process = MP.Process(name=process_name.lower(), target=SubmissionSnapshotDBPush, args=(
-                    process_name, comment_db_push_q,))
+                    process_name,submission_snapshot_db_push_q))
                 new_process.start()
-                lib.write_log("Staring process {} {}".format(process_name, new_process.pid))
+                lib.write_log("Staring process {} {}".format(new_process.pid, process_name))
                 PROCESSLIST[process_name] = new_process
         # TODO: shutdown the difference
         elif process_count_different > 0:
@@ -164,23 +167,24 @@ def start_submission_snapshot_db_push():
                         shutdown_count += 1
                         tmp_process = PROCESSLIST[x]
                         lib.write_log("Stopping {}".format(x))
-                        tmp_process.terminate()
+                        cmd = "kill -9 {}".format(tmp_process.pid)
+                        lib.run_os_cmd(cmd)
                         stop_list.append(x)
             for remove_process_from_list in stop_list:
                 del PROCESSLIST[remove_process_from_list]
 
-def start_comment_db_push():
-    # TODO: Start comment db push processs (for the subreddit)
+def start_submission_db_pull():
+    # TODO: Start submission db pull processs
     lib.read_config(lib.USING_CONFIG_FILE)
     # Read for the config how many process should be running
-    process_start_count = lib.get_config_value("commentdbpushprocesscount", 1)
+    process_start_count = lib.get_config_value("submissiondbpullprocesscount", 1)
     if type(process_start_count) is not int:
         process_start_count = 1
 
     # Calculate the running and start process difference
     currently_running_process_count = 0
     for process_key in PROCESSLIST:
-        if "comment_db_push" in process_key:
+        if "submission_db_pull_" in process_key:
             currently_running_process_count += 1
     # action the results
     if currently_running_process_count != process_start_count:
@@ -188,11 +192,11 @@ def start_comment_db_push():
         # TODO: Start the difference
         if process_count_different < 0:
             for x in range(0, abs(process_count_different), 1):
-                process_name = "comment_db_push_{}_{}".format(x, lib.get_now().replace(" ", "_").replace(":", "_").replace(".", "_"))
-                new_process = MP.Process(name=process_name.lower(), target=CommentDBPush, args=(
-                    process_name, comment_db_push_q,))
+                process_name = "submission_db_pull_{}_{}".format(x, lib.get_now().replace(" ", "_").replace(":", "_").replace(".", "_"))
+                new_process = MP.Process(name=process_name.lower(), target=SubmissionDBPull,
+                                         args=(process_name, submission_snapshot_praw_pull_q,))
                 new_process.start()
-                lib.write_log("Staring process {} {}".format(process_name, new_process.pid))
+                lib.write_log("Staring process {} {}".format(new_process.pid, process_name))
                 PROCESSLIST[process_name] = new_process
         # TODO: shutdown the difference
         elif process_count_different > 0:
@@ -200,28 +204,28 @@ def start_comment_db_push():
             stop_list = []
             for x in PROCESSLIST:
                 if shutdown_count is not abs(process_count_different):
-                    if "comment_db_push" in x:
+                    if "submission_db_pull_" in x:
                         shutdown_count += 1
                         tmp_process = PROCESSLIST[x]
                         lib.write_log("Stopping {}".format(x))
-                        tmp_process.terminate()
+                        cmd = "kill -9 {}".format(tmp_process.pid)
+                        lib.run_os_cmd(cmd)
                         stop_list.append(x)
             for remove_process_from_list in stop_list:
                 del PROCESSLIST[remove_process_from_list]
 
-
-def start_comment_snapshot_db_push():
-    # TODO: Start comment snapshot db push processs (for the subreddit)
+def start_submission_snapshot_parw_pull():
+    # TODO: Start submission snapshot praw pull processs (for the subreddit)
     lib.read_config(lib.USING_CONFIG_FILE)
     # Read for the config how many process should be running
-    process_start_count = lib.get_config_value("commentsnapshotdbpushprocesscount", 1)
+    process_start_count = lib.get_config_value("submissionsnapshotprawpullprocesscount", 1)
     if type(process_start_count) is not int:
         process_start_count = 1
 
     # Calculate the running and start process difference
     currently_running_process_count = 0
     for process_key in PROCESSLIST:
-        if "comment_snapshot_db_push" in process_key:
+        if "submission_snapshot_praw_pull" in process_key:
             currently_running_process_count += 1
     # action the results
     if currently_running_process_count != process_start_count:
@@ -229,11 +233,11 @@ def start_comment_snapshot_db_push():
         # TODO: Start the difference
         if process_count_different < 0:
             for x in range(0, abs(process_count_different), 1):
-                process_name = "comment_snapshot_db_push_{}_{}".format(x, lib.get_now().replace(" ", "_").replace(":", "_").replace(".", "_"))
-                new_process = MP.Process(name=process_name.lower(), target=CommentSnapshotDBPush, args=(
-                    process_name, comment_db_push_q,))
+                process_name = "submission_snapshot_praw_pull_{}_{}".format(x, lib.get_now().replace(" ", "_").replace(":", "_").replace(".", "_"))
+                new_process = MP.Process(name=process_name.lower(), target=SubmissionSnapshotPrawPull, args=(
+                process_name, submission_snapshot_praw_pull_q, submission_snapshot_db_push_q,))
                 new_process.start()
-                lib.write_log("Staring process {} {}".format(process_name, new_process.pid))
+                lib.write_log("Staring process {} {}".format(new_process.pid, process_name))
                 PROCESSLIST[process_name] = new_process
         # TODO: shutdown the difference
         elif process_count_different > 0:
@@ -241,15 +245,56 @@ def start_comment_snapshot_db_push():
             stop_list = []
             for x in PROCESSLIST:
                 if shutdown_count is not abs(process_count_different):
-                    if "comment_snapshot_db_push" in x:
+                    if "submission_snapshot_praw_pull" in x:
                         shutdown_count += 1
                         tmp_process = PROCESSLIST[x]
                         lib.write_log("Stopping {}".format(x))
-                        tmp_process.terminate()
+                        cmd = "kill -9 {}".format(tmp_process.pid)
+                        lib.run_os_cmd(cmd)
                         stop_list.append(x)
             for remove_process_from_list in stop_list:
                 del PROCESSLIST[remove_process_from_list]
 
+def start_submission_db_push():
+    # TODO: Start submission snapshot db push processs (for the subreddit)
+    lib.read_config(lib.USING_CONFIG_FILE)
+    # Read for the config how many process should be running
+    process_start_count = lib.get_config_value("submissiondbpushprocesscount", 1)
+    if type(process_start_count) is not int:
+        process_start_count = 1
+
+    # Calculate the running and start process difference
+    currently_running_process_count = 0
+    for process_key in PROCESSLIST:
+        if "submission_db_push" in process_key:
+            currently_running_process_count += 1
+    # action the results
+    if currently_running_process_count != process_start_count:
+        process_count_different = currently_running_process_count - process_start_count
+        # TODO: Start the difference
+        if process_count_different < 0:
+            for x in range(0, abs(process_count_different), 1):
+                process_name = "submission_db_push_{}_{}".format(x, lib.get_now().replace(" ", "_").replace(":", "_").replace(".", "_"))
+                new_process = MP.Process(name=process_name.lower(), target=SubmissionDBPush, args=(
+                    process_name,submission_db_push_q,))
+                new_process.start()
+                lib.write_log("Staring process {} {}".format(new_process.pid, process_name))
+                PROCESSLIST[process_name] = new_process
+        # TODO: shutdown the difference
+        elif process_count_different > 0:
+            shutdown_count = 0
+            stop_list = []
+            for x in PROCESSLIST:
+                if shutdown_count is not abs(process_count_different):
+                    if "submission_db_push" in x:
+                        shutdown_count += 1
+                        tmp_process = PROCESSLIST[x]
+                        lib.write_log("Stopping {}".format(x))
+                        cmd = "kill -9 {}".format(tmp_process.pid)
+                        lib.run_os_cmd(cmd)
+                        stop_list.append(x)
+            for remove_process_from_list in stop_list:
+                del PROCESSLIST[remove_process_from_list]
 
 def process_count_update():
     '''
@@ -266,31 +311,22 @@ def process_count_update():
     #start the submission praw pull process
     start_submission_parw_pull()
 
-    # TODO:  Start submission db push processs
+    #Start submission db push processs
+    start_submission_db_push()
 
     # TODO: Start submission db pull processs
+    start_submission_db_pull()
 
     # TODO: start submission snapshot praw pull process
+    start_submission_snapshot_parw_pull()
 
-    # TODO: start submission snapshot db push process
+    #start submission snapshot db push process
     start_submission_snapshot_db_push()
-
-    # TODO: start comment db push process
-    start_comment_db_push()
-
-    # TODO: start comment db pull process
-
-    # TODO: start comment snapshot praw pull process
-
-    # TODO: start comment snapshot db push process
-    start_comment_snapshot_db_push()
 
     # TODO: Start subreddit scheduler
 
     # TODO: Start submission scheduler
     
-
-
 # Main of the program
 if __name__ == '__main__':
     # Signal Listener
@@ -310,12 +346,10 @@ if __name__ == '__main__':
     submission_snapshot_praw_pull_q = MP.Queue()
     submission_snapshot_db_push_q = MP.Queue()
 
-    comment_praw_pull_q = MP.Queue()
-
-    comment_db_push_q = MP.Queue()
-
-    comment_snapshot_praw_pull_q = MP.Queue()
-    comment_snapshot_db_push_q = MP.Queue()
+    #comment_praw_pull_q = MP.Queue()
+    #comment_db_push_q = MP.Queue()
+    #comment_snapshot_praw_pull_q = MP.Queue()
+    #comment_snapshot_db_push_q = MP.Queue()
 
 
     #Make my db connection
@@ -344,7 +378,7 @@ if __name__ == '__main__':
         lib.write_error("{} {}".format(error_string,e))
         main_exit()
     # Default message return by the application for invalid commands
-    NOT_VALID_MESSAGE = "Not Valid input".encode(ENCODING)
+    NOT_VALID_MESSAGE = "Not A Valid input".encode(ENCODING)
     # For each connection (keep looping to listen for new connections)
 
    #TODO: Break out below to functions ###############
@@ -366,6 +400,7 @@ if __name__ == '__main__':
         with conn:
             while True:
                 # Get data from connection
+                lib.write_log("Waiting for data....")
                 data = conn.recv(1024)
                 if not data:
                     break
@@ -376,6 +411,7 @@ if __name__ == '__main__':
 
                 # TODO: ensure there is some data to action
                 if len(parts) < 1:
+                    lib.write_log("Not valid: {}".format(NOT_VALID_MESSAGE))
                     conn.sendall(NOT_VALID_MESSAGE)
                     conn.close()
                     break
@@ -401,6 +437,7 @@ if __name__ == '__main__':
                         return_string = ""
                         if len(PROCESSLIST) == 0:
                             return_string = "No processes"
+                            lib.write_log(return_string)
                             conn.sendall(return_string.encode(ENCODING))
                             conn.close()
                             break
@@ -421,6 +458,7 @@ if __name__ == '__main__':
                         process_count_update()
                         if len(PROCESSLIST) == 0:
                             return_string = "No processes"
+                            lib.write_log(return_string)
                             conn.sendall(return_string.encode(ENCODING))
                             conn.close()
                             break
@@ -467,26 +505,6 @@ if __name__ == '__main__':
                         except:
                             return_string = "{}submission_snapshot_db_push_q = {}\n".format(return_string, "Unknown")
 
-                        try:
-                            return_string = "{}comment_praw_pull_q = {}\n".format(return_string, comment_praw_pull_q.qsize())
-                        except:
-                            return_string = "{}comment_praw_pull_q = {}\n".format(return_string, "Unknown")
-
-                        try:
-                            return_string = "{}comment_db_push_q = {}\n".format(return_string, comment_db_push_q.qsize())
-                        except:
-                            return_string = "{}comment_db_push_q = {}\n".format(return_string, "Unknown")
-
-                        try:
-                            return_string = "{}comment_snapshot_praw_pull_q = {}\n".format(return_string, comment_snapshot_praw_pull_q.qsize())
-                        except:
-                            return_string = "{}comment_snapshot_praw_pull_q = {}\n".format(return_string, "Unknown")
-
-                        try:
-                            return_string = "{}comment_snapshot_db_push_q = {}\n".format(return_string, comment_snapshot_db_push_q.qsize())
-                        except:
-                            return_string = "{}comment_snapshot_db_push_q = {}\n".format(return_string, "Unknown")
-
                         lib.write_log(return_string)
                         conn.sendall(return_string.encode(ENCODING))
                         conn.close()
@@ -500,6 +518,11 @@ if __name__ == '__main__':
                         conn.sendall(return_string.encode(ENCODING))
                         conn.close()
                         break
+
+                lib.write_log("Not valid: {}".format(NOT_VALID_MESSAGE))
+                conn.sendall(NOT_VALID_MESSAGE)
+                conn.close()
+                break
 
 # Don't import this file, run it directly
 if __name__ == "RedditRisingPost":
