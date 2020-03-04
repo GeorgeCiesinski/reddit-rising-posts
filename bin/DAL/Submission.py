@@ -63,7 +63,7 @@ class Submission:
 
 			# Insert the comment snapshot
 			cur.execute(
-				"select reschedule_comment(%s, %s, %s)",
+				"select reschedule_submission(%s, %s, %s)",
 				(
 					submission_id,
 					snapshot_frequency,

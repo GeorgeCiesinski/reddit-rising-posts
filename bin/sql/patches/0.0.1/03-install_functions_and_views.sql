@@ -243,13 +243,13 @@ begin
 		limit (_row_limit)
 	)
 	-- Claim the subreddits
-	update subreddit
+	update subreddit s
 	set	assigned_on = now()
 	from
 		subreddit p
 		join sr
 			on (sr.name=p.name)
-	returning p.name, p.last_crawled;
+	returning s.name, s.last_crawled;
 end;
 $$
 language plpgsql;
@@ -329,8 +329,9 @@ begin
 	-- Update the detail table to reschedule it (with the new frequency, if supplied)
 	update submission_control t
 	set
+		next_snap = coalesce(_next_crawl, t.last_snap +  (coalesce(_snapshot_frequency, t.snapshot_frequency) || 'seconds')::interval),
 		snapshot_frequency = coalesce(_snapshot_frequency, t.snapshot_frequency),
-		next_snap = last_snap + (coalesce(_next_crawl, t.next_crawl) || ' seconds')::interval
+		updated_on = now()
 	where submission_id = _sid;
 end;
 $$

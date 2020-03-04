@@ -152,7 +152,7 @@ def submission_db_pull(lib=None, pg=None, limit=10):
 			s.id = s_id  # Change submission id to id from list
 			submission_list.append(s)
 
-		lib.write_log("Retrieved {} submissions from the database pending snapshots.".format(limit))
+		lib.write_log("Retrieved {} submissions from the database pending snapshots.".format(len(submission_ids)))
 
 		return submission_list
 

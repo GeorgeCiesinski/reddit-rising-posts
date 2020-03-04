@@ -57,7 +57,7 @@ class SubmissionDBPull:
         with Pg.pg_connect(processname) as my_db_connection:
             # TODO: write code for the file here
             while self.keep_running:  # keep this process running
-                list_of_submissions = SubmissionFunctions.submission_db_pull(self.lib, my_db_connection,limit=10)  # pull a list of submissions from the database
+                list_of_submissions = SubmissionFunctions.submission_db_pull(self.lib, my_db_connection,limit=self.lib.get_config_value("SubmissionLimit",10))  # pull a list of submissions from the database
                 self.lib.write_log("Got Submission: {}".format(list_of_submissions))
                 for subreddit in list_of_submissions:
                     submission_snapshot_praw_pull_q.put(subreddit)  # put the submission into the queue for SubmissionSnapshotPrawPull
