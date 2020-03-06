@@ -15,9 +15,9 @@ class Queue:
 
 	#
 	@staticmethod
-	def subreddit_schedule_release(pg, subreddit=''):
+	def subreddit_schedule_release(pg, subreddit='', last_crawled=None):
 		with pg.cursor() as cur:
-			cur.execute("select subreddit_schedule_release(%s)", (subreddit, ))
+			cur.execute("select subreddit_schedule_release(%s, %s)", (subreddit, last_crawled))
 		return True
 
 	#
