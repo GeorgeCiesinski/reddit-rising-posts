@@ -70,7 +70,8 @@ language plpgsql;
 
 create or replace function subreddit_schedule_release
 	(
-		_subreddit_name text default ''
+		_subreddit_name text default '',
+		_last_crawled   timestamp default null
 	)
 returns void
 as $$
@@ -80,7 +81,8 @@ begin
 		update
 			subreddit
 		set
-			next_crawl = last_crawled + (snapshot_frequency || ' seconds')::interval,
+		    last_crawled = coalesce(_last_crawled, last_crawled),
+			next_crawl = coalesce(_last_crawled, last_crawled) + (snapshot_frequency || ' seconds')::interval,
 			assigned_on = null
 		where
 			assigned_on is not null;
@@ -89,7 +91,8 @@ begin
 		update
 			subreddit
 		set
-			next_crawl = last_crawled + (snapshot_frequency || ' seconds')::interval,
+			last_crawled = coalesce(_last_crawled, last_crawled),
+			next_crawl = coalesce(_last_crawled, last_crawled) + (snapshot_frequency || ' seconds')::interval,
 			assigned_on = null
 		where
 			name = _subreddit_name;
@@ -243,13 +246,13 @@ begin
 		limit (_row_limit)
 	)
 	-- Claim the subreddits
-	update subreddit
+	update subreddit s
 	set	assigned_on = now()
 	from
 		subreddit p
 		join sr
 			on (sr.name=p.name)
-	returning p.name, p.last_crawled;
+	returning s.name, s.last_crawled;
 end;
 $$
 language plpgsql;
@@ -302,7 +305,7 @@ begin
 	-- Insert the snapshot
 	insert into submission_snapshot
 		(submission_id, snapped_on, score, num_comments, upvote_ratio)
-	values 
+	values
 		(_sid, now(), _score, _num_comments, _upvote_ratio);
 
 	-- Release and update the schedule table to mark when the last snapshot was scraped
@@ -329,8 +332,9 @@ begin
 	-- Update the detail table to reschedule it (with the new frequency, if supplied)
 	update submission_control t
 	set
+		next_snap = coalesce(_next_crawl, t.last_snap +  (coalesce(_snapshot_frequency, t.snapshot_frequency) || 'seconds')::interval),
 		snapshot_frequency = coalesce(_snapshot_frequency, t.snapshot_frequency),
-		next_snap = last_snap + (coalesce(_next_crawl, t.next_crawl) || ' seconds')::interval
+		updated_on = now()
 	where submission_id = _sid;
 end;
 $$
