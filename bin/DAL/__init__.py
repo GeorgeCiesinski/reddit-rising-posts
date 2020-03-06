@@ -1,13 +1,11 @@
 #!/user/bin/python3
 
-import psycopg2
 from bin.DAL.Pg import Pg
 from bin.DAL.Helper import Helper
 from bin.DAL.Maintenance import Maintenance
 from bin.DAL.Praw import Praw
 from bin.DAL.Queue import Queue
 from bin.DAL.Submission import Submission
-from bin.DAL.Comment import Comment
 
 
 class DAL:
