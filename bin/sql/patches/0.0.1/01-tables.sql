@@ -99,46 +99,5 @@ create table submission_snapshot
 
 
 
-/*
-Comments
-*/
--- Control table for comments that are actively being monitored
-create table comment_control
-(
-	comment_id			text not null primary key,
-	assigned_on	        timestamp default null,
-	snapshot_frequency	int default 300,
-	last_snap			timestamp default null,
-	next_snap			timestamp default now(),
-	inserted_on			timestamp default now(),
-	updated_on			timestamp default now()
-);
-create index comment_control_idx_crawl on comment_control (next_snap);
-create index comment_control_idx_assigned_on on comment_control (assigned_on);
-create index comment_control_idx_inserted_on on comment_control (inserted_on);
-
-
--- Snapshot details for comments being actively monitored
-create table comment_snapshot
-(
-    comment_id 			text,
-    score				int,
-    snapped_on			timestamp,
-    primary key (comment_id, snapped_on)
-);
-
-
-
--- Details about the comments
-create table comment_detail
-(
-	comment_id		text not null primary key,
-	submission_id	text,
-	posted_on		timestamp,
-	inserted_on		timestamp default now(),
-	updated_on		timestamp default now()
-);
-create index comment_detail_idx_submission_id on comment_detail (submission_id);
-
 grant all privileges on all tables in schema public to rr_pool;
-select 'drop table '||tablename||';' from pg_catalog.pg_tables where schemaname='public';
+-- select 'drop table '||tablename||';' from pg_catalog.pg_tables where schemaname='public';

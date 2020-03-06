@@ -5,7 +5,6 @@ from bin.DAL.Pg import Pg
 from bin.DAL.Praw import Praw
 from bin.DAL.Queue import Queue
 from bin.DAL.Submission import Submission
-from bin.DAL.Comment import Comment
 
 
 # Test data:
@@ -44,7 +43,7 @@ with Pg.pg_connect() as pg:
 	# Insert a submission
 	print(Submission.submission_detail_upsert(pg, my_submission))
 	print(Submission.submission_snapshot_insert(pg, my_submission))
-	print(Submission.submission_schedule_set(pg, my_submission, 60))
+	print(Submission.reschedule(pg, my_submission, 60))
 
 	# Release all scheduled submissions
 	print(Queue.submission_schedule_release(pg, None))
@@ -53,10 +52,6 @@ with Pg.pg_connect() as pg:
 	print(qsub)
 	# Release one of the submissions
 	print(Queue.submission_schedule_release(pg, my_submission))
-
-	# Insert a comment
-	print(Comment.comment_detail_upsert(pg, my_comment))
-	print(Comment.comment_snapshot_insert(pg, my_comment))
 
 	# Clean up
 	Praw.praw_login_release(pg, 0)
