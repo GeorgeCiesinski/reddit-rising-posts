@@ -3,7 +3,6 @@ from bin.DAL.Praw import Praw
 from bin.DAL.Pg import Pg
 from bin.Submission import Submission
 import bin.SubmissionFunctions as SubmissionFunctions
-import bin.CommentFunctions as CommentFunctions
 from bin.LIB import LIB
 
 
@@ -155,78 +154,6 @@ class SubmissionFunctionUnitTest():
         print('\nResults of submission_db_pull: ')
         print(f"Upsert successful: {test_result}")
 
-class CommentFunctionsUnitTest():
-    """Test for CommentFunctions.py"""
-
-    def __init__(self, lib, submission, replace_more):
-
-        # Prints test name
-        print('\nTesting results for CommentFunctions.py : ')
-
-        # Tests get_all_comments
-        self.test_get_all_comments(lib, submission, replace_more)
-
-        # Tests get_root_comments
-        self.test_get_root_comments(lib, submission)
-
-        # tests comment_db_push
-        self.test_comment_db_push(lib, submission)
-
-        # tests comment_snapshot_db_push
-        self.test_comment_snapshot_db_push(lib, submission)
-
-    @staticmethod
-    def test_get_all_comments(lib, submission, replace_more):
-
-        # Gets Comment List
-        comment_list = CommentFunctions.get_all_comments(lib, submission, replace_more)
-
-        # Testing
-        assert isinstance(comment_list, list)
-
-        # Print a few comments
-
-        print('\nResults of get_all_comments')
-        for x in range(4):
-            print(comment_list[x].id)
-
-        print(f'The total number of comments is: {len(comment_list)}')
-
-    @staticmethod
-    def test_get_root_comments(lib, submission):
-
-        # Gets Comment List
-        comment_list = CommentFunctions.get_root_comments(lib, submission)
-
-        # Testing
-        assert isinstance(comment_list, list)
-
-        # Print a few comments
-        print('\nResults of get_root_comments')
-        for x in range(4):
-            print(comment_list[x].id)
-
-        print(f'The total number of root comments is: {len(comment_list)}')
-
-    @staticmethod
-    def test_comment_db_push(lib, submission):
-
-        with Pg.pg_connect() as db:
-
-            test_result = CommentFunctions.comment_db_push(lib, db, submission)
-
-        print('\nResults of comment_db_push: ')
-        print(f"Upsert successful: {test_result}")
-
-    @staticmethod
-    def test_comment_snapshot_db_push(lib, submission):
-
-        with Pg.pg_connect() as db:
-            test_result = CommentFunctions.comment_snapshot_db_push(lib, db, submission)
-
-        print('\nResults of comment_snapshot_db_push: ')
-        print(f"Upsert successful: {test_result}")
-
 
 if __name__ == "__main__":
     """
@@ -274,7 +201,6 @@ if __name__ == "__main__":
 
     # SubmissionFunctions.py Unit Test
     sf = SubmissionFunctionUnitTest(lib, praw, sr, submission, limit)
-    # cf = CommentFunctionsUnitTest(lib, submission, replace_more)
 
     # Cleanup
     lib.end()
