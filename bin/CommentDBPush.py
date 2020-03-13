@@ -5,7 +5,6 @@ Description: Used to push comment entires into the database
 import signal
 from sys import exit
 
-import bin.CommentFunctions as CommentFunctions
 from bin.LIB import LIB
 from bin.DAL import *
 
