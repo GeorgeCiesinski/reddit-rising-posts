@@ -4,6 +4,7 @@ Description: Used to Submission snapshots or source
 
 import signal
 from sys import exit
+import datetime
 
 import bin.SubmissionFunctions as SubmissionFunctions
 from bin.LIB import LIB
@@ -60,24 +61,28 @@ class SubmissionPrawPull:
                 except:
                     submission_limit = 10
                 self.lib.write_log("{} {} {}".format(subreddit[0], subreddit_filer, submission_limit))
-                if subreddit_filer == "rising":
+                if subreddit_filer.lower() == "rising":
                     submission_list = SubmissionFunctions.get_rising(lib=self.lib,praw=self.praw,subreddit=subreddit[0],limit=submission_limit)
                     for submission in submission_list:
                         self.lib.write_log("Submission ID '{}'".format(submission.id))
                         submission_db_push_q.put(submission)
                         comment_db_push_q.put(submission)
-                elif subreddit_filer == "top":
+                elif subreddit_filer.lower() == "top":
                     submission_list = SubmissionFunctions.get_top(lib=self.lib,praw=self.praw,subreddit=subreddit[0],limit=submission_limit)
                     for submission in submission_list:
                         self.lib.write_log("Submission ID '{}'".format(submission.id))
                         submission_db_push_q.put(submission)
                         comment_db_push_q.put(submission)
-                elif subreddit_filer == "hot":
+                elif subreddit_filer.lower() == "hot":
                     submission_list = SubmissionFunctions.get_hot(lib=self.lib,praw=self.praw,subreddit=subreddit[0],limit=submission_limit)
                     for submission in submission_list:
                         self.lib.write_log("Submission ID '{}'".format(submission.id))
                         submission_db_push_q.put(submission)
                         comment_db_push_q.put(submission)
+
+                with Pg.pg_connect(processname) as my_db_connection:
+                    Queue.subreddit_schedule_release(my_db_connection, str(subreddit), str(datetime.datetime.now()))
+
             else:
                 self.lib.sleep(self.lib.get_config_value("SleepOnEmptyQueue",60))
 
