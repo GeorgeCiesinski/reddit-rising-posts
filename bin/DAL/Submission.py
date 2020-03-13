@@ -3,7 +3,7 @@
 
 class Submission:
 	@staticmethod
-	def submission_detail_upsert(pg, submission):
+	def submission_detail_upsert(pg, submission) -> bool:
 		with pg.cursor() as cur:
 			# Insert the submission details
 			cur.execute(
@@ -23,7 +23,7 @@ class Submission:
 		return True
 
 	@staticmethod
-	def submission_snapshot_insert(pg, submission):
+	def submission_snapshot_insert(pg, submission) -> bool:
 		with pg.cursor() as cur:
 			# Insert the snapshot of the submission
 			cur.execute(
@@ -41,7 +41,7 @@ class Submission:
 		return True
 
 	@staticmethod
-	def schedule_upsert(pg, submission_id: str, snapshot_frequency: int = 300, next_snap=None) -> bool:
+	def schedule_upsert(pg, submission_id: str, snapshot_frequency: int = 300, next_snap: str = None) -> bool:
 		with pg.cursor() as cur:
 			# TODO: validate the input datatypes
 
