@@ -83,7 +83,7 @@ class SubmissionPrawPull:
                 try:
                     # Call subreddit_schedule_release to inform the DB that the subreddit has been crawled and to release and reschedule it
                     with Pg.pg_connect(processname) as my_db_connection:
-                        Queue.subreddit_schedule_release(my_db_connection, str(subreddit), str(datetime.datetime.now()))
+                        Queue.subreddit_schedule_release(my_db_connection, str(subreddit[0]), str(datetime.datetime.now()))
                 except Exception:
                     self.lib.write_log("Failed to release and reschedule the subreddit due to the exception: ")
                     self.lib.write_log(Exception)
