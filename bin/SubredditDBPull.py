@@ -36,7 +36,7 @@ class SubredditDBPull:
         signal.signal(signal.SIGTERM, self.sig_handler) #signal handler for terminate
         signal.signal(signal.SIGINT, self.sig_handler) #siignal handler for interrupt
         self.configfile = "config/SubredditDBPull.cfg"
-        self.outfile_name = "{}_out.log".format(processname)
+        self.outfile_name = "{}_output.log".format(processname)
         self.errorfile_name = "{}_error.log".format(processname)
         self.lib = LIB(cfg=self.configfile,out_log=self.outfile_name,err_log=self.errorfile_name) # make a lib instance
 

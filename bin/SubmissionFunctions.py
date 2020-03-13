@@ -152,7 +152,7 @@ def submission_db_pull(lib=None, pg=None, limit=10):
 			s.id = s_id  # Change submission id to id from list
 			submission_list.append(s)
 
-		lib.write_log("Retrieved {} submissions from the database pending snapshots.".format(limit))
+		lib.write_log("Retrieved {} submissions from the database pending snapshots.".format(len(submission_ids)))
 
 		return submission_list
 
@@ -171,7 +171,7 @@ def submission_snapshot_praw_pull(lib=None, praw=None, submission=None):
 	if (lib is None) or (praw is None) or (submission is None):
 		return None
 
-	snapshot = praw.submission(id=submission.id)  # Get snapshot of submission
+	snapshot = praw.submission(id=submission.id[0])  # Get snapshot of submission
 	submission.populate_from_praw(snapshot)  # Populate object from Praw
 
 	return submission  # Return submission object
