@@ -52,7 +52,7 @@ def main_exit():
 
 def start_subreddit_db_pull():
     # TODO: Start subreddit db pull processs
-    lib.read_config(lib.USING_CONFIG_FILE)
+    lib.read_config(lib.CFG_IN_USE)
     # Read for the config how many process should be running
     process_start_count = lib.get_config_value("subredditdbpullprocesscount", 1)
     if type(process_start_count) is not int:
@@ -93,7 +93,7 @@ def start_subreddit_db_pull():
 
 def start_submission_parw_pull():
     # TODO: Start submission praw pull processs (for the subreddit)
-    lib.read_config(lib.USING_CONFIG_FILE)
+    lib.read_config(lib.CFG_IN_USE)
     # Read for the config how many process should be running
     process_start_count = lib.get_config_value("submissionprawpullprocesscount", 1)
     if type(process_start_count) is not int:
@@ -134,7 +134,7 @@ def start_submission_parw_pull():
 
 def start_submission_snapshot_db_push():
     # TODO: Start submission snapshot db push processs (for the subreddit)
-    lib.read_config(lib.USING_CONFIG_FILE)
+    lib.read_config(lib.CFG_IN_USE)
     # Read for the config how many process should be running
     process_start_count = lib.get_config_value("submissionsnapshotdbpushprocesscount", 1)
     if type(process_start_count) is not int:
@@ -175,7 +175,7 @@ def start_submission_snapshot_db_push():
 
 def start_submission_db_pull():
     # TODO: Start submission db pull processs
-    lib.read_config(lib.USING_CONFIG_FILE)
+    lib.read_config(lib.CFG_IN_USE)
     # Read for the config how many process should be running
     process_start_count = lib.get_config_value("submissiondbpullprocesscount", 1)
     if type(process_start_count) is not int:
@@ -216,7 +216,7 @@ def start_submission_db_pull():
 
 def start_submission_snapshot_parw_pull():
     # TODO: Start submission snapshot praw pull processs (for the subreddit)
-    lib.read_config(lib.USING_CONFIG_FILE)
+    lib.read_config(lib.CFG_IN_USE)
     # Read for the config how many process should be running
     process_start_count = lib.get_config_value("submissionsnapshotprawpullprocesscount", 1)
     if type(process_start_count) is not int:
@@ -257,7 +257,7 @@ def start_submission_snapshot_parw_pull():
 
 def start_submission_db_push():
     # TODO: Start submission snapshot db push processs (for the subreddit)
-    lib.read_config(lib.USING_CONFIG_FILE)
+    lib.read_config(lib.CFG_IN_USE)
     # Read for the config how many process should be running
     process_start_count = lib.get_config_value("submissiondbpushprocesscount", 1)
     if type(process_start_count) is not int:
@@ -303,8 +303,6 @@ def process_count_update():
     :return: None
     '''
 
-    #print("process_count_update")
-
     #start the subreddit db pull process
     start_subreddit_db_pull()
 
@@ -346,12 +344,6 @@ if __name__ == '__main__':
     submission_snapshot_praw_pull_q = MP.Queue()
     submission_snapshot_db_push_q = MP.Queue()
 
-    #comment_praw_pull_q = MP.Queue()
-    #comment_db_push_q = MP.Queue()
-    #comment_snapshot_praw_pull_q = MP.Queue()
-    #comment_snapshot_db_push_q = MP.Queue()
-
-
     #Make my db connection
 
     #TODO: Clear in DB -- subreddit_schedule, submission_schedule, comment_schedule, praw_logs
@@ -380,16 +372,6 @@ if __name__ == '__main__':
     # Default message return by the application for invalid commands
     NOT_VALID_MESSAGE = "Not A Valid input".encode(ENCODING)
     # For each connection (keep looping to listen for new connections)
-
-   #TODO: Break out below to functions ###############
-    ###############
-
-    ## def process_list (print process_object)
-        ## get each process status and print to screen
-    ## def process_restart (print process_object)
-        ## send and wait for process to stop
-        ## update the import for that file
-        ## start the process
 
     # Each new connection is a one time transaction. A request is made, the result is sent, and the connection is closed
     while True:
@@ -513,7 +495,7 @@ if __name__ == '__main__':
                 if len(parts) == 2:
                     # TODO: request to stop a process (data collector)
                     if parts[0] == "stop":
-                        return_string = "No avalible"
+                        return_string = "No available"
                         lib.write_log(return_string)
                         conn.sendall(return_string.encode(ENCODING))
                         conn.close()
